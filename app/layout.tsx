@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lora, Poppins, Space_Grotesk } from "next/font/google";
+import { Inter, Lato, Lora, Poppins, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import PrelineScript from "@/components/PrelineScript";
 
@@ -25,6 +25,12 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["400", "700"],
 });
 
+const lato = Lato({
+  variable: "--font-open-sans",
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+});
+
 export const metadata: Metadata = {
   title: "Condor AI",
   description: "Condor AI",
@@ -36,12 +42,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${inter.variable} ${lora.variable} ${poppins.variable} ${spaceGrotesk.variable} antialiased`}
-      >
-        {children}
-      </body>
+    <html
+      lang="en"
+      className={`${inter.variable} ${lora.variable} ${poppins.variable} ${spaceGrotesk.variable} ${lato.variable} antialiased`}
+    >
+      <body>{children}</body>
       <PrelineScript />
     </html>
   );
