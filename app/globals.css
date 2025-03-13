@@ -7,48 +7,92 @@
 @plugin "@tailwindcss/forms";
 
 /* Definir las fuentes usando Tailwind */
-:root {
-  --font-title: var(--font-inter);
-  --font-paragraph: var(--font-lora);
-  --font-button: var(--font-poppins);
-  --font-special: var(--font-space-grotesk);
+@theme {
+  --font-title: var(--font-space-grotesk), sans-serif;
+  --font-paragraph: var(--font-inter), sans-serif;
+  --font-button: var(--font-poppins), sans-serif;
+  --font-special: var(--font-lora), serif;
+  --font-lato: var(--font-lato), sans-serif;
+  --font-inter: var(--font-inter), sans-serif;
+
+  /* Paleta de colores oscuros para texto */
+  --color-dark-text-primary: #1e293b; /* Gris muy oscuro, casi negro */
+  --color-dark-text-secondary: #334155; /* Gris oscuro */
+  --color-dark-text-tertiary: #475569; /* Gris medio oscuro */
+  --color-dark-text-muted: #64748b; /* Gris claro oscuro */
+  --color-dark-text-accent: #0f172a; /* Negro azulado muy oscuro */
+
+  /* Colores adicionales (puedes ajustarlos) */
+  --color-primary-50: #edfaff;
+  --color-primary-100: #d6f2ff;
+  --color-primary-200: #b5eaff;
+  --color-primary-300: #83dfff;
+  --color-primary-400: #48cbff;
+  --color-primary-500: #1eadff;
+  --color-primary-600: #068fff;
+  --color-primary-700: #007bff;
+  --color-primary-800: #085ec5;
+  --color-primary-900: #0d519b;
+  --color-primary-950: #0e315d;
+
+  --color-secondary-50: #f4f7fb;
+  --color-secondary-100: #e9eff5;
+  --color-secondary-200: #cedde9;
+  --color-secondary-300: #a2c1d7;
+  --color-secondary-400: #709fc0;
+  --color-secondary-500: #4e84a9;
+  --color-secondary-600: #3c6a8d;
+  --color-secondary-700: #315573;
+  --color-secondary-800: #2c4960;
+  --color-secondary-900: #293e51;
+  --color-secondary-950: #101820;
+
+  --color-silver-50: #f7f7f7;
+  --color-silver-100: #f0f0f0;
+  --color-silver-200: #e3e3e3;
+  --color-silver-300: #d1d1d1;
+  --color-silver-400: #c0c0c0;
+  --color-silver-500: #aaaaaa;
+  --color-silver-600: #969696;
+  --color-silver-700: #818181;
+  --color-silver-800: #6a6a6a;
+  --color-silver-900: #585858;
+  --color-silver-950: #333333;
+
 }
 
-/* Aplicando las fuentes con @apply */
+/* Aplicando las fuentes con @apply y colores oscuros */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  @apply font-title;
+  font-family: var(--font-title);
+  color: var(--color-dark-text-primary); /* Color principal para títulos */
 }
 
 p {
-  @apply font-paragraph;
+  font-family: var(--font-paragraph);
+  color: var(--color-dark-text-secondary); /* Color secundario para párrafos */
 }
 
 button {
-  @apply font-button;
-}
-
-.special-text {
-  @apply font-special;
-}
-
-/* Opcional: si necesitas definirlas como clases personalizadas */
-.font-title {
-  font-family: var(--font-title);
-}
-
-.font-paragraph {
-  font-family: var(--font-paragraph);
-}
-
-.font-button {
   font-family: var(--font-button);
 }
 
-.font-special {
+.special-text {
   font-family: var(--font-special);
+  color: var(
+    --color-dark-text-tertiary
+  ); /* Color terciario para texto especial */
+}
+
+.lato-text {
+  font-family: var(--font-lato);
+  color: var(--color-dark-text-muted); /* Color muted para textos lato */
+}
+
+.accent-text {
+  color: var(--color-dark-text-accent);
 }
