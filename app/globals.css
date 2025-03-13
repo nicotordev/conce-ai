@@ -6,6 +6,7 @@
 /* Plugins */
 @plugin "@tailwindcss/forms";
 
+/* Definir las fuentes usando Tailwind */
 :root {
   --font-title: var(--font-inter);
   --font-paragraph: var(--font-lora);
@@ -13,23 +14,41 @@
   --font-special: var(--font-space-grotesk);
 }
 
+/* Aplicando las fuentes con @apply */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-title);
+  @apply font-title;
 }
 
 p {
-  font-family: var(--font-paragraph);
+  @apply font-paragraph;
 }
 
 button {
-  font-family: var(--font-button);
+  @apply font-button;
 }
 
 .special-text {
+  @apply font-special;
+}
+
+/* Opcional: si necesitas definirlas como clases personalizadas */
+.font-title {
+  font-family: var(--font-title);
+}
+
+.font-paragraph {
+  font-family: var(--font-paragraph);
+}
+
+.font-button {
+  font-family: var(--font-button);
+}
+
+.font-special {
   font-family: var(--font-special);
 }
