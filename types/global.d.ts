@@ -10,11 +10,13 @@ declare global {
   }
   namespace NodeJS {
     interface ProcessEnv {
-        NEXT_PUBLIC_RECAPTCHA_SITE_KEY: string;
-        RECAPTCHA_SECRET_KEY: string;
-        GOOGLE_GENERATIVE_AI_API_KEY: string;
-        GOOGLE_CLIENT_ID: string;
-        GOOGLE_CLIENT_SECRET: string;
+      NODE_ENV: "development" | "production";
+      NEXT_PUBLIC_RECAPTCHA_SITE_KEY: string;
+      RECAPTCHA_SECRET_KEY: string;
+      GOOGLE_GENERATIVE_AI_API_KEY: string;
+      GOOGLE_CLIENT_ID: string;
+      GOOGLE_CLIENT_SECRET: string;
+      ENCRYPTION_KEY: string;
     }
   }
 }
