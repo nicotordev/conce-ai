@@ -42,7 +42,7 @@ model Session {
 
 model User {
   id            String    @id @default(cuid())
-  username      String
+  username      String    @unique
   name          String?
   password      String?
   email         String?   @unique
@@ -52,6 +52,8 @@ model User {
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
   sessions      Session[]
+  Role          Role?     @relation(fields: [roleId], references: [id])
+  roleId        String?
 }
 
 model VerificationRequest {
@@ -63,4 +65,13 @@ model VerificationRequest {
   updatedAt  DateTime @updatedAt
 
   @@unique([identifier, token])
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
 }
