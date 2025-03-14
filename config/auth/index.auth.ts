@@ -9,7 +9,7 @@ import { Adapter } from "next-auth/adapters";
 
 export const nextAuthConfig: NextAuthConfig = {
   adapter: authAdapterPrisma as Adapter,
-  providers: [googleAuthConfig, credentialsAuthConfig],
+  providers: [googleAuthConfig, credentialsAuthConfig,],
   pages: {
     signIn: "/auth/sign-in",
     newUser: "/auth/sign-up",
@@ -18,23 +18,25 @@ export const nextAuthConfig: NextAuthConfig = {
     signOut: "/auth/sign-out",
   },
   callbacks: {
-    async jwt({ user }) {
+    async jwt(params) {
       // Override default jwt callback behavior.
       // Create a session instead and then return that session token for use in the
       // `jwt.encode` callback below.
-      if (user.id) {
+      if (params.user.id) {
         const session = await authAdapterPrisma.createSession?.({
           expires: new Date(Date.now() + authConstants.SESSION_MAX_AGE * 1000),
           sessionToken: v4(),
-          userId: user.id,
+          userId: params.user.id,
+          accessToken: params.account?.access_token || params.token.sub || v4(),
         });
 
         return { id: session?.sessionToken };
       }
       return null;
     },
-    async session({ session: defaultSession, user }) {
-      // Make our own custom session object.
+    async session(params) {
+      const { session: defaultSession, user, token } = params;
+      console.log("session params", params);
       const userSession = await prisma.user.findFirst({
         where: {
           id: user.id,
@@ -43,15 +45,24 @@ export const nextAuthConfig: NextAuthConfig = {
           Role: true,
         },
       });
+
       if (!userSession) {
         throw new Error("User not found");
       }
-      const session: Session = {
-        user: userSession,
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...userWithoutPassword } = userSession;
+
+      // Crear la sesión personalizada
+      const customSession: Session = {
+        user: userWithoutPassword,
         expires: defaultSession.expires,
+        provider: token?.provider as string,
+        accessToken: token?.accessToken as string,
+        refreshToken: token?.refreshToken as string,
       };
 
-      return session;
+      return customSession;
     },
   },
   jwt: {
