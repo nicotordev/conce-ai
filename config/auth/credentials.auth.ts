@@ -7,6 +7,7 @@ import {
 import CredentialsProvider from "next-auth/providers/credentials";
 import slugify from "slugify";
 import bcrypt from "bcryptjs";
+import { User } from "next-auth";
 
 const credentialsAuthConfig = CredentialsProvider({
   id: "credentials",
@@ -73,9 +74,12 @@ const credentialsAuthConfig = CredentialsProvider({
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = user;
+
     return {
-      ...user,
-    };
+      ...rest,
+    } as User;
   },
 });
 
