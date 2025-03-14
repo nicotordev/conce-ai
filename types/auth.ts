@@ -1,4 +1,4 @@
-import { SignUpPageStep } from "./auth.enum";
+import { SignInPageStep, SignUpPageStep } from "./auth.enum";
 type SignUpState = {
   step: SignUpPageStep;
   email: string;
@@ -12,4 +12,13 @@ type SignUpProps = {
   } | null;
 };
 
-export type { SignUpState, SignUpProps };
+type SignInState = {
+  step: SignInPageStep;
+  email: string;
+  password: string;
+} | null;
+type SignInProps = {
+  state: SignInState | null;
+};
+
+export type { SignUpState, SignUpProps, SignInState, SignInProps };
