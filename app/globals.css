@@ -35,17 +35,18 @@
   --color-primary-900: #0d519b;
   --color-primary-950: #0e315d;
 
-  --color-secondary-50: #f4f7fb;
-  --color-secondary-100: #e9eff5;
-  --color-secondary-200: #cedde9;
-  --color-secondary-300: #a2c1d7;
-  --color-secondary-400: #709fc0;
-  --color-secondary-500: #4e84a9;
-  --color-secondary-600: #3c6a8d;
-  --color-secondary-700: #315573;
-  --color-secondary-800: #2c4960;
-  --color-secondary-900: #293e51;
-  --color-secondary-950: #101820;
+  /* Nuevo color secundario: Verde Azulado */
+  --color-secondary-50: #e8f5f0;
+  --color-secondary-100: #c6e8de;
+  --color-secondary-200: #9edbd0;
+  --color-secondary-300: #76ceb2;
+  --color-secondary-400: #59c29b;
+  --color-secondary-500: #42b584;
+  --color-secondary-600: #38a175;
+  --color-secondary-700: #2f8c66;
+  --color-secondary-800: #287757;
+  --color-secondary-900: #236248;
+  --color-secondary-950: #123124;
 
   --color-silver-50: #f7f7f7;
   --color-silver-100: #f0f0f0;
@@ -58,7 +59,6 @@
   --color-silver-800: #6a6a6a;
   --color-silver-900: #585858;
   --color-silver-950: #333333;
-
 }
 
 /* Aplicando las fuentes con @apply y colores oscuros */
