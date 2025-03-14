@@ -14,14 +14,7 @@ const PasswordSchema = z
   .regex(/^\S+$/, "No puede contener espacios");
 
 const CredentialsSchema = z.object({
-  username: z
-    .string()
-    .min(1, "El username no puede estar vacío")
-    .max(20, "El username no puede tener más de 20 caracteres")
-    .regex(
-      /^[a-zA-Z0-9._-]+$/,
-      "El username solo puede contener letras, números, '.', '_' y '-'"
-    ),
+  email: z.string().email("El correo electrónico no es válido"),
   password: z.string().min(1, "La contraseña no puede estar vacía"),
 });
 
