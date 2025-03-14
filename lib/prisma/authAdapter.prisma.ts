@@ -1,22 +1,19 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./index.prisma";
 import { stripUndefined } from "@/utils/objects.utilts";
+import { AdapterUser } from "next-auth/adapters";
 
 const authAdapterPrisma = {
   ...PrismaAdapter(prisma),
-  getUserByEmail: async (email: string): Promise<AdapterUser> => {
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-    return user;
+  getUserByEmail: async (email: string): Promise<AdapterUser | null> => {
+    return prisma.user.findUnique({
+      where: { email },
+      include: { Role: true },
+    }) as Awaitable<AdapterUser>;
   },
-  createUser: async (
-    data: NonNullable<Partial<AdapterUser>>
-  ): Promise<AdapterUser> => {
+  createUser: async (data: Partial<AdapterUser>): Promise<AdapterUser> => {
     const userData = { ...stripUndefined(data) };
-    return await prisma.user.create({
+    const createdUser = prisma.user.create({
       data: {
         ...userData,
         roleId: undefined,
@@ -27,8 +24,12 @@ const authAdapterPrisma = {
           },
         },
       },
+      include: {
+        Role: true,
+      },
     });
+    return createdUser as Awaitable<AdapterUser>;
   },
-};
+}
 
 export default authAdapterPrisma;
