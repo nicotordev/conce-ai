@@ -45,8 +45,14 @@ export default function SignUp({ state }: SignUpProps) {
       setLoadingSignUp(false);
 
       if (signUpResponse.success) {
-        toast.success("Cuenta creada con éxito");
-        return await doSignIn({ email, password });
+        const signInResult = await doSignIn({ email, password });
+
+        if (signInResult.success) {
+          toast.success("Cuenta creada con éxito");
+          window.location.href = signInResult.data;
+        } else {
+          toast.error("Ha ocurrido un error al intentar iniciar sesión");
+        }
       }
 
       if (
@@ -85,6 +91,7 @@ export default function SignUp({ state }: SignUpProps) {
             leftIcon={<BsEnvelope />}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={doingRedirection || loadingSignUp}
           />
         </div>
       </Transition>
@@ -144,7 +151,7 @@ export default function SignUp({ state }: SignUpProps) {
             label="Contraseña"
             required
             setPassword={setPassword}
-            disabled={doingRedirection}
+            disabled={doingRedirection || loadingSignUp}
           />
         </div>
       </Transition>
