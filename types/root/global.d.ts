@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 
 declare global {
   interface Window extends Window {
@@ -21,7 +20,6 @@ declare global {
       ENCRYPTION_KEY: string;
     }
   }
-  type AdapterUser = User | null;
 
   type ActionResponse<T = unknownm> =
     | {
@@ -34,6 +32,8 @@ declare global {
         message: string;
         data: null;
       };
+  type Awaitable<T> = T | PromiseLike<T>;
+  type Awaited<T> = T extends Promise<infer U> ? U : T;
 }
 
 export {};
