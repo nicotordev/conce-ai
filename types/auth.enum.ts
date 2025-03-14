@@ -12,6 +12,7 @@ enum EmailVerificationStep {
   start = "start",
   success = "success",
   error = "error",
+  expired = "expired",
 }
 
 export { SignUpPageStep, SignInPageStep, EmailVerificationStep };
