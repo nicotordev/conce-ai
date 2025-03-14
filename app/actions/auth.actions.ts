@@ -1,13 +1,14 @@
 "use server";
 
 import { signIn } from "@/auth";
-import {  encryptData } from "@/lib/crypto";
+import { encryptData } from "@/lib/crypto";
 import logger from "@/lib/logger";
 import authAdapterPrisma from "@/lib/prisma/authAdapter.prisma";
 import prisma from "@/lib/prisma/index.prisma";
 import { SignUpPageStep } from "@/types/auth.enum";
 import { CredentialsSchema } from "@/validation/auth.validation";
 import bcrypt from "bcryptjs";
+import authConstants from "@/constants/auth.constants";
 
 async function doSignUpSteppedRedirection(data: {
   email?: string;
@@ -18,14 +19,14 @@ async function doSignUpSteppedRedirection(data: {
     const encryptedData = encryptData(data);
     return {
       success: true,
-      message: "success",
+      message: authConstants.SUCCESS_MESSAGES.SIGN_UP_REDIRECT,
       data: encryptedData,
     };
   } catch (err) {
     logger.error("[ACTIONS:DO_SIGN_UP_STEPPED_REDIRECTION]:", err);
     return {
       success: false,
-      message: "internal-server-error",
+      message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
       data: null,
     };
   }
@@ -40,7 +41,7 @@ async function doSignUp(credentials: {
   if (!credentialsValidation.success) {
     return {
       success: false,
-      message: "invalid-credentials",
+      message: authConstants.ERROR_MESSAGES.INVALID_CREDENTIALS,
       data: null,
     };
   }
@@ -55,7 +56,7 @@ async function doSignUp(credentials: {
     if (existingUser) {
       return {
         success: false,
-        message: "user-exists",
+        message: authConstants.ERROR_MESSAGES.USER_ALREADY_EXISTS,
         data: null,
       };
     }
@@ -69,14 +70,14 @@ async function doSignUp(credentials: {
 
     return {
       success: true,
-      message: "success",
+      message: authConstants.SUCCESS_MESSAGES.SIGN_UP,
       data: null,
     };
   } catch (err) {
     logger.error("[ACTIONS:DO_SIGN_UP]:", err);
     return {
       success: false,
-      message: "internal-server-error",
+      message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
       data: null,
     };
   }
@@ -87,13 +88,12 @@ async function doSignIn(credentials: {
   password: string;
 }): Promise<ActionResponse<string>> {
   try {
-    const signInResponse = await signIn("credentials", credentials);
-    return signInResponse;
+    return await signIn("credentials", credentials);
   } catch (err) {
     logger.error("[ACTIONS:DO_SIGN_IN]:", err);
     return {
       success: false,
-      message: "internal-server-error",
+      message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
       data: null,
     };
   }
