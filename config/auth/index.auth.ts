@@ -5,9 +5,10 @@ import credentialsAuthConfig from "./credentials.auth";
 import authConstants from "@/constants/auth.constants";
 import { v4 } from "uuid";
 import prisma from "@/lib/prisma/index.prisma";
+import { Adapter } from "next-auth/adapters";
 
 export const nextAuthConfig: NextAuthConfig = {
-  adapter: authAdapterPrisma,
+  adapter: authAdapterPrisma as Adapter,
   providers: [googleAuthConfig, credentialsAuthConfig],
   pages: {
     signIn: "/auth/sign-in",
@@ -37,6 +38,9 @@ export const nextAuthConfig: NextAuthConfig = {
       const userSession = await prisma.user.findFirst({
         where: {
           id: user.id,
+        },
+        include: {
+          Role: true,
         },
       });
       if (!userSession) {
