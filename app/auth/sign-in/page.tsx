@@ -5,6 +5,7 @@ import SignIn from "@/components/Auth/SignIn";
 import { PagePropsCommon } from "@/types/pages";
 import { SignInState } from "@/types/auth";
 import { decryptData } from "@/lib/crypto";
+import { SignInPageStep } from "@/types/auth.enum";
 export default async function SignInPage({ searchParams }: PagePropsCommon) {
   const _searchParams = await searchParams;
   const state: SignInState | null =
@@ -18,7 +19,14 @@ export default async function SignInPage({ searchParams }: PagePropsCommon) {
         <h2 className="!font-paragraph font-bold text-dark-text-primary text-3xl text-center">
           Bienvenido
         </h2>
-        <SignIn state={state} />
+        <SignIn
+          state={{
+            ...state,
+            step: state?.step || SignInPageStep.email,
+            email: state?.email || "",
+            password: state?.password || "",
+          }}
+        />
         <div className="flex items-center justify-center mt-4">
           <span className="flex items-center justify-center gap-1 text-xs font-medium">
             ¿No tienes una cuenta?{" "}
