@@ -66,11 +66,11 @@ export default function SignUp({ state }: SignUpProps) {
 
       if (
         signUpResponse.message ===
-        authConstants.ERROR_MESSAGES.USER_ALREADY_EXISTS
+        authConstants.ERROR_MESSAGES_CODES.USER_ALREADY_EXISTS
       ) {
         toast.error("El usuario ya existe");
         return;
-      } else if (authConstants.ERROR_MESSAGES.INVALID_CREDENTIALS) {
+      } else if (authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS) {
         toast.error("Credenciales inválidas");
         return;
       }
