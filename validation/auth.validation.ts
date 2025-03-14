@@ -1,3 +1,4 @@
+import authConstants from "@/constants/auth.constants";
 import { z } from "zod";
 
 const PasswordSchema = z
@@ -14,8 +15,20 @@ const PasswordSchema = z
   .regex(/^\S+$/, "No puede contener espacios");
 
 const CredentialsSchema = z.object({
-  email: z.string().email("El correo electrónico no es válido"),
-  password: z.string().min(1, "La contraseña no puede estar vacía"),
+  email: z.string().email(authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS),
+  password: z.string().min(1, authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS),
 });
 
-export { PasswordSchema, CredentialsSchema };
+const EmailVerificationSchema = z.object({
+  userId: z.string().min(1, authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR),
+  code: z
+    .string()
+    .min(1, authConstants.ERROR_MESSAGES_CODES.INVALID_VERIFICATION_TOKEN),
+});
+
+const EmailResendSchema = z.object({
+  userId: z.string().min(1, authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR),
+});
+
+
+export { PasswordSchema, CredentialsSchema, EmailVerificationSchema, EmailResendSchema };
