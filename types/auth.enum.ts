@@ -8,4 +8,10 @@ enum SignInPageStep {
   password = "password",
 }
 
-export { SignUpPageStep, SignInPageStep };
+enum EmailVerificationStep {
+  start = "start",
+  success = "success",
+  error = "error",
+}
+
+export { SignUpPageStep, SignInPageStep, EmailVerificationStep };

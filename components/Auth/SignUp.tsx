@@ -9,7 +9,7 @@ import { BsEnvelope } from "react-icons/bs";
 import {
   doSignIn,
   doSignUp,
-  doSignUpSteppedRedirection,
+  doSteppedRedirection,
 } from "@/app/actions/auth.actions";
 import toast from "react-hot-toast";
 import PasswordInput from "../Common/Forms/PasswordInput";
@@ -24,7 +24,7 @@ export default function SignUp({ state }: SignUpProps) {
 
   async function prevStep() {
     setDoingRedirection(true);
-    const redirectionData = await doSignUpSteppedRedirection({
+    const redirectionData = await doSteppedRedirection({
       email: "",
       password: "",
       step: SignUpPageStep.email,
@@ -43,7 +43,7 @@ export default function SignUp({ state }: SignUpProps) {
 
     if (step === SignUpPageStep.email) {
       setDoingRedirection(true);
-      const redirectionData = await doSignUpSteppedRedirection({
+      const redirectionData = await doSteppedRedirection({
         email,
         password,
         step: SignUpPageStep.password,
