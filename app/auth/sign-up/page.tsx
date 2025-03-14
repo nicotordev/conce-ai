@@ -20,7 +20,14 @@ export default async function SignUpPage({ searchParams }: PagePropsCommon) {
         <h2 className="!font-paragraph font-bold text-dark-text-primary text-3xl text-center">
           Crear una Cuenta
         </h2>
-        <SignUp state={state} />
+        <SignUp
+          state={{
+            ...state,
+            step: state?.step || SignUpPageStep.email,
+            email: state?.email || "",
+            password: state?.password || "",
+          }}
+        />
         {state?.step !== SignUpPageStep.password && (
           <>
             <div className="flex items-center justify-center mt-4">
