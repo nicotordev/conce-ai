@@ -1,7 +1,7 @@
 "use server";
 
 import { signIn } from "@/auth";
-import { encryptData } from "@/lib/crypto";
+import { encryptData, generateHumanReadableToken } from "@/lib/crypto";
 import logger from "@/lib/logger";
 import authAdapterPrisma from "@/lib/prisma/authAdapter.prisma";
 import prisma from "@/lib/prisma/index.prisma";
@@ -9,12 +9,11 @@ import { CredentialsSchema } from "@/validation/auth.validation";
 import bcrypt from "bcryptjs";
 import authConstants from "@/constants/auth.constants";
 import { redirect } from "next/navigation";
+import mailer from "@/mail/mail";
 
-async function doSteppedRedirection(data: {
-  email?: string;
-  password?: string;
-  step: string;
-}): Promise<ActionResponse<string>> {
+async function doSteppedRedirection<T extends object>(
+  data: T
+): Promise<ActionResponse<string>> {
   try {
     const encryptedData = encryptData(data);
     return {
@@ -31,7 +30,6 @@ async function doSteppedRedirection(data: {
     };
   }
 }
-
 
 async function doSignUp(credentials: {
   email: string;
@@ -68,10 +66,49 @@ async function doSignUp(credentials: {
       throw new Error("Internal server error");
     }
 
-    await authAdapterPrisma.createUser({
+    const createdUser = await authAdapterPrisma.createUser({
       email: credentials.email,
       password: hashedPassword,
     });
+
+    if (!authAdapterPrisma.createVerificationToken) {
+      throw new Error("Internal server error");
+    }
+    /**
+     * expires in 1 hour
+     */
+    const createdToken = await authAdapterPrisma.createVerificationToken({
+      identifier: createdUser.id,
+      token: generateHumanReadableToken(6),
+      expires: new Date(Date.now() + 3600000),
+    });
+
+    if (!createdToken) {
+      await prisma.user.delete({
+        where: {
+          id: createdUser.id,
+        },
+      });
+      return {
+        success: false,
+        message: authConstants.ERROR_MESSAGES.ERROR_SIGN_UP_TOKEN,
+        data: null,
+      };
+    }
+
+    await mailer.sendWelcomeEmail({
+      name: `${credentials.email.split("@")[0]}`,
+      address: credentials.email,
+    });
+
+    await mailer.sendEmailVerificationEmail(
+      {
+        name: `${credentials.email.split("@")[0]}`,
+        address: credentials.email,
+      },
+      createdToken.token,
+      createdUser.id
+    );
 
     return {
       success: true,
@@ -108,8 +145,4 @@ async function doSignIn(credentials: {
   }
 }
 
-export {
-  doSteppedRedirection,
-  doSignIn,
-  doSignUp,
-};
+export { doSteppedRedirection, doSignIn, doSignUp };
