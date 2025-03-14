@@ -23,7 +23,7 @@ declare global {
   }
   type AdapterUser = User | null;
 
-  type ActionResponse<T = unknown> =
+  type ActionResponse<T = unknownm> =
     | {
         success: true;
         message: string;
