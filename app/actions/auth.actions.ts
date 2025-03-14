@@ -259,7 +259,7 @@ async function doEmailVerification(data: {
 }
 
 async function doEmailResend(data: {
-  userId: string;
+  email: string;
 }): Promise<ActionResponse<null>> {
   const emailVerificationValidation = EmailResendSchema.safeParse(data);
 
@@ -278,7 +278,7 @@ async function doEmailResend(data: {
 
     const user = await prisma.user.findUnique({
       where: {
-        id: data.userId,
+        email: data.email,
       },
     });
 
@@ -291,7 +291,7 @@ async function doEmailResend(data: {
     }
 
     const createdToken = await authAdapterPrisma.createVerificationToken({
-      identifier: data.userId,
+      identifier: user.id,
       token: generateHumanReadableToken(6),
       expires: new Date(Date.now() + 3600000),
     });
