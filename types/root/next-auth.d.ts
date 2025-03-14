@@ -5,23 +5,27 @@ import NextAuth, {
   DefaultSession,
   Adapter as DefaultAdapter,
 } from "next-auth";
+import { User as PrismaUser } from "@prisma/client";
 import { AdapterUser } from "next-auth/adapters";
 
 declare module "next-auth" {
   export interface User extends DefaultUser {
-    id: User["id"];
-    name: User["name"];
-    password: User["password"];
-    email: User["email"];
-    emailVerified: User["emailVerified"];
-    image: User["image"];
-    createdAt: User["createdAt"];
-    updatedAt: User["updatedAt"];
-    roleId: User["roleId"];
+    id: PrismaUser["id"];
+    name: PrismaUser["name"];
+    password: PrismaUser["password"];
+    email: PrismaUser["email"];
+    emailVerified: PrismaUser["emailVerified"];
+    image: PrismaUser["image"];
+    createdAt: PrismaUser["createdAt"];
+    updatedAt: PrismaUser["updatedAt"];
+    roleId: PrismaUser["roleId"];
     Role: Role | null;
   }
 
   export interface Session extends DefaultSession {
     user: Omit<User, "password">;
+    provider: string;
+    refreshToken: string;
+    accessToken: string;
   }
 }
