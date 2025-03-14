@@ -1,7 +1,7 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./index.prisma";
 import { stripUndefined } from "@/utils/objects.utilts";
-import { AdapterUser } from "next-auth/adapters";
+import { AdapterSession, AdapterUser } from "next-auth/adapters";
 
 const authAdapterPrisma = {
   ...PrismaAdapter(prisma),
@@ -30,6 +30,25 @@ const authAdapterPrisma = {
     });
     return createdUser as Awaitable<AdapterUser>;
   },
-}
+  createSession(session: {
+    sessionToken: string;
+    accessToken: string;
+    userId: string;
+    expires: Date;
+  }): Awaitable<AdapterSession> {
+    return prisma.session.create({
+      data: {
+        accessToken: session.sessionToken,
+        sessionToken: session.sessionToken,
+        expires: session.expires,
+        user: {
+          connect: {
+            id: session.userId,
+          },
+        },
+      },
+    }) as Awaitable<AdapterSession>;
+  },
+};
 
 export default authAdapterPrisma;
