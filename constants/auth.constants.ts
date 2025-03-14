@@ -5,6 +5,7 @@ const authConstants = {
     INVALID_CREDENTIALS: "invalid-credentials",
     USER_NOT_FOUND: "user-not-found",
     USER_ALREADY_EXISTS: "user-exists",
+    ERROR_SIGN_UP_TOKEN:  "error-sign-up-token",
     INTERNAL_SERVER_ERROR: "internal-server-error",
   },
   SUCCESS_MESSAGES: {
