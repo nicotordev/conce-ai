@@ -5,7 +5,11 @@ import { encryptData, generateHumanReadableToken } from "@/lib/crypto";
 import logger from "@/lib/logger";
 import authAdapterPrisma from "@/lib/prisma/authAdapter.prisma";
 import prisma from "@/lib/prisma/index.prisma";
-import { CredentialsSchema } from "@/validation/auth.validation";
+import {
+  CredentialsSchema,
+  EmailResendSchema,
+  EmailVerificationSchema,
+} from "@/validation/auth.validation";
 import bcrypt from "bcryptjs";
 import authConstants from "@/constants/auth.constants";
 import { redirect } from "next/navigation";
@@ -18,14 +22,14 @@ async function doSteppedRedirection<T extends object>(
     const encryptedData = encryptData(data);
     return {
       success: true,
-      message: authConstants.SUCCESS_MESSAGES.SIGN_UP_REDIRECT,
+      message: authConstants.SUCCESS_MESSAGES_CODES.SIGN_UP_REDIRECT,
       data: encryptedData,
     };
   } catch (err) {
     logger.error("[ACTIONS:DO_SIGN_UP_STEPPED_REDIRECTION]:", err);
     return {
       success: false,
-      message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      message: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
       data: null,
     };
   }
@@ -40,7 +44,7 @@ async function doSignUp(credentials: {
   if (!credentialsValidation.success) {
     return {
       success: false,
-      message: authConstants.ERROR_MESSAGES.INVALID_CREDENTIALS,
+      message: authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS,
       data: null,
     };
   }
@@ -53,12 +57,14 @@ async function doSignUp(credentials: {
         },
       });
       if (existingUser) {
-        throw new Error(authConstants.ERROR_MESSAGES.USER_ALREADY_EXISTS);
+        throw new Error(authConstants.ERROR_MESSAGES_CODES.USER_ALREADY_EXISTS);
       }
       const hashedPassword = await bcrypt.hash(credentials.password, 10);
 
       if (!authAdapterPrisma.createUser) {
-        throw new Error(authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+        throw new Error(
+          authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR
+        );
       }
 
       const createdUser = await prismaTx.user.create({
@@ -88,7 +94,9 @@ async function doSignUp(credentials: {
       });
 
       if (!authAdapterPrisma.createVerificationToken) {
-        throw new Error(authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+        throw new Error(
+          authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR
+        );
       }
 
       /**
@@ -100,7 +108,7 @@ async function doSignUp(credentials: {
         expires: new Date(Date.now() + 3600000),
       });
       if (!createdToken) {
-        throw new Error(authConstants.ERROR_MESSAGES.ERROR_SIGN_UP_TOKEN);
+        throw new Error(authConstants.ERROR_MESSAGES_CODES.ERROR_SIGN_UP_TOKEN);
       }
       await mailer.sendWelcomeEmail({
         name: `${credentials.email.split("@")[0]}`,
@@ -119,14 +127,14 @@ async function doSignUp(credentials: {
 
     return {
       success: true,
-      message: authConstants.SUCCESS_MESSAGES.SIGN_UP,
+      message: authConstants.SUCCESS_MESSAGES_CODES.SIGN_UP,
       data: null,
     };
   } catch (err) {
     logger.error("[ACTIONS:DO_SIGN_UP]:", err);
     return {
       success: false,
-      message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      message: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
       data: null,
     };
   }
@@ -155,7 +163,17 @@ async function doSignIn(credentials: {
 async function doEmailVerification(data: {
   code: string;
   userId: string;
-}): Promise<ActionResponse<string>> {
+}): Promise<ActionResponse<null>> {
+  const emailVerificationValidation = EmailVerificationSchema.safeParse(data);
+
+  if (!emailVerificationValidation.success) {
+    return {
+      success: false,
+      data: null,
+      message: emailVerificationValidation.error.errors[0].message,
+    };
+  }
+
   try {
     if (!authAdapterPrisma.useVerificationToken) {
       throw new Error("Internal server error");
@@ -169,7 +187,7 @@ async function doEmailVerification(data: {
     if (!token) {
       return {
         success: false,
-        message: authConstants.ERROR_MESSAGES.INVALID_VERIFICATION_TOKEN,
+        message: authConstants.ERROR_MESSAGES_CODES.INVALID_VERIFICATION_TOKEN,
         data: null,
       };
     }
@@ -178,7 +196,9 @@ async function doEmailVerification(data: {
 
     if (expiresAt < Date.now()) {
       if (!authAdapterPrisma.createVerificationToken) {
-        throw new Error(authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+        throw new Error(
+          authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR
+        );
       }
 
       const user = await prisma.user.findUnique({
@@ -190,7 +210,8 @@ async function doEmailVerification(data: {
       if (!user || !user.email) {
         return {
           success: false,
-          message: authConstants.ERROR_MESSAGES.INVALID_VERIFICATION_TOKEN,
+          message:
+            authConstants.ERROR_MESSAGES_CODES.INVALID_VERIFICATION_TOKEN,
           data: null,
         };
       }
@@ -202,7 +223,9 @@ async function doEmailVerification(data: {
       });
 
       if (!createdToken) {
-        throw new Error(authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+        throw new Error(
+          authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR
+        );
       }
 
       await mailer.sendEmailVerificationEmail(
@@ -216,7 +239,7 @@ async function doEmailVerification(data: {
 
       return {
         success: false,
-        message: authConstants.ERROR_MESSAGES.EXPIRED_VERIFICATION_TOKEN,
+        message: authConstants.ERROR_MESSAGES_CODES.EXPIRED_VERIFICATION_TOKEN,
         data: null,
       };
     }
@@ -224,15 +247,87 @@ async function doEmailVerification(data: {
     logger.error("[ACTIONS:DO_EMAIL_VERIFICATION]:", err);
     return {
       success: false,
-      message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      message: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
       data: null,
     };
   }
   return {
     success: false,
-    message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+    message: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
     data: null,
   };
 }
 
-export { doSteppedRedirection, doSignIn, doSignUp, doEmailVerification };
+async function doEmailResend(data: {
+  userId: string;
+}): Promise<ActionResponse<null>> {
+  const emailVerificationValidation = EmailResendSchema.safeParse(data);
+
+  if (!emailVerificationValidation.success) {
+    return {
+      success: false,
+      data: null,
+      message: emailVerificationValidation.error.errors[0].message,
+    };
+  }
+
+  try {
+    if (!authAdapterPrisma.createVerificationToken) {
+      throw new Error(authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR);
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: data.userId,
+      },
+    });
+
+    if (!user || !user.email) {
+      return {
+        success: false,
+        message: authConstants.ERROR_MESSAGES_CODES.INVALID_USER,
+        data: null,
+      };
+    }
+
+    const createdToken = await authAdapterPrisma.createVerificationToken({
+      identifier: data.userId,
+      token: generateHumanReadableToken(6),
+      expires: new Date(Date.now() + 3600000),
+    });
+
+    if (!createdToken) {
+      throw new Error(authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR);
+    }
+
+    await mailer.sendEmailVerificationEmail(
+      {
+        name: `${user.email.split("@")[0]}`,
+        address: user.email,
+      },
+      createdToken.token,
+      user.id
+    );
+
+    return {
+      success: true,
+      message: authConstants.SUCCESS_MESSAGES_CODES.EMAIL_RESEND,
+      data: null,
+    };
+  } catch (err) {
+    logger.error("[ACTIONS:DO_EMAIL_RESEND]:", err);
+    return {
+      success: false,
+      message: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+      data: null,
+    };
+  }
+}
+
+export {
+  doSteppedRedirection,
+  doSignIn,
+  doSignUp,
+  doEmailVerification,
+  doEmailResend,
+};
