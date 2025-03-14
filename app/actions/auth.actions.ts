@@ -1,7 +1,7 @@
 "use server";
 
 import { signIn } from "@/auth";
-import { encryptData } from "@/lib/crypto";
+import {  encryptData } from "@/lib/crypto";
 import logger from "@/lib/logger";
 import authAdapterPrisma from "@/lib/prisma/authAdapter.prisma";
 import prisma from "@/lib/prisma/index.prisma";
