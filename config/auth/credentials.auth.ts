@@ -74,9 +74,7 @@ const credentialsAuthConfig = CredentialsProvider({
     }
 
     return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
+      ...user,
     };
   },
 });
