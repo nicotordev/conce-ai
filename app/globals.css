@@ -49,13 +49,25 @@
   --color-silver-100: #f0f0f0;
   --color-silver-200: #e3e3e3;
   --color-silver-300: #d1d1d1;
-  --color-silver-400: #c0c0c0;
+  --color-silver-400: #bdbdbd;
   --color-silver-500: #aaaaaa;
   --color-silver-600: #969696;
   --color-silver-700: #818181;
   --color-silver-800: #6a6a6a;
   --color-silver-900: #585858;
   --color-silver-950: #333333;
+
+  --color-wild-sand-50: #f5f5f5;
+  --color-wild-sand-100: #efefef;
+  --color-wild-sand-200: #dcdcdc;
+  --color-wild-sand-300: #bdbdbd;
+  --color-wild-sand-400: #989898;
+  --color-wild-sand-500: #7c7c7c;
+  --color-wild-sand-600: #656565;
+  --color-wild-sand-700: #525252;
+  --color-wild-sand-800: #464646;
+  --color-wild-sand-900: #3d3d3d;
+  --color-wild-sand-950: #292929;
 }
 
 /* Aplicando las fuentes con @apply y colores oscuros */
@@ -97,7 +109,7 @@ button {
 /* Shadcn */
 :root {
   --radius: 0.625rem;
-  --background: #F5F5F5;
+  --background: var(--color-wild-sand-50);
   --foreground: var(--color-dark-text-primary);
   --card: var(--color-primary-100);
   --card-foreground: var(--color-dark-text-secondary);
@@ -112,8 +124,8 @@ button {
   --accent: var(--color-secondary-400);
   --accent-foreground: var(--color-secondary-50);
   --destructive: var(--color-primary-900);
-  --border: var(--color-silver-400);
-  --input: var(--color-silver-300);
+  --border: var(--color-wild-sand-400);
+  --input: var(--color-wild-sand-200);
   --ring: var(--color-primary-700);
   --chart-1: var(--color-primary-400);
   --chart-2: var(--color-secondary-400);
