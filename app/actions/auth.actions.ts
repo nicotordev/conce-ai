@@ -63,6 +63,10 @@ async function doSignUp(credentials: {
 
     const hashedPassword = await bcrypt.hash(credentials.password, 10);
 
+    if (!authAdapterPrisma.createUser) {
+      throw new Error("Internal server error");
+    }
+
     await authAdapterPrisma.createUser({
       email: credentials.email,
       password: hashedPassword,
@@ -88,7 +92,16 @@ async function doSignIn(credentials: {
   password: string;
 }): Promise<ActionResponse<string>> {
   try {
-    return await signIn("credentials", credentials);
+    const result = await signIn("credentials", {
+      ...credentials,
+      redirect: false,
+    });
+
+    return {
+      success: true,
+      message: authConstants.SUCCESS_MESSAGES.SIGN_IN,
+      data: result,
+    };
   } catch (err) {
     logger.error("[ACTIONS:DO_SIGN_IN]:", err);
     return {
