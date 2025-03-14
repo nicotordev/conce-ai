@@ -1,4 +1,8 @@
-import { EmailVerificationStep, SignInPageStep, SignUpPageStep } from "./auth.enum";
+import {
+  EmailVerificationStep,
+  SignInPageStep,
+  SignUpPageStep,
+} from "./auth.enum";
 type SignUpState = {
   step: SignUpPageStep;
   email: string;
@@ -32,6 +36,9 @@ type EmailVerificationProps = {
   state: EmailVerificationState;
 };
 
+type EmailVerificationModalProps = {
+  loading: boolean;
+};
 export type {
   SignUpState,
   SignUpProps,
@@ -39,4 +46,5 @@ export type {
   SignInProps,
   EmailVerificationState,
   EmailVerificationProps,
+  EmailVerificationModalProps
 };
