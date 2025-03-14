@@ -22,6 +22,22 @@ export default function SignUp({ state }: SignUpProps) {
   const [email, setEmail] = useState(state?.email ?? "");
   const [password, setPassword] = useState(state?.password ?? "");
 
+  async function prevStep() {
+    setDoingRedirection(true);
+    const redirectionData = await doSignUpSteppedRedirection({
+      email: email,
+      password: "",
+      step: SignUpPageStep.email,
+    });
+    setDoingRedirection(false);
+    if (!redirectionData.success) {
+      toast.error("Ha ocurrido un error al intentar crear la cuenta");
+      return;
+    }
+
+    window.location.href = `/auth/sign-up?state=${redirectionData.data}`;
+  }
+
   async function handleNextStep(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -155,13 +171,24 @@ export default function SignUp({ state }: SignUpProps) {
           />
         </div>
       </Transition>
-      <button
-        disabled={doingRedirection || loadingSignUp}
-        type="submit"
-        className="cursor-pointer justify-center text-center mt-4 w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-600 focus:outline-hidden focus:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
-      >
-        Continuar
-      </button>
+      <div className="flex flex-col gap-3">
+        <button
+          disabled={doingRedirection || loadingSignUp}
+          type="submit"
+          className="cursor-pointer justify-center text-center mt-4 w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 focus:outline-hidden focus:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none transition-all duration-150"
+        >
+          Continuar
+        </button>
+        {step === SignUpPageStep.password && (
+          <button
+            onClick={prevStep}
+            type="button"
+            className="cursor-pointer justify-center text-center w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent text-primary-600 disabled:opacity-50 disabled:pointer-events-none hover:border-primary-600 hover:text-primary-600 focus:outline-hidden focus:border-primary-600 focus:text-primary-600 transition-all duration-150"
+          >
+            Volver
+          </button>
+        )}
+      </div>
     </form>
   );
 }
