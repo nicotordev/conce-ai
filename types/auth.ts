@@ -25,6 +25,7 @@ type EmailVerificationState = {
   step: EmailVerificationStep;
   code: string;
   userId: string;
+  error: string;
 } | null;
 
 type EmailVerificationProps = {
