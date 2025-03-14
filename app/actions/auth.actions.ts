@@ -46,69 +46,76 @@ async function doSignUp(credentials: {
   }
 
   try {
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        email: credentials.email,
-      },
-    });
-
-    if (existingUser) {
-      return {
-        success: false,
-        message: authConstants.ERROR_MESSAGES.USER_ALREADY_EXISTS,
-        data: null,
-      };
-    }
-
-    const hashedPassword = await bcrypt.hash(credentials.password, 10);
-
-    if (!authAdapterPrisma.createUser) {
-      throw new Error("Internal server error");
-    }
-
-    const createdUser = await authAdapterPrisma.createUser({
-      email: credentials.email,
-      password: hashedPassword,
-    });
-
-    if (!authAdapterPrisma.createVerificationToken) {
-      throw new Error("Internal server error");
-    }
-    /**
-     * expires in 1 hour
-     */
-    const createdToken = await authAdapterPrisma.createVerificationToken({
-      identifier: createdUser.id,
-      token: generateHumanReadableToken(6),
-      expires: new Date(Date.now() + 3600000),
-    });
-
-    if (!createdToken) {
-      await prisma.user.delete({
+    await prisma.$transaction(async (prismaTx) => {
+      const existingUser = await prismaTx.user.findUnique({
         where: {
-          id: createdUser.id,
+          email: credentials.email,
         },
       });
-      return {
-        success: false,
-        message: authConstants.ERROR_MESSAGES.ERROR_SIGN_UP_TOKEN,
-        data: null,
-      };
-    }
+      if (existingUser) {
+        throw new Error(authConstants.ERROR_MESSAGES.USER_ALREADY_EXISTS);
+      }
+      const hashedPassword = await bcrypt.hash(credentials.password, 10);
 
-    await mailer.sendWelcomeEmail({
-      name: `${credentials.email.split("@")[0]}`,
-      address: credentials.email,
-    });
+      if (!authAdapterPrisma.createUser) {
+        throw new Error(authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+      }
 
-    await mailer.sendEmailVerificationEmail(
-      {
+      const createdUser = await prismaTx.user.create({
+        data: {
+          email: credentials.email,
+          password: hashedPassword,
+          Role: {
+            connectOrCreate: {
+              where: {
+                name: "USER",
+              },
+              create: {
+                name: "USER",
+              },
+            },
+          },
+        },
+      });
+
+      await prismaTx.account.create({
+        data: {
+          userId: createdUser.id,
+          providerType: "credentials",
+          providerId: "credentials",
+          providerAccountId: credentials.email,
+        },
+      });
+
+      if (!authAdapterPrisma.createVerificationToken) {
+        throw new Error(authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+      }
+
+      /**
+       * expires in 1 hour
+       */
+      const createdToken = await authAdapterPrisma.createVerificationToken({
+        identifier: createdUser.id,
+        token: generateHumanReadableToken(6),
+        expires: new Date(Date.now() + 3600000),
+      });
+      if (!createdToken) {
+        throw new Error(authConstants.ERROR_MESSAGES.ERROR_SIGN_UP_TOKEN);
+      }
+      await mailer.sendWelcomeEmail({
         name: `${credentials.email.split("@")[0]}`,
         address: credentials.email,
-      },
-      createdToken.token,
-      createdUser.id
-    );
+      });
+
+      await mailer.sendEmailVerificationEmail(
+        {
+          name: `${credentials.email.split("@")[0]}`,
+          address: credentials.email,
+        },
+        createdToken.token,
+        createdUser.id
+      );
+    });
 
     return {
       success: true,
@@ -145,4 +152,87 @@ async function doSignIn(credentials: {
   }
 }
 
-export { doSteppedRedirection, doSignIn, doSignUp };
+async function doEmailVerification(data: {
+  code: string;
+  userId: string;
+}): Promise<ActionResponse<string>> {
+  try {
+    if (!authAdapterPrisma.useVerificationToken) {
+      throw new Error("Internal server error");
+    }
+
+    const token = await authAdapterPrisma.useVerificationToken({
+      identifier: data.userId,
+      token: data.code,
+    });
+
+    if (!token) {
+      return {
+        success: false,
+        message: authConstants.ERROR_MESSAGES.INVALID_VERIFICATION_TOKEN,
+        data: null,
+      };
+    }
+
+    const expiresAt = new Date(token.expires).getTime();
+
+    if (expiresAt < Date.now()) {
+      if (!authAdapterPrisma.createVerificationToken) {
+        throw new Error(authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+      }
+
+      const user = await prisma.user.findUnique({
+        where: {
+          id: data.userId,
+        },
+      });
+
+      if (!user || !user.email) {
+        return {
+          success: false,
+          message: authConstants.ERROR_MESSAGES.INVALID_VERIFICATION_TOKEN,
+          data: null,
+        };
+      }
+
+      const createdToken = await authAdapterPrisma.createVerificationToken({
+        identifier: data.userId,
+        token: generateHumanReadableToken(6),
+        expires: new Date(Date.now() + 3600000),
+      });
+
+      if (!createdToken) {
+        throw new Error(authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+      }
+
+      await mailer.sendEmailVerificationEmail(
+        {
+          name: `${user.email.split("@")[0]}`,
+          address: user.email,
+        },
+        createdToken.token,
+        user.id
+      );
+
+      return {
+        success: false,
+        message: authConstants.ERROR_MESSAGES.EXPIRED_VERIFICATION_TOKEN,
+        data: null,
+      };
+    }
+  } catch (err) {
+    logger.error("[ACTIONS:DO_EMAIL_VERIFICATION]:", err);
+    return {
+      success: false,
+      message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      data: null,
+    };
+  }
+  return {
+    success: false,
+    message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+    data: null,
+  };
+}
+
+export { doSteppedRedirection, doSignIn, doSignUp, doEmailVerification };
