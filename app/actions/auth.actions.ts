@@ -5,15 +5,38 @@ import { encryptData } from "@/lib/crypto";
 import logger from "@/lib/logger";
 import authAdapterPrisma from "@/lib/prisma/authAdapter.prisma";
 import prisma from "@/lib/prisma/index.prisma";
-import { SignUpPageStep } from "@/types/auth.enum";
+import { SignInPageStep, SignUpPageStep } from "@/types/auth.enum";
 import { CredentialsSchema } from "@/validation/auth.validation";
 import bcrypt from "bcryptjs";
 import authConstants from "@/constants/auth.constants";
+import { redirect } from "next/navigation";
 
 async function doSignUpSteppedRedirection(data: {
   email?: string;
   password?: string;
   step: SignUpPageStep;
+}): Promise<ActionResponse<string>> {
+  try {
+    const encryptedData = encryptData(data);
+    return {
+      success: true,
+      message: authConstants.SUCCESS_MESSAGES.SIGN_UP_REDIRECT,
+      data: encryptedData,
+    };
+  } catch (err) {
+    logger.error("[ACTIONS:DO_SIGN_UP_STEPPED_REDIRECTION]:", err);
+    return {
+      success: false,
+      message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      data: null,
+    };
+  }
+}
+
+async function doSignInSteppedRedirection(data: {
+  email?: string;
+  password?: string;
+  step: SignInPageStep;
 }): Promise<ActionResponse<string>> {
   try {
     const encryptedData = encryptData(data);
@@ -90,26 +113,26 @@ async function doSignUp(credentials: {
 async function doSignIn(credentials: {
   email: string;
   password: string;
-}): Promise<ActionResponse<string>> {
+}): Promise<void> {
+  let result: string = "";
   try {
-    const result = await signIn("credentials", {
+    result = await signIn("credentials", {
       ...credentials,
       redirect: false,
+      redirectTo: "/",
     });
 
-    return {
-      success: true,
-      message: authConstants.SUCCESS_MESSAGES.SIGN_IN,
-      data: result,
-    };
+    logger.info("[ACTIONS:DO_SIGN_IN]:", result);
   } catch (err) {
     logger.error("[ACTIONS:DO_SIGN_IN]:", err);
-    return {
-      success: false,
-      message: authConstants.ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-      data: null,
-    };
+  } finally {
+    return redirect(result);
   }
 }
 
-export { doSignUpSteppedRedirection, doSignIn, doSignUp };
+export {
+  doSignUpSteppedRedirection,
+  doSignIn,
+  doSignUp,
+  doSignInSteppedRedirection,
+};
