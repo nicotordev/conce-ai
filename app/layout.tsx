@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Lato, Lora, Poppins, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import PrelineScript from "@/components/PrelineScript";
-
+import { Toaster } from "react-hot-toast";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -46,7 +46,9 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${lora.variable} ${poppins.variable} ${spaceGrotesk.variable} ${lato.variable} antialiased`}
     >
-      <body>{children}</body>
+      <body>
+        {children} <Toaster position="top-center" reverseOrder={false} />
+      </body>
       <PrelineScript />
     </html>
   );
