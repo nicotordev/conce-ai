@@ -4,7 +4,7 @@ import { SignUpProps } from "@/types/auth";
 import { SignUpPageStep } from "@/types/auth.enum";
 import { Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import Input from "../Common/Forms/Input";
+import CondorInput from "../Common/Forms/CondorInput";
 import { BsEnvelope } from "react-icons/bs";
 import {
   doSignIn,
@@ -12,7 +12,7 @@ import {
   doSteppedRedirection,
 } from "@/app/actions/auth.actions";
 import toast from "react-hot-toast";
-import PasswordInput from "../Common/Forms/PasswordInput";
+import CondorPasswordInput from "../Common/Forms/CondorPasswordInput";
 import authConstants from "@/constants/auth.constants";
 
 export default function SignUp({ state }: SignUpProps) {
@@ -90,7 +90,7 @@ export default function SignUp({ state }: SignUpProps) {
         unmount={true}
       >
         <div>
-          <Input
+          <CondorInput
             name="email"
             id="email"
             placeholder="Dirección de correo electrónico"
@@ -142,7 +142,7 @@ export default function SignUp({ state }: SignUpProps) {
         unmount={true}
       >
         <div>
-          <Input
+          <CondorInput
             name="email"
             id="email"
             placeholder="Dirección de correo electrónico"
@@ -153,7 +153,7 @@ export default function SignUp({ state }: SignUpProps) {
             defaultValue={email}
             readOnly
           />
-          <PasswordInput
+          <CondorPasswordInput
             name="password"
             id="password"
             placeholder="Contraseña"
