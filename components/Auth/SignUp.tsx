@@ -25,7 +25,7 @@ export default function SignUp({ state }: SignUpProps) {
   async function prevStep() {
     setDoingRedirection(true);
     const redirectionData = await doSignUpSteppedRedirection({
-      email: email,
+      email: "",
       password: "",
       step: SignUpPageStep.email,
     });
@@ -61,14 +61,7 @@ export default function SignUp({ state }: SignUpProps) {
       setLoadingSignUp(false);
 
       if (signUpResponse.success) {
-        const signInResult = await doSignIn({ email, password });
-
-        if (signInResult.success) {
-          toast.success("Cuenta creada con éxito");
-          window.location.href = signInResult.data;
-        } else {
-          toast.error("Ha ocurrido un error al intentar iniciar sesión");
-        }
+        await doSignIn({ email, password });
       }
 
       if (
