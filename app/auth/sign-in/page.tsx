@@ -1,31 +1,24 @@
-import Input from "@/components/Common/Forms/Input";
 import Link from "next/link";
-import { BsEnvelope } from "react-icons/bs";
 import { googleLogo, microsoftLogo } from "@/assets";
 import Image from "next/image";
-export default function SignInPage() {
+import SignIn from "@/components/Auth/SignIn";
+import { PagePropsCommon } from "@/types/pages";
+import { SignInState } from "@/types/auth";
+import { decryptData } from "@/lib/crypto";
+export default async function SignInPage({ searchParams }: PagePropsCommon) {
+  const _searchParams = await searchParams;
+  const state: SignInState | null =
+    typeof _searchParams.state === "string"
+      ? decryptData<SignInState>(_searchParams.state)
+      : null;
+
   return (
-    <form className="min-h-screen w-full">
+    <div className="min-h-screen w-full">
       <div className="mx-auto max-w-xs mt-16">
         <h2 className="!font-paragraph font-bold text-dark-text-primary text-3xl text-center">
           Bienvenido
         </h2>
-        <div>
-          <Input
-            name="email"
-            id="email"
-            placeholder="Dirección de correo electrónico"
-            type="email"
-            label="Correo electrónico"
-            leftIcon={<BsEnvelope />}
-          />
-        </div>
-        <button
-          type="button"
-          className="justify-center text-center mt-4 w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-600 focus:outline-hidden focus:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
-        >
-          Continuar
-        </button>
+        <SignIn state={state} />
         <div className="flex items-center justify-center mt-4">
           <span className="flex items-center justify-center gap-1 text-xs font-medium">
             ¿No tienes una cuenta?{" "}
@@ -64,6 +57,6 @@ export default function SignInPage() {
           </Link>
         </div>
       </div>
-    </form>
+    </div>
   );
 }
