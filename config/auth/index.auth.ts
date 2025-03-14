@@ -36,7 +36,6 @@ export const nextAuthConfig: NextAuthConfig = {
     },
     async session(params) {
       const { session: defaultSession, user, token } = params;
-      console.log("session params", params);
       const userSession = await prisma.user.findFirst({
         where: {
           id: user.id,
