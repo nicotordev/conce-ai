@@ -39,6 +39,7 @@ export default function Input({
             )}
             onFocus={() => setIsOnFocus(true)}
             onBlur={() => setIsOnFocus(false)}
+            disabled={rest.disabled}
           />
           <div className="absolute inset-y-0 start-0 flex items-center z-20 ps-4">
             <div
