@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import routesConstants from "./constants/routes.constants";
 import condorAi from "./lib/condor-ai";
-import { setCookie } from "cookies-next/server";
+import { setCookie } from "cookies-next/client";
 import { Session } from "next-auth";
 import logger from "./lib/logger";
 export async function middleware(request: NextRequest) {
@@ -14,8 +14,6 @@ export async function middleware(request: NextRequest) {
     const error = err instanceof Error ? err.message : "Unknown error";
     logger.error(`Error getting session: ${error}`, err);
   }
-
-  console.log(session);
 
   if (session && session.user) {
     if (
