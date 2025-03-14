@@ -1,3 +1,5 @@
+import { User } from "@prisma/client";
+
 declare global {
   interface Window extends Window {
     grecaptcha: {
@@ -19,6 +21,19 @@ declare global {
       ENCRYPTION_KEY: string;
     }
   }
+  type AdapterUser = User | null;
+
+  type ActionResponse<T = unknown> =
+    | {
+        success: true;
+        message: string;
+        data: T;
+      }
+    | {
+        success: false;
+        message: string;
+        data: null;
+      };
 }
 
 export {};
