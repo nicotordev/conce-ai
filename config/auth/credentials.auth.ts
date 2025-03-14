@@ -13,7 +13,7 @@ const credentialsAuthConfig = CredentialsProvider({
   name: "Credentials",
   type: "credentials",
   credentials: {
-    username: { label: "Username" },
+    email: { label: "Email" },
     password: { label: "Password", type: "password" },
   },
   authorize: async (credentials) => {
@@ -46,12 +46,16 @@ const credentialsAuthConfig = CredentialsProvider({
     }
 
     const credentialsWithType = credentials as {
-      username: string;
+      email: string;
       password: string;
     };
 
-    const user = await authAdapterPrisma.getUserByUsername(
-      credentialsWithType.username
+    if (!authAdapterPrisma.getUserByEmail) {
+      throw new AuthCredentialsError("internal-server-error");
+    }
+
+    const user = await authAdapterPrisma.getUserByEmail(
+      credentialsWithType.email
     );
 
     if (!user || !user.password) {
@@ -76,7 +80,5 @@ const credentialsAuthConfig = CredentialsProvider({
     };
   },
 });
-
-
 
 export default credentialsAuthConfig;
