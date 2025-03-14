@@ -7,6 +7,8 @@ const authConstants = {
     USER_ALREADY_EXISTS: "user-exists",
     ERROR_SIGN_UP_TOKEN:  "error-sign-up-token",
     INTERNAL_SERVER_ERROR: "internal-server-error",
+    INVALID_VERIFICATION_TOKEN: "invalid-verification-token",
+    EXPIRED_VERIFICATION_TOKEN: "expired-verification-token",
   },
   SUCCESS_MESSAGES: {
     SIGN_UP: "account-created",
