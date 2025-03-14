@@ -3,4 +3,9 @@ enum SignUpPageStep {
   password = "password",
 }
 
-export { SignUpPageStep };
+enum SignInPageStep {
+  email = "email",
+  password = "password",
+}
+
+export { SignUpPageStep, SignInPageStep };
