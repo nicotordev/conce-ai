@@ -22,11 +22,12 @@ type SignInProps = {
 };
 
 type EmailVerificationState = {
+  step: EmailVerificationStep;
   code: string;
+  userId: string;
 } | null;
 
 type EmailVerificationProps = {
-  step: EmailVerificationStep;
   state: EmailVerificationState;
 };
 
