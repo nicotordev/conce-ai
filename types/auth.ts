@@ -38,6 +38,8 @@ type EmailVerificationProps = {
 
 type EmailVerificationModalProps = {
   loading: boolean;
+  handleStep: (step: EmailVerificationStep, error?: string) => Promise<void>;
+  setLoading: (loading: boolean) => void;
 };
 export type {
   SignUpState,
@@ -46,5 +48,5 @@ export type {
   SignInProps,
   EmailVerificationState,
   EmailVerificationProps,
-  EmailVerificationModalProps
+  EmailVerificationModalProps,
 };
