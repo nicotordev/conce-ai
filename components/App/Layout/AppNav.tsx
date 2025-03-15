@@ -11,7 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BsChevronDown, BsFillInfoCircleFill } from "react-icons/bs";
+import {
+  BsChevronDown,
+  BsFillInfoCircleFill,
+  BsFillShareFill,
+} from "react-icons/bs";
 import { useState } from "react";
 import Link from "next/link";
 import { FaCheckCircle } from "react-icons/fa";
@@ -78,7 +82,10 @@ export default function AppNav({ models }: AppNavProps) {
           <ul>
             <li>
               <div className="flex items-center justify-center gap-4">
-                <Button variant={"destructive"}>Compartir</Button>
+                <Button variant={"outline"}>
+                  <BsFillShareFill />
+                  Compartir
+                </Button>
               </div>
             </li>
           </ul>
