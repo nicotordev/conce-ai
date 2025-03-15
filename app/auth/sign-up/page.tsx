@@ -26,6 +26,7 @@ export default async function SignUpPage({ searchParams }: PagePropsCommon) {
             step: state?.step || SignUpPageStep.email,
             email: state?.email || "",
             password: state?.password || "",
+            error: state?.error || "",
           }}
         />
         {state?.step !== SignUpPageStep.password && (
