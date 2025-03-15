@@ -17,6 +17,7 @@ type InputProps = React.DetailedHTMLProps<
 };
 type PasswordInputProps = {
   label?: string;
+  password: string;
   setPassword: (password: string) => void;
 } & Omit<
   React.DetailedHTMLProps<
