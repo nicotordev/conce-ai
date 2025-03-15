@@ -14,10 +14,12 @@ const PasswordSchema = z
   )
   .regex(/^\S+$/, "No puede contener espacios");
 
+const EmailSchema = z
+  .string()
+  .email(authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS);
+
 const CredentialsSchema = z.object({
-  email: z
-    .string()
-    .email(authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS),
+  email: EmailSchema,
   password: z
     .string()
     .min(1, authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS),
@@ -32,15 +34,19 @@ const EmailVerificationSchema = z.object({
     .min(1, authConstants.ERROR_MESSAGES_CODES.INVALID_VERIFICATION_TOKEN),
 });
 
-const EmailResendSchema = z.object({
-  email: z
+const PasswordResetSchema = z.object({
+  email: EmailSchema,
+  password: PasswordSchema,
+  token: z
     .string()
-    .email(authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS),
+    .min(1, authConstants.ERROR_MESSAGES_CODES.INVALID_RESET_PASSWORD_TOKEN)
+    .max(6),
 });
 
 export {
   PasswordSchema,
   CredentialsSchema,
   EmailVerificationSchema,
-  EmailResendSchema,
+  EmailSchema,
+  PasswordResetSchema,
 };
