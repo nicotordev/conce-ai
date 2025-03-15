@@ -61,7 +61,14 @@ export default function SignUp({ state }: SignUpProps) {
       setLoadingSignUp(false);
 
       if (signUpResponse.success) {
-        await doSignIn({ email, password });
+        const url = await doSignIn({ email, password });
+        if (url) {
+          window.location.href = url;
+          return;
+        } else {
+          window.location.href = "/auth/sign-in";
+          return;
+        }
       }
 
       if (
@@ -159,6 +166,7 @@ export default function SignUp({ state }: SignUpProps) {
             placeholder="Contraseña"
             label="Contraseña"
             required
+            password={password}
             setPassword={setPassword}
             disabled={doingRedirection || loadingSignUp}
           />
