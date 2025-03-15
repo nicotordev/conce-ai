@@ -1,5 +1,6 @@
 import {
   EmailVerificationStep,
+  ResetPasswordStep,
   SignInPageStep,
   SignUpPageStep,
 } from "./auth.enum";
@@ -7,13 +8,10 @@ type SignUpState = {
   step: SignUpPageStep;
   email: string;
   password: string;
+  error: string;
 } | null;
 type SignUpProps = {
-  state: {
-    step: SignUpPageStep;
-    email: string;
-    password: string;
-  } | null;
+  state: SignUpState;
 };
 
 type SignInState = {
@@ -44,6 +42,30 @@ type EmailVerificationModalProps = {
   handleStep: (step: EmailVerificationStep, error?: string) => Promise<void>;
   setLoading: (loading: boolean) => void;
 };
+
+type ResetPasswordState = {
+  step: ResetPasswordStep;
+  email: string;
+  error: string;
+  password: string;
+  token: string;
+};
+
+type ResetPasswordProps = {
+  state: ResetPasswordState;
+};
+
+type AuthErrorProps = {
+  error?: string | null;
+};
+
+type AuthLoadingProps = {
+  loading: boolean;
+};
+type AuthTokenExpiredProps = {
+  show: boolean;
+  children?: React.ReactNode;
+};
 export type {
   SignUpState,
   SignUpProps,
@@ -52,4 +74,9 @@ export type {
   EmailVerificationState,
   EmailVerificationProps,
   EmailVerificationModalProps,
+  ResetPasswordState,
+  ResetPasswordProps,
+  AuthErrorProps,
+  AuthLoadingProps,
+  AuthTokenExpiredProps,
 };
