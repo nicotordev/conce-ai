@@ -6,12 +6,17 @@ import { PagePropsCommon } from "@/types/pages";
 import { SignInState } from "@/types/auth";
 import { decryptData } from "@/lib/crypto";
 import { SignInPageStep } from "@/types/auth.enum";
+import { redirect } from "next/navigation";
 export default async function SignInPage({ searchParams }: PagePropsCommon) {
   const _searchParams = await searchParams;
   const state: SignInState | null =
     typeof _searchParams.state === "string"
       ? decryptData<SignInState>(_searchParams.state)
       : null;
+
+  if (await _searchParams.email || await _searchParams.password) {
+    redirect("/auth/sign-in");
+  }
 
   return (
     <div className="min-h-screen w-full">
@@ -25,6 +30,7 @@ export default async function SignInPage({ searchParams }: PagePropsCommon) {
             step: state?.step || SignInPageStep.email,
             email: state?.email || "",
             password: state?.password || "",
+            error: state?.error || "",
           }}
         />
         <div className="flex items-center justify-center mt-4">
