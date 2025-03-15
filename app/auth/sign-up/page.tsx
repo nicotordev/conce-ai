@@ -23,7 +23,11 @@ export default async function SignUpPage({ searchParams }: PagePropsCommon) {
         <SignUp
           state={{
             ...state,
-            step: state?.step || SignUpPageStep.email,
+            step: Object.values(SignUpPageStep).includes(
+              state?.step as SignUpPageStep
+            )
+              ? (state?.step as SignUpPageStep)
+              : SignUpPageStep.email,
             email: state?.email || "",
             password: state?.password || "",
             error: state?.error || "",
