@@ -5,24 +5,7 @@ import logger from "@/lib/consola/logger";
 import { AxiosError } from "axios";
 import { NextURL } from "next/dist/server/web/next-url";
 import { NextResponse } from "next/server";
-
-type CustomApiHandler = (
-  req: NextApiRequest,
-  res: NextApiResponse
-) => void | Promise<void | NextApiResponse<unknown>>;
-
-const withApiAuthRequired = (handler: CustomApiHandler): NextApiHandler => {
-  return async (req: NextApiRequest, res: NextApiResponse) => {
-    const isAuth = await auth();
-
-    if (!isAuth) {
-      ApiResponse.unauthorized();
-      return;
-    }
-
-    return handler(req, res);
-  };
-};
+import { CustomApiHandler } from "@/types/api";
 
 class ApiResponse {
   constructor() {}
@@ -185,4 +168,34 @@ class ApiResponse {
   }
 }
 
-export { withApiAuthRequired, ApiResponse };
+const withApiAuthRequired = (handler: CustomApiHandler): NextApiHandler => {
+  return async (req: NextApiRequest, res: NextApiResponse) => {
+    const isAuth = await auth();
+
+    if (!isAuth) {
+      ApiResponse.unauthorized();
+      return;
+    }
+
+    return handler(req, res);
+  };
+};
+
+const withApikeyAuthRequired = (handler: CustomApiHandler): NextApiHandler => {
+  return async (req: NextApiRequest, res: NextApiResponse) => {
+    const apiKey = req.headers["x-condor-ai-key"];
+
+    if (
+      !apiKey ||
+      apiKey !== process.env.CONDOR_AI_API_KEY ||
+      !process.env.CONDOR_AI_API_KEY
+    ) {
+      ApiResponse.unauthorized();
+      return;
+    }
+
+    return handler(req, res);
+  };
+};
+
+export { withApiAuthRequired, withApikeyAuthRequired, ApiResponse };
