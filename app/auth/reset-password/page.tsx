@@ -34,14 +34,17 @@ export default async function ResetPasswordPage({
         <ResetPassword
           state={{
             ...state,
-            step: state?.step ? state?.step : ResetPasswordStep.email,
+            step: Object.values(ResetPasswordStep).includes(
+              state?.step as ResetPasswordStep
+            )
+              ? (state?.step as ResetPasswordStep)
+              : ResetPasswordStep.email,
             email: state?.email ?? "",
             error: state?.error ?? "",
             password: state?.password ?? "",
             token: state?.token ?? "",
           }}
         />
-
       </div>
     </div>
   );
