@@ -1,4 +1,4 @@
-export default function emailVerification(verificationUrl: string) {
+export default function emailVerification(verificationUrl: string, resetToken: string) {
   return `
   <!DOCTYPE html>
 <html lang="es">
@@ -154,7 +154,8 @@ export default function emailVerification(verificationUrl: string) {
             margin: 16px 0;
           "
         >
-          587249
+                    ${resetToken}
+
         </div>
         <div
           class="info-box"
