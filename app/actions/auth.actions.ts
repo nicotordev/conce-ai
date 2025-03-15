@@ -7,14 +7,16 @@ import authAdapterPrisma from "@/lib/prisma/authAdapter.prisma";
 import prisma from "@/lib/prisma/index.prisma";
 import {
   CredentialsSchema,
-  EmailResendSchema,
+  EmailSchema,
   EmailVerificationSchema,
+  PasswordResetSchema,
 } from "@/validation/auth.validation";
 import bcrypt from "bcryptjs";
 import authConstants from "@/constants/auth.constants";
 import mailer from "@/mail/mail";
 import { AuthError, CredentialsSignin } from "next-auth";
 import { redirect } from "next/navigation";
+import { ResetPasswordStep } from "@/types/auth.enum";
 
 async function doSteppedRedirection<T extends object>(
   data: T
@@ -277,7 +279,7 @@ async function doEmailVerification(data: {
 async function doEmailResend(data: {
   email: string;
 }): Promise<ActionResponse<null>> {
-  const emailVerificationValidation = EmailResendSchema.safeParse(data);
+  const emailVerificationValidation = EmailSchema.safeParse(data.email);
 
   if (!emailVerificationValidation.success) {
     return {
@@ -340,10 +342,202 @@ async function doEmailResend(data: {
   }
 }
 
+async function doSendResetPasswordRedirection<T extends object>(
+  data: T
+): Promise<void> {
+  redirect(`/auth/reset-password?state=${encryptData(data)}`);
+}
+async function doSendResetPasswordEmail(data: { email: string }) {
+  try {
+    const emailVerificationValidation = EmailSchema.safeParse(data.email);
+
+    if (!emailVerificationValidation.success) {
+      return await doSendResetPasswordRedirection({
+        step: ResetPasswordStep.email,
+        email: data.email,
+        error: emailVerificationValidation.error.errors[0].message,
+      });
+    }
+
+    if (!authAdapterPrisma.createVerificationToken) {
+      return await doSendResetPasswordRedirection({
+        step: ResetPasswordStep.email,
+        email: data.email,
+        error: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email: data.email,
+      },
+    });
+
+    if (!user || !user.email) {
+      return await doSendResetPasswordRedirection({
+        step: ResetPasswordStep.email,
+        email: data.email,
+        error: authConstants.ERROR_MESSAGES_CODES.INVALID_USER,
+      });
+    }
+
+    const createdToken = await authAdapterPrisma.createVerificationToken({
+      identifier: user.id,
+      token: generateHumanReadableToken(6),
+      expires: new Date(Date.now() + 3600000),
+    });
+
+    if (!createdToken) {
+      return await doSendResetPasswordRedirection({
+        step: ResetPasswordStep.email,
+        email: data.email,
+        error: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+      });
+    }
+
+    await mailer.sendResetPasswordEmail(
+      {
+        name: `${user.email.split("@")[0]}`,
+        address: user.email,
+      },
+      createdToken.token,
+      user.id
+    );
+
+    return await doSendResetPasswordRedirection({
+      step: ResetPasswordStep.resend,
+      email: data.email,
+    });
+  } catch (err) {
+    logger.error("[ACTIONS:DO_SEND_RESET_PASSWORD_EMAIL]:", err);
+    return await doSendResetPasswordRedirection({
+      step: ResetPasswordStep.email,
+      email: data.email,
+      error: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+    });
+  }
+}
+
+async function doResetPasswordEmail(data: {
+  email: string;
+  token: string;
+  password: string;
+}): Promise<ActionResponse<null>> {
+  const passwordResetValidation = PasswordResetSchema.safeParse(data.email);
+
+  if (passwordResetValidation.success === false) {
+    return {
+      success: false,
+      data: null,
+      message: passwordResetValidation.error.errors[0].message,
+    };
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: data.email,
+      },
+    });
+
+    if (!user || !user.email) {
+      return redirect(
+        `/auth/reset-password?state=${encryptData({
+          step: ResetPasswordStep.email,
+          email: data.email,
+          error: authConstants.ERROR_MESSAGES_CODES.INVALID_USER,
+        })}`
+      );
+    }
+
+    if (!authAdapterPrisma.useVerificationToken) {
+      throw new Error(authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR);
+    }
+
+    const token = await authAdapterPrisma.useVerificationToken({
+      identifier: user.id,
+      token: data.token,
+    });
+
+    if (!token) {
+      return redirect(
+        `/auth/reset-password?state=${encryptData({
+          step: ResetPasswordStep.email,
+          email: data.email,
+          error:
+            authConstants.ERROR_MESSAGES_CODES.INVALID_RESET_PASSWORD_TOKEN,
+        })}`
+      );
+    }
+
+    const expiresAt = new Date(token.expires).getTime();
+
+    if (expiresAt < Date.now()) {
+      const newToken = await authAdapterPrisma.createVerificationToken({
+        identifier: user.id,
+        token: generateHumanReadableToken(6),
+        expires: new Date(Date.now() + 3600000),
+      });
+
+      if (!newToken) {
+        throw new Error(
+          authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      await mailer.sendResetPasswordEmail(
+        {
+          name: `${user.email.split("@")[0]}`,
+          address: user.email,
+        },
+        newToken.token,
+        user.id
+      );
+
+      return redirect(
+        `/auth/reset-password?state=${encryptData({
+          step: ResetPasswordStep.expired,
+          email: data.email,
+          error:
+            authConstants.ERROR_MESSAGES_CODES.EXPIRED_RESET_PASSWORD_TOKEN,
+        })}`
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    return {
+      success: true,
+      message: authConstants.SUCCESS_MESSAGES_CODES.SIGN_UP,
+      data: null,
+    };
+  } catch (err) {
+    logger.error("[ACTIONS:DO_RESET_PASSWORD_EMAIL]:", err);
+    return redirect(
+      `/auth/reset-password?state=${encryptData({
+        step: ResetPasswordStep.email,
+        email: data.email,
+        error: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+      })}`
+    );
+  }
+}
+
 export {
   doSteppedRedirection,
   doSignIn,
   doSignUp,
   doEmailVerification,
   doEmailResend,
+  doSendResetPasswordEmail,
+  doResetPasswordEmail,
 };
