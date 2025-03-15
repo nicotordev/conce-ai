@@ -2,21 +2,20 @@ const allRoutes = {
   home: "/",
   authSignIn: "/auth/sign-in",
   authSignUp: "/auth/sign-up",
-  authSignOut: "/auth/sign-out",
-  authForgotPassword: "/auth/forgot-password",
+  authSignOut: "/api/auth/sign-out",
   authResetPassword: "/auth/reset-password",
   authVerifyEmail: "/auth/email-verification",
+  app: "/app",
 };
 
 const routesConstants = {
   allRoutes: allRoutes,
   protectedPaths: {
-    authVerifyEmail: allRoutes.authVerifyEmail,
+    app: allRoutes.app,
   },
   noAuth: {
     authSignIn: allRoutes.authSignIn,
     authSignUp: allRoutes.authSignUp,
-    authForgotPassword: allRoutes.authForgotPassword,
   },
   adminPaths: {},
 };
