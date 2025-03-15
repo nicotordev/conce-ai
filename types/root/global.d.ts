@@ -26,6 +26,7 @@ declare global {
       BREVO_SMTP_LOGIN: string;
       BREVO_SMTP_PASSWORD: string;
       CONDOR_AI_API_KEY: string;
+      GOOGLE_GENERATIVE_AI_API_URL: string;
     }
   }
 
