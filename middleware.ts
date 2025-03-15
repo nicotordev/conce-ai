@@ -26,7 +26,6 @@ export async function middleware(request: NextRequest) {
         step: EmailVerificationStep.start,
         userId: session.user.id,
       });
-      console.log(encryptedData);
       nextUrl.search = `?state=${encryptedData}`;
       return NextResponse.redirect(nextUrl);
     }

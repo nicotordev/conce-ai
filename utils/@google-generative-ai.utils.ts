@@ -46,7 +46,7 @@ async function getGoogleGenerativeAIModels(): Promise<Model[]> {
     return createdModels;
   }
 
-  return [];
+  return currentModels;
 }
 
 export { getGoogleGenerativeAIModels };
