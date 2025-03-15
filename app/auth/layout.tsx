@@ -7,13 +7,13 @@ export default function AuthLayout({
 }>) {
   return (
     <>
-      <div className="w-full">
+      <header className="w-full">
         <div className="p-4">
           <h1 className="!font-bold !font-lato text-dark-text-accent text-xl">
             CondorAI
           </h1>
         </div>
-      </div>
+      </header>
       <main>{children}</main>;
 
       <AuthFooter />
