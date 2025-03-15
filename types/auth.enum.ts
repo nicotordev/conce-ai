@@ -15,4 +15,16 @@ enum EmailVerificationStep {
   expired = "expired",
 }
 
-export { SignUpPageStep, SignInPageStep, EmailVerificationStep };
+enum ResetPasswordStep {
+  email = "email",
+  resend = "resend",
+  reset = "reset",
+  expired = "expired",
+}
+
+export {
+  SignUpPageStep,
+  SignInPageStep,
+  EmailVerificationStep,
+  ResetPasswordStep,
+};
