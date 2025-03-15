@@ -2,11 +2,9 @@ import nodemailer from "nodemailer";
 import logger from "../lib/logger";
 import type { Address } from "nodemailer/lib/addressparser";
 import { Attachment } from "nodemailer/lib/mailer";
-import emailWelcome from "./templates/emailWelcome";
-import emailVerification from "./templates/emailVerification";
 import { encryptData } from "@/lib/crypto";
-import { EmailVerificationStep } from "@/types/auth.enum";
-
+import { EmailVerificationStep, ResetPasswordStep } from "@/types/auth.enum";
+import templates from "./templates/templates";
 class Mailer {
   constructor() {}
 
@@ -52,7 +50,7 @@ class Mailer {
 
   public async sendWelcomeEmail(to: Address) {
     const subject = "¡Bienvenido a Cóndor-AI!";
-    const htmlContent = emailWelcome();
+    const htmlContent = templates.emailWelcome();
     await this.sendBrevoEmail(subject, htmlContent, to);
   }
 
@@ -62,13 +60,30 @@ class Mailer {
     userId: string
   ) {
     const subject = "Verifica tu correo electrónico - Cóndor-AI";
-    const htmlContent = emailVerification(
+    const htmlContent = templates.emailVerification(
       `${
         process.env.NEXT_PUBLIC_BASE_URL
       }/auth/email-verification?state=${encryptData({
         code,
         step: EmailVerificationStep.start,
         userId,
+      })}`
+    );
+    await this.sendBrevoEmail(subject, htmlContent, to);
+  }
+  public async sendResetPasswordEmail(
+    to: Address,
+    code: string,
+    userId: string
+  ) {
+    const subject = "Restablece tu contraseña - Cóndor-AI";
+    const htmlContent = templates.emailPasswordReset(
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL
+      }/auth/reset-password?state=${encryptData({
+        code,
+        userId,
+        step: ResetPasswordStep.reset,
       })}`
     );
     await this.sendBrevoEmail(subject, htmlContent, to);
