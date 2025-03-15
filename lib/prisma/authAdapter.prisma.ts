@@ -71,6 +71,22 @@ const authAdapterPrisma = {
       },
     });
   },
+  useVerificationToken(
+    params: {
+      identifier: string;
+      token: string;
+    },
+    prismTx: Prisma.TransactionClient = prisma
+  ): Awaitable<VerificationToken | null> {
+    return prismTx.verificationToken.delete({
+      where: {
+        identifier_token: {
+          identifier: params.identifier,
+          token: params.token,
+        }
+      },
+    });
+  },
 };
 
 export default authAdapterPrisma;

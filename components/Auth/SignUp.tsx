@@ -60,12 +60,12 @@ export default function SignUp({ state }: SignUpProps) {
     } else {
       setLoadingSignUp(true);
       const signUpResponse = await doSignUp({ email, password });
-      setLoadingSignUp(false);
-
       if (signUpResponse.success) {
         await doSignIn({ email, password }, SignUpPageStep.password);
         return;
       }
+
+      setLoadingSignUp(false);
 
       if (
         signUpResponse.message ===
@@ -118,7 +118,7 @@ export default function SignUp({ state }: SignUpProps) {
         leaveTo="opacity-0"
         unmount={true}
       >
-        <div>
+        <div className="flex flex-col gap-3">
           <CondorInput
             name="email"
             id="email"

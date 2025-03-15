@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import EmailVerification from "@/components/Auth/EmailVerification";
 import { decryptData } from "@/lib/crypto";
 import prisma from "@/lib/prisma/index.prisma";
@@ -5,9 +6,9 @@ import { EmailVerificationState } from "@/types/auth";
 import { EmailVerificationStep } from "@/types/auth.enum";
 import { PagePropsCommon } from "@/types/pages";
 import { User } from "@prisma/client";
-import Link from "next/link";
 
 export default async function EmailVerificationPage(props: PagePropsCommon) {
+  const session = await auth();
   const _searchParams = await props.searchParams;
   const state: EmailVerificationState | null =
     typeof _searchParams.state === "string"
@@ -30,7 +31,7 @@ export default async function EmailVerificationPage(props: PagePropsCommon) {
     <div className="min-h-screen w-full">
       <div className="mx-auto max-w-xs mt-16">
         <h2 className="!font-paragraph font-bold text-dark-text-primary text-3xl text-center">
-          Bienvenido
+          Verifica tu Correo Electrónico
         </h2>
         <EmailVerification
           state={{
@@ -41,6 +42,7 @@ export default async function EmailVerificationPage(props: PagePropsCommon) {
             error: state?.error || "",
             email: user?.email || "",
           }}
+          session={session}
         />
       </div>
     </div>

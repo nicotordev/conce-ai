@@ -11,7 +11,6 @@ enum SignInPageStep {
 enum EmailVerificationStep {
   start = "start",
   success = "success",
-  error = "error",
   expired = "expired",
 }
 
@@ -20,6 +19,7 @@ enum ResetPasswordStep {
   resend = "resend",
   reset = "reset",
   expired = "expired",
+  success = "success",
 }
 
 export {

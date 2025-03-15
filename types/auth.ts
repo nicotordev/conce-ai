@@ -1,3 +1,4 @@
+import { Session } from "next-auth";
 import {
   EmailVerificationStep,
   ResetPasswordStep,
@@ -34,6 +35,7 @@ type EmailVerificationState = {
 
 type EmailVerificationProps = {
   state: EmailVerificationState;
+  session: Session | null;
 };
 
 type EmailVerificationModalProps = {

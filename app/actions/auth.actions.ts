@@ -178,23 +178,33 @@ async function doSignIn(
   }
 }
 
+async function doEmailVerificationRedirection<T extends object>(
+  data: T
+): Promise<void> {
+  redirect(`/auth/email-verification?state=${encryptData(data)}`);
+}
+
 async function doEmailVerification(data: {
   code: string;
   userId: string;
-}): Promise<ActionResponse<null>> {
+}): Promise<void> {
   const emailVerificationValidation = EmailVerificationSchema.safeParse(data);
 
   if (!emailVerificationValidation.success) {
-    return {
-      success: false,
-      data: null,
-      message: emailVerificationValidation.error.errors[0].message,
-    };
+    return doEmailVerificationRedirection({
+      step: ResetPasswordStep.email,
+      email: data.userId,
+      error: emailVerificationValidation.error.errors[0].message,
+    });
   }
 
   try {
     if (!authAdapterPrisma.useVerificationToken) {
-      throw new Error("Internal server error");
+      return doEmailVerificationRedirection({
+        step: ResetPasswordStep.email,
+        email: data.userId,
+        error: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+      });
     }
 
     const token = await authAdapterPrisma.useVerificationToken({
@@ -203,20 +213,22 @@ async function doEmailVerification(data: {
     });
 
     if (!token) {
-      return {
-        success: false,
-        message: authConstants.ERROR_MESSAGES_CODES.INVALID_VERIFICATION_TOKEN,
-        data: null,
-      };
+      return doEmailVerificationRedirection({
+        step: ResetPasswordStep.email,
+        email: data.userId,
+        error: authConstants.ERROR_MESSAGES_CODES.INVALID_VERIFICATION_TOKEN,
+      });
     }
 
     const expiresAt = new Date(token.expires).getTime();
 
     if (expiresAt < Date.now()) {
       if (!authAdapterPrisma.createVerificationToken) {
-        throw new Error(
-          authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR
-        );
+        throw doEmailVerificationRedirection({
+          step: ResetPasswordStep.email,
+          email: data.userId,
+          error: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+        });
       }
 
       const user = await prisma.user.findUnique({
@@ -226,12 +238,11 @@ async function doEmailVerification(data: {
       });
 
       if (!user || !user.email) {
-        return {
-          success: false,
-          message:
-            authConstants.ERROR_MESSAGES_CODES.INVALID_VERIFICATION_TOKEN,
-          data: null,
-        };
+        return doEmailVerificationRedirection({
+          step: ResetPasswordStep.email,
+          email: data.userId,
+          error: authConstants.ERROR_MESSAGES_CODES.INVALID_VERIFICATION_TOKEN,
+        });
       }
 
       const createdToken = await authAdapterPrisma.createVerificationToken({
@@ -241,9 +252,11 @@ async function doEmailVerification(data: {
       });
 
       if (!createdToken) {
-        throw new Error(
-          authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR
-        );
+        return doEmailVerificationRedirection({
+          step: ResetPasswordStep.email,
+          email: data.userId,
+          error: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+        });
       }
 
       await mailer.sendEmailVerificationEmail(
@@ -255,25 +268,26 @@ async function doEmailVerification(data: {
         user.id
       );
 
-      return {
-        success: false,
-        message: authConstants.ERROR_MESSAGES_CODES.EXPIRED_VERIFICATION_TOKEN,
-        data: null,
-      };
+      return doEmailVerificationRedirection({
+        step: ResetPasswordStep.expired,
+        email: data.userId,
+        error: authConstants.ERROR_MESSAGES_CODES.EXPIRED_VERIFICATION_TOKEN,
+      });
     }
+
+    return doEmailVerificationRedirection({
+      step: ResetPasswordStep.success,
+      email: data.userId,
+      error: "",
+    });
   } catch (err) {
     logger.error("[ACTIONS:DO_EMAIL_VERIFICATION]:", err);
-    return {
-      success: false,
-      message: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
-      data: null,
-    };
+    return doEmailVerificationRedirection({
+      step: ResetPasswordStep.expired,
+      email: data.userId,
+      error: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+    });
   }
-  return {
-    success: false,
-    message: authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
-    data: null,
-  };
 }
 
 async function doEmailResend(data: {
