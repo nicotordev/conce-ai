@@ -3,7 +3,7 @@
 import { SignUpProps } from "@/types/auth";
 import { SignUpPageStep } from "@/types/auth.enum";
 import { Transition } from "@headlessui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CondorInput from "../Common/Forms/CondorInput";
 import { BsEnvelope } from "react-icons/bs";
 import {
@@ -79,6 +79,11 @@ export default function SignUp({ state }: SignUpProps) {
       }
     }
   }
+
+  useEffect(() => {
+    setDoingRedirection(false);
+    setLoadingSignUp(false);
+  }, [state]);
 
   return (
     <form onSubmit={handleNextStep} className="relative mt-4">

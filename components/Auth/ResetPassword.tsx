@@ -93,6 +93,11 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
     setLoadingResetPassword(false);
   }
 
+  useEffect(() => {
+    setDoingRedirection(false);
+    setLoadingResetPassword(false);
+  }, [state]);
+
   return (
     <>
       <h2 className="!font-paragraph font-bold text-dark-text-primary text-3xl text-center">

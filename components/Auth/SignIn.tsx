@@ -3,7 +3,7 @@
 import { SignInProps } from "@/types/auth";
 import { SignInPageStep } from "@/types/auth.enum";
 import { Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import CondorInput from "../Common/Forms/CondorInput";
 import { BsEnvelope, BsLock } from "react-icons/bs";
 import { doSignIn, doSteppedRedirection } from "@/app/actions/auth.actions";
@@ -51,12 +51,17 @@ export default function SignIn({ state }: SignInProps) {
     }
   }
 
+  useEffect(() => {
+    setDoingRedirection(false);
+    setLoadingSignUp(false);
+  }, [state]);
+
   return (
     <>
       <h2 className="!font-paragraph font-bold text-dark-text-primary text-3xl text-center">
         {step === SignInPageStep.email
           ? "Bienvenido"
-          : "Introducte tu contraseña"}
+          : "Introduce tu contraseña"}
       </h2>
       <form onSubmit={handleNextStep} className="relative mt-4">
         <AuthLoading loading={loadingSignUp} />

@@ -2,7 +2,7 @@
 import { EmailVerificationProps } from "@/types/auth";
 import { EmailVerificationStep } from "@/types/auth.enum";
 import { Transition } from "@headlessui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CondorInput from "../Common/Forms/CondorInput";
 import { BsLock } from "react-icons/bs";
 import {
@@ -41,6 +41,10 @@ export default function EmailVerification({
     });
     setLoading(false);
   }
+
+  useEffect(() => {
+    setLoading(false);
+  }, [state]);
 
   return (
     <>
