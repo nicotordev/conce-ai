@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
 
   if (Object.values(routesConstants.noAuth).includes(nextUrl.pathname)) {
     if (session) {
-      nextUrl.pathname = routesConstants.allRoutes.home;
+      nextUrl.pathname = routesConstants.allRoutes.app;
       return NextResponse.redirect(nextUrl);
     }
   }
