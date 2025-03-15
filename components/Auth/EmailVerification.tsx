@@ -35,10 +35,11 @@ export default function EmailVerification({
   async function handleNextStep(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    return await doEmailVerification({
+    await doEmailVerification({
       code,
       userId,
     });
+    setLoading(false);
   }
 
   return (
@@ -53,35 +54,52 @@ export default function EmailVerification({
         leaveTo="opacity-0"
         unmount={true}
       >
-        <form onSubmit={handleNextStep} className="relative mt-4">
-          <div>
-            <CondorInput
-              name="code"
-              id="code"
-              placeholder="Código de verificación"
-              type="text"
-              required
-              leftIcon={<BsLock />}
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          <AuthLoading loading={loading} />
-          <AuthError error={error} />
-          <div className="mt-4">
-            <div className="flex flex-col gap-3">
-              <Button type="submit" disabled={loading}>
-                Verificar
-              </Button>
+        <div>
+          <form onSubmit={handleNextStep} className="relative mt-4">
+            <div>
+              <CondorInput
+                name="code"
+                id="code"
+                placeholder="Código de verificación"
+                type="text"
+                required
+                leftIcon={<BsLock />}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                disabled={loading}
+              />
             </div>
-          </div>
-        </form>
+
+            <AuthLoading loading={loading} />
+            <AuthError error={error} />
+            <div className="mt-4">
+              <div className="flex flex-col gap-3">
+                <Button type="submit" disabled={loading}>
+                  Verificar
+                </Button>
+              </div>
+            </div>
+          </form>
+          <EmailVerificationModal
+            loading={loading}
+            setLoading={setLoading}
+            handleStep={handleStep}
+            email={state?.email || ""}
+          />
+        </div>
       </Transition>
-      <AuthTokenExpired
-        show={Boolean(step === EmailVerificationStep.expired)}
-      />
+
+      <AuthTokenExpired show={Boolean(step === EmailVerificationStep.expired)}>
+        <div className="flex flex-col gap-3 mt-4">
+          <Button
+            onClick={() => handleStep(EmailVerificationStep.start)}
+            disabled={loading}
+            type="submit"
+          >
+            Volver a intentarlo
+          </Button>
+        </div>
+      </AuthTokenExpired>
       <Transition
         show={EmailVerificationStep.success === step}
         enter="transition ease-out duration-300"
@@ -101,24 +119,21 @@ export default function EmailVerification({
               Tu cuenta ha sido verificada exitosamente, ahora puedes continuar
               con tu sesión.
             </p>
-            <Button
-              onClick={() => {
-                if (session) {
-                  redirect("/app");
-                } else {
-                  redirect("/auth/sign-in");
-                }
-              }}
-            ></Button>
           </div>
+          <Button
+            className="w-full"
+            onClick={() => {
+              if (session) {
+                redirect("/app");
+              } else {
+                redirect("/auth/sign-in");
+              }
+            }}
+          >
+            Continuar
+          </Button>
         </div>
       </Transition>
-      <EmailVerificationModal
-        loading={loading}
-        setLoading={setLoading}
-        handleStep={handleStep}
-        email={state?.email || ""}
-      />
     </>
   );
 }
