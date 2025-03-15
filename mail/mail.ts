@@ -48,9 +48,17 @@ class Mailer {
     }
   }
 
-  public async sendWelcomeEmail(to: Address) {
+  public async sendWelcomeEmail(to: Address, code: string, userId: string) {
     const subject = "¡Bienvenido a Cóndor-AI!";
-    const htmlContent = templates.emailWelcome();
+    const htmlContent = templates.emailWelcome(
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL
+      }/auth/email-verification?state=${encryptData({
+        code,
+        step: EmailVerificationStep.start,
+        userId,
+      })}`
+    );
     await this.sendBrevoEmail(subject, htmlContent, to);
   }
 

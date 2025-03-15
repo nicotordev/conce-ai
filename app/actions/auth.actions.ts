@@ -116,10 +116,14 @@ async function doSignUp(credentials: {
       if (!createdToken) {
         throw new Error(authConstants.ERROR_MESSAGES_CODES.ERROR_SIGN_UP_TOKEN);
       }
-      await mailer.sendWelcomeEmail({
-        name: `${credentials.email.split("@")[0]}`,
-        address: credentials.email,
-      });
+      await mailer.sendWelcomeEmail(
+        {
+          name: `${credentials.email.split("@")[0]}`,
+          address: credentials.email,
+        },
+        createdToken.token,
+        createdUser.id
+      );
 
       await mailer.sendEmailVerificationEmail(
         {

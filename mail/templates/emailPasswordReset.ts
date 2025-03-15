@@ -1,335 +1,364 @@
-export default function emailPasswordReset(resetUrl: string, resetToken: string) {
-    return `
-  <!DOCTYPE html>
-  <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Restablece tu contraseña - Cóndor-AI</title>
-  </head>
-  <body>
-    <div
-      class="container"
-      style="
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 0;
-        background-color: #ffffff;
-      "
-    >
-      <div
-        class="header"
-        style="
-          text-align: center;
-          padding: 30px 0;
-          background: linear-gradient(135deg, #007bff, #42b584);
-        "
-      >
-        <img
-          src="/api/placeholder/180/90"
-          alt="Cóndor-AI Logo"
-          style="max-width: 180px"
-        />
-        <h1
-          style="
-            font-family: 'Space Grotesk', sans-serif;
-            color: #ffffff;
-            margin: 0;
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-          "
-        >
-          Restablecimiento de contraseña
-        </h1>
-      </div>
-  
-      <div class="content" style="padding: 32px 40px">
-        <h2
-          style="
-            font-family: 'Space Grotesk', sans-serif;
-            color: #1e293b;
-            margin-top: 0;
-            font-size: 24px;
-            letter-spacing: -0.01em;
-          "
-        >
-          Restablece tu contraseña
-        </h2>
-  
-        <p
-          style="
-            font-family: 'Inter', sans-serif;
-            color: #334155;
-            font-size: 15px;
-            margin-bottom: 16px;
-          "
-        >
-          Hola,
-        </p>
-  
-        <p
-          style="
-            font-family: 'Inter', sans-serif;
-            color: #334155;
-            font-size: 15px;
-            margin-bottom: 16px;
-          "
-        >
-          Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>Cóndor-AI</strong>. Para continuar con este proceso y garantizar la seguridad de tus datos,<br /><strong>
-          por favor sigue el enlace a continuación.</strong>
-        </p>
-  
-        <div
-          class="verification-box"
-          style="
-            background-color: #edfaff;
-            padding: 24px;
-            border-radius: 8px;
-            margin: 24px 0;
-            text-align: center;
-            border: 1px solid #d6f2ff;
-          "
-        >
-          <p
-            style="
-              font-family: 'Inter', sans-serif;
-              color: #334155;
-              font-size: 15px;
-              margin-bottom: 16px;
-            "
+export default function emailPasswordReset(
+  resetUrl: string,
+  resetToken: string
+) {
+  return `
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml"><head>
+    <meta charset="utf-8">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
+    <meta name="color-scheme" content="light dark">
+    <meta name="supported-color-schemes" content="light dark">
+    <!--[if mso]>
+      <noscript>
+        <xml>
+          <o:OfficeDocumentSettings
+            xmlns:o="urn:schemas-microsoft-com:office:office"
           >
-            Haz clic en el botón de abajo para restablecer tu contraseña:
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+          </o:OfficeDocumentSettings>
+        </xml>
+      </noscript>
+      <style>
+        td,
+        th,
+        div,
+        p,
+        a,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+          font-family: "Segoe UI", sans-serif;
+          mso-line-height-rule: exactly;
+        }
+        .mso-break-all {
+          word-break: break-all;
+        }
+      </style>
+    <![endif]-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap" rel="stylesheet" media="screen">
+    <style>.m-0 {
+    margin: 0 !important
+}
+.mx-auto {
+    margin-left: auto !important;
+    margin-right: auto !important
+}
+.my-4 {
+    margin-top: 16px !important;
+    margin-bottom: 16px !important
+}
+.mb-6 {
+    margin-bottom: 24px !important
+}
+.mt-2 {
+    margin-top: 8px !important
+}
+.mt-3 {
+    margin-top: 12px !important
+}
+.mt-4 {
+    margin-top: 16px !important
+}
+.inline-block {
+    display: inline-block !important
+}
+.table {
+    display: table !important
+}
+.hidden {
+    display: none !important
+}
+.w-36 {
+    width: 144px !important
+}
+.w-552px {
+    width: 552px !important
+}
+.w-full {
+    width: 100% !important
+}
+.max-w-full {
+    max-width: 100% !important
+}
+.max-w-xl {
+    max-width: 288px !important
+}
+.list-disc {
+    list-style-type: disc !important
+}
+.rounded {
+    border-radius: 4px !important
+}
+.rounded-lg {
+    border-radius: 8px !important
+}
+.rounded-b-lg {
+    border-bottom-right-radius: 8px !important;
+    border-bottom-left-radius: 8px !important
+}
+.rounded-t-lg {
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 8px !important
+}
+.border {
+    border-width: 1px !important
+}
+.border-l-4 {
+    border-left-width: 4px !important
+}
+.border-blue-300 {
+    border-color: #93c5fd !important
+}
+.border-gray-900 {
+    border-color: #111827 !important
+}
+.bg-blue-100 {
+    background-color: #dbeafe !important
+}
+.bg-gray-100 {
+    background-color: #f3f4f6 !important
+}
+.bg-gray-50 {
+    background-color: #f9fafb !important
+}
+.bg-gray-900 {
+    background-color: #111827 !important
+}
+.bg-slate-50 {
+    background-color: #f8fafc !important
+}
+.bg-slate-950 {
+    background-color: #020617 !important
+}
+.bg-white {
+    background-color: #fffffe !important
+}
+.p-0 {
+    padding: 0 !important
+}
+.p-4 {
+    padding: 16px !important
+}
+.p-6 {
+    padding: 24px !important
+}
+.px-6 {
+    padding-left: 24px !important;
+    padding-right: 24px !important
+}
+.px-9 {
+    padding-left: 36px !important;
+    padding-right: 36px !important
+}
+.py-2 {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important
+}
+.py-3 {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important
+}
+.py-6 {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important
+}
+.pl-5 {
+    padding-left: 20px !important
+}
+.text-left {
+    text-align: left !important
+}
+.text-center {
+    text-align: center !important
+}
+.text-right {
+    text-align: right !important
+}
+.font-inter {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif !important
+}
+.text-2xl {
+    font-size: 24px !important
+}
+.text-2xl-8 {
+    font-size: 24px !important;
+    line-height: 32px !important
+}
+.text-base-6 {
+    font-size: 16px !important;
+    line-height: 24px !important
+}
+.text-lg {
+    font-size: 18px !important
+}
+.text-sm {
+    font-size: 14px !important
+}
+.text-xl {
+    font-size: 20px !important
+}
+.text-xs {
+    font-size: 12px !important
+}
+.text-xs-5 {
+    font-size: 12px !important;
+    line-height: 20px !important
+}
+.font-semibold {
+    font-weight: 600 !important
+}
+.italic {
+    font-style: italic !important
+}
+.text-gray-500 {
+    color: #6b7280 !important
+}
+.text-gray-600 {
+    color: #4b5563 !important
+}
+.text-gray-900 {
+    color: #111827 !important
+}
+.text-slate-500 {
+    color: #64748b !important
+}
+.text-slate-600 {
+    color: #475569 !important
+}
+.text-slate-800 {
+    color: #1e293b !important
+}
+.text-slate-900 {
+    color: #0f172a !important
+}
+.text-white {
+    color: #fffffe !important
+}
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important
+}
+.underline {
+    text-decoration: underline !important
+}
+.mso-font-width-150pc {
+    mso-font-width: 150%
+}
+.-webkit-font-smoothing-antialiased {
+    -webkit-font-smoothing: antialiased !important
+}
+.border-1px_solid_themecolors_slate_200 {
+    border: 1px solid #e2e8f0 !important
+}
+.word-break-break-word {
+    word-break: break-word !important
+}
+      img {
+    max-width: 100%;
+    vertical-align: middle
+}
+      .hover-bg-slate-800:hover {
+    background-color: #1e293b !important
+}
+      @media (max-width: 600px) {
+    .sm-p-6 {
+        padding: 24px !important
+    }
+    .sm-px-4 {
+        padding-left: 16px !important;
+        padding-right: 16px !important
+    }
+    .sm-px-6 {
+        padding-left: 24px !important;
+        padding-right: 24px !important
+    }
+}</style>
+    <style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+      * {
+        font-family: "Inter", sans-serif;
+      }</style>
+    
+  <script src="/hmr.js"></script></head>
+  <body class="m-0 p-0 w-full word-break-break-word -webkit-font-smoothing-antialiased">
+    <div role="article" aria-roledescription="email" aria-label="" lang="en">
+      
+  
+    <table class="w-full max-w-xl mx-auto bg-white shadow-lg rounded-lg" role="presentation" cellpadding="0" cellspacing="0">
+      <tbody><tr>
+        <td class="bg-gray-900 text-center p-6 rounded-t-lg">
+          <img src="/api/placeholder/180/90" alt="Cóndor-AI Logo" class="mx-auto w-36">
+          <h1 class="text-white text-lg font-semibold mt-2">
+            Restablecimiento de contraseña
+          </h1>
+        </td>
+      </tr>
+      <tr>
+        <td class="p-6">
+          <h2 class="text-gray-900 text-xl font-semibold">
+            Restablece tu contraseña
+          </h2>
+          <p class="text-gray-600">Hola,</p>
+          <p class="text-gray-600">
+            Hemos recibido una solicitud para restablecer la contraseña de tu
+            cuenta en <strong>Cóndor-AI</strong>. Para continuar, sigue el
+            enlace a continuación.
           </p>
-  
-          <a
-            href="${resetUrl}"
-            class="button"
-            style="
-              display: inline-block;
-              padding: 12px 24px;
-              background-color: #007bff;
-              color: #ffffff;
-              text-decoration: none;
-              border-radius: 6px;
-              margin-top: 24px;
-              font-weight: 600;
-              font-family: 'Poppins', sans-serif;
-              font-size: 14px;
-              transition: all 0.2s ease;
-            "
-          >RESTABLECER MI CONTRASEÑA</a>
-  
-          <p
-            class="time-warning"
-            style="
-              font-family: 'Lato', sans-serif;
-              color: #64748b;
-              font-size: 14px;
-              margin-bottom: 16px;
-              font-style: italic;
-            "
-          >
-            Este enlace expira en 1 hora por seguridad.
+          <div class="bg-gray-50 p-4 border border-blue-300 rounded-lg text-center my-4">
+            <p class="text-gray-600">
+              Haz clic en el botón de abajo para restablecer tu contraseña:
+            </p>
+            <a href="${resetUrl}" class="inline-block mt-3 px-6 py-2 bg-gray-900 text-white rounded text-sm font-semibold">Restablecer contraseña</a>
+            <p class="text-gray-500 text-sm italic mt-2">
+              Este enlace expira en 1 hora.
+            </p>
+          </div>
+          <p class="text-gray-600">
+            Si el botón no funciona, usa este código de restablecimiento:
           </p>
-        </div>
-  
-        <p
-          style="
-            font-family: 'Inter', sans-serif;
-            color: #334155;
-            font-size: 15px;
-            margin-bottom: 16px;
-          "
-        >
-          Si el botón no funciona, también puedes usar este código de restablecimiento:
-        </p>
-  
-        <div
-          class="verification-code"
-          style="
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 32px;
-            letter-spacing: 4px;
-            color: #0e315d;
-            font-weight: 700;
-            padding: 16px 0;
-            margin: 16px 0;
-          "
-        >
-          ${resetToken}
-        </div>
-  
-        <div
-          class="info-box"
-          style="
-            background-color: #e8f5f0;
-            border-left: 4px solid #42b584;
-            padding: 16px 20px;
-            margin: 24px 0;
-            border-radius: 0 8px 8px 0;
-          "
-        >
-          <p
-            style="
-              font-family: 'Inter', sans-serif;
-              color: #334155;
-              font-size: 15px;
-              margin-bottom: 16px;
-              margin: 8px 0;
-            "
-          >
-            <strong>¿Cómo usar el código?</strong>
+          <div class="text-gray-900 text-2xl font-semibold text-center py-3">
+            ${resetToken}
+          </div>
+          <div class="bg-blue-100 border-l-4 border-gray-900 p-4 rounded-lg">
+            <p class="text-gray-900 font-semibold">¿Cómo usar el código?</p>
+            <ul class="list-disc pl-5 text-gray-600">
+              <li>
+                Ingresa a la página de restablecimiento de contraseña de
+                Cóndor-AI
+              </li>
+              <li>Introduce el código de 6 dígitos mostrado arriba</li>
+              <li>Crea una nueva contraseña segura</li>
+            </ul>
+          </div>
+          <p class="text-gray-600 mt-4">
+            Si no solicitaste este restablecimiento, ignora este correo o
+            contáctenos.
           </p>
+          <p class="text-gray-600">
+            Nunca compartas tu contraseña ni respondas a correos solicitando tus
+            credenciales.
+          </p>
+          <p class="text-gray-900 font-semibold">El equipo de Cóndor-AI</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="text-center text-gray-500 text-xs p-4 bg-gray-100 rounded-b-lg">
+          <p>© 2025 Cóndor-AI | Todos los derechos reservados</p>
+          <p>Av. Providencia 1234, Santiago, Chile</p>
+        </td>
+      </tr>
+    </tbody></table>
   
-          <ol class="steps" style="padding-left: 20px">
-            <li style="margin-bottom: 8px; color: #334155">
-              Ingresa a la página de restablecimiento de contraseña de Cóndor-AI
-            </li>
-            <li style="margin-bottom: 8px; color: #334155">
-              Introduce el código de 6 dígitos mostrado arriba
-            </li>
-            <li style="margin-bottom: 8px; color: #334155">
-              Crea una nueva contraseña segura
-            </li>
-          </ol>
-        </div>
-  
-        <p
-          style="
-            font-family: 'Inter', sans-serif;
-            color: #334155;
-            font-size: 15px;
-            margin-bottom: 16px;
-          "
-        >
-          Si no solicitaste este restablecimiento de contraseña, por favor ignora este correo o contáctanos inmediatamente, ya que alguien podría estar intentando acceder a tu cuenta.
-        </p>
-  
-        <p
-          style="
-            font-family: 'Inter', sans-serif;
-            color: #334155;
-            font-size: 15px;
-            margin-bottom: 16px;
-          "
-        >
-          Te recordamos que nunca debes compartir tu contraseña con nadie ni responder a correos solicitando tus credenciales.
-        </p>
-  
-        <p
-          style="
-            font-family: 'Inter', sans-serif;
-            color: #334155;
-            font-size: 15px;
-            margin-bottom: 16px;
-          "
-        >
-          Saludos cordiales,<br />
-          <strong>El equipo de Cóndor-AI</strong>
-        </p>
-  
-        <div
-          class="social"
-          style="
-            margin-top: 32px;
-            padding-top: 20px;
-            border-top: 1px solid #e3e3e3;
-          "
-        >
-          <a
-            href="#"
-            style="
-              margin: 0 10px;
-              text-decoration: none;
-              color: #007bff;
-              font-family: 'Lato', sans-serif;
-              font-size: 14px;
-            "
-          >Facebook</a>
-          |
-          <a
-            href="#"
-            style="
-              margin: 0 10px;
-              text-decoration: none;
-              color: #007bff;
-              font-family: 'Lato', sans-serif;
-              font-size: 14px;
-            "
-          >Twitter</a>
-          |
-          <a
-            href="#"
-            style="
-              margin: 0 10px;
-              text-decoration: none;
-              color: #007bff;
-              font-family: 'Lato', sans-serif;
-              font-size: 14px;
-            "
-          >LinkedIn</a>
-          |
-          <a
-            href="#"
-            style="
-              margin: 0 10px;
-              text-decoration: none;
-              color: #007bff;
-              font-family: 'Lato', sans-serif;
-              font-size: 14px;
-            "
-          >Instagram</a>
-        </div>
-      </div>
-  
-      <div
-        class="footer"
-        style="
-          text-align: center;
-          padding: 24px;
-          font-size: 13px;
-          color: #64748b;
-          background-color: #f8fafc;
-          font-family: 'Lato', sans-serif;
-        "
-      >
-        <p
-          style="
-            font-family: 'Inter', sans-serif;
-            color: #334155;
-            font-size: 15px;
-            margin-bottom: 16px;
-          "
-        >
-          © 2025 Cóndor-AI | Todos los derechos reservados
-        </p>
-  
-        <p
-          style="
-            font-family: 'Inter', sans-serif;
-            color: #334155;
-            font-size: 15px;
-            margin-bottom: 16px;
-          "
-        >
-          Av. Providencia 1234, Santiago, Chile
-        </p>
-  
-        <p
-          style="
-            margin-top: 12px;
-            font-size: 12px;
-            font-family: 'Inter', sans-serif;
-            color: #334155;
-            margin-bottom: 16px;
-          "
-        >
-          Si no solicitaste este restablecimiento de contraseña, puedes ignorar este correo electrónico.
-        </p>
-      </div>
+
     </div>
-  </body>
-  </html>
+  
+
+
+</body></html>
   `;
-  }
+}
