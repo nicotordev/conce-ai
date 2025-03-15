@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.8.0",
+    "@google-cloud/recaptcha-enterprise": "^5.13.0",
     "@google/generative-ai": "^0.24.0",
     "@headlessui/react": "^2.2.0",
     "@prisma/client": "^6.5.0",

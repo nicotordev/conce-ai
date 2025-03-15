@@ -1,3 +1,4 @@
-export default async function AppPage() {
+
+export async function AppPage() {
   return <></>;
 }
