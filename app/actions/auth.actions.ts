@@ -275,6 +275,15 @@ async function doEmailVerification(data: {
       });
     }
 
+    await prisma.user.update({
+      where: {
+        id: data.userId,
+      },
+      data: {
+        emailVerified: new Date(),
+      },
+    });
+
     return doEmailVerificationRedirection({
       step: ResetPasswordStep.success,
       email: data.userId,
