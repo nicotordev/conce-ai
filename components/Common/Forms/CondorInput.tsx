@@ -27,7 +27,7 @@ export default function CondorInput({
       {label && (
         <Label
           htmlFor="hs-leading-icon"
-          className="block text-sm font-medium mb-2 dark:text-white"
+          className="block text-sm font-medium mb-2"
         >
           {label}
         </Label>

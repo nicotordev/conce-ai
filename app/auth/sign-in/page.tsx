@@ -21,9 +21,6 @@ export default async function SignInPage({ searchParams }: PagePropsCommon) {
   return (
     <div className="min-h-screen w-full">
       <div className="mx-auto max-w-xs mt-16">
-        <h2 className="!font-paragraph font-bold text-dark-text-primary text-3xl text-center">
-          Bienvenido
-        </h2>
         <SignIn
           state={{
             ...state,
