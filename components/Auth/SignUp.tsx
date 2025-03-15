@@ -3,7 +3,7 @@
 import { SignUpProps } from "@/types/auth";
 import { SignUpPageStep } from "@/types/auth.enum";
 import { Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import CondorInput from "../Common/Forms/CondorInput";
 import { BsEnvelope } from "react-icons/bs";
 import {
@@ -14,6 +14,8 @@ import {
 import toast from "react-hot-toast";
 import CondorPasswordInput from "../Common/Forms/CondorPasswordInput";
 import authConstants from "@/constants/auth.constants";
+import AuthLoading from "./AuthLoading";
+import AuthError from "./AuthError";
 
 export default function SignUp({ state }: SignUpProps) {
   const step = state?.step ?? SignUpPageStep.email;
@@ -79,7 +81,9 @@ export default function SignUp({ state }: SignUpProps) {
   }
 
   return (
-    <form onSubmit={handleNextStep} className="relative">
+    <form onSubmit={handleNextStep} className="relative mt-4">
+      <AuthLoading loading={loadingSignUp} />
+      <AuthError error={state?.error} />
       <Transition
         show={step === SignUpPageStep.email}
         enter="transition ease-out duration-300"
@@ -96,40 +100,12 @@ export default function SignUp({ state }: SignUpProps) {
             id="email"
             placeholder="Dirección de correo electrónico"
             type="email"
-            label="Correo electrónico"
             required
             leftIcon={<BsEnvelope />}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={doingRedirection || loadingSignUp}
           />
-        </div>
-      </Transition>
-      <Transition
-        show={loadingSignUp}
-        enter="transition ease-out duration-300"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="transition ease-in duration-200"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-        unmount={true}
-        as={Fragment}
-      >
-        <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center mt-4 z-50 pointer-events-none">
-          <div className="h-full flex flex-col w-full backdrop-blur-xs bg-white/10 scale-110">
-            <div className="flex flex-auto flex-col justify-center items-center p-4 md:p-5">
-              <div className="flex justify-center">
-                <div
-                  className="animate-spin inline-block size-6 border-3 border-current border-t-transparent text-blue-600 rounded-full dark:text-blue-500"
-                  role="status"
-                  aria-label="loading"
-                >
-                  <span className="sr-only">Loading...</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </Transition>
       <Transition
@@ -148,7 +124,6 @@ export default function SignUp({ state }: SignUpProps) {
             id="email"
             placeholder="Dirección de correo electrónico"
             type="email"
-            label="Correo electrónico"
             required
             leftIcon={<BsEnvelope />}
             defaultValue={email}
@@ -158,7 +133,6 @@ export default function SignUp({ state }: SignUpProps) {
             name="password"
             id="password"
             placeholder="Contraseña"
-            label="Contraseña"
             required
             password={password}
             setPassword={setPassword}
