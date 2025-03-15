@@ -68,6 +68,8 @@
   --color-wild-sand-800: #464646;
   --color-wild-sand-900: #3d3d3d;
   --color-wild-sand-950: #292929;
+
+  --max-w-100: calc(var(--spacing) * 100);
 }
 
 /* Aplicando las fuentes con @apply y colores oscuros */
