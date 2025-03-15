@@ -1,8 +1,10 @@
 import EmailVerification from "@/components/Auth/EmailVerification";
 import { decryptData } from "@/lib/crypto";
+import prisma from "@/lib/prisma/index.prisma";
 import { EmailVerificationState } from "@/types/auth";
 import { EmailVerificationStep } from "@/types/auth.enum";
 import { PagePropsCommon } from "@/types/pages";
+import { User } from "@prisma/client";
 import Link from "next/link";
 
 export default async function EmailVerificationPage(props: PagePropsCommon) {
@@ -11,6 +13,18 @@ export default async function EmailVerificationPage(props: PagePropsCommon) {
     typeof _searchParams.state === "string"
       ? decryptData<EmailVerificationState>(_searchParams.state)
       : null;
+  let user: (Partial<User> & Pick<User, "email">) | null = null;
+
+  if (state?.userId) {
+    user = await prisma.user.findUnique({
+      where: {
+        id: state.userId,
+      },
+      select: {
+        email: true,
+      },
+    });
+  }
 
   return (
     <div className="min-h-screen w-full">
@@ -25,6 +39,7 @@ export default async function EmailVerificationPage(props: PagePropsCommon) {
             code: state?.code || "",
             userId: state?.userId || "",
             error: state?.error || "",
+            email: user?.email || "",
           }}
         />
 
