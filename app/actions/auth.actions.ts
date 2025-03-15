@@ -12,8 +12,10 @@ import {
 } from "@/validation/auth.validation";
 import bcrypt from "bcryptjs";
 import authConstants from "@/constants/auth.constants";
-import { redirect } from "next/navigation";
 import mailer from "@/mail/mail";
+import { AuthError, CredentialsSignin } from "next-auth";
+import { SignInPageStep } from "@/types/auth.enum";
+import { redirect } from "next/navigation";
 
 async function doSteppedRedirection<T extends object>(
   data: T
@@ -87,9 +89,9 @@ async function doSignUp(credentials: {
       await prismaTx.account.create({
         data: {
           userId: createdUser.id,
-          providerType: "credentials",
-          providerId: "credentials",
-          providerAccountId: credentials.email,
+          type: "credentials",
+          provider: "credentials",
+          providerAccountId: createdUser.id,
         },
       });
 
@@ -102,11 +104,14 @@ async function doSignUp(credentials: {
       /**
        * expires in 1 hour
        */
-      const createdToken = await authAdapterPrisma.createVerificationToken({
-        identifier: createdUser.id,
-        token: generateHumanReadableToken(6),
-        expires: new Date(Date.now() + 3600000),
-      });
+      const createdToken = await authAdapterPrisma.createVerificationToken(
+        {
+          identifier: createdUser.id,
+          token: generateHumanReadableToken(6),
+          expires: new Date(Date.now() + 3600000),
+        },
+        prismaTx
+      );
       if (!createdToken) {
         throw new Error(authConstants.ERROR_MESSAGES_CODES.ERROR_SIGN_UP_TOKEN);
       }
@@ -144,19 +149,28 @@ async function doSignIn(credentials: {
   email: string;
   password: string;
 }): Promise<void> {
-  let result: string = "";
+  let error: AuthError | null = null;
   try {
-    result = await signIn("credentials", {
-      ...credentials,
-      redirect: false,
-      redirectTo: "/",
-    });
-
-    logger.info("[ACTIONS:DO_SIGN_IN]:", result);
+    const formData = new FormData();
+    formData.append("email", credentials.email);
+    formData.append("password", credentials.password);
+    await signIn("credentials", formData);
   } catch (err) {
-    logger.error("[ACTIONS:DO_SIGN_IN]:", err);
+    error = err as CredentialsSignin;
   } finally {
-    return redirect(result);
+    if (error) {
+      return redirect(
+        `/auth/sign-in?state=${encryptData({
+          email: credentials.email,
+          password: credentials.password,
+          step: SignInPageStep.password,
+          error:
+            "code" in error
+              ? error.code
+              : authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+        })}`
+      );
+    }
   }
 }
 
