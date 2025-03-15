@@ -14,7 +14,6 @@ import bcrypt from "bcryptjs";
 import authConstants from "@/constants/auth.constants";
 import mailer from "@/mail/mail";
 import { AuthError, CredentialsSignin } from "next-auth";
-import { SignInPageStep } from "@/types/auth.enum";
 import { redirect } from "next/navigation";
 
 async function doSteppedRedirection<T extends object>(
@@ -145,10 +144,13 @@ async function doSignUp(credentials: {
   }
 }
 
-async function doSignIn(credentials: {
-  email: string;
-  password: string;
-}): Promise<void> {
+async function doSignIn(
+  credentials: {
+    email: string;
+    password: string;
+  },
+  step: string
+): Promise<void> {
   let error: AuthError | null = null;
   try {
     const formData = new FormData();
@@ -163,7 +165,7 @@ async function doSignIn(credentials: {
         `/auth/sign-in?state=${encryptData({
           email: credentials.email,
           password: credentials.password,
-          step: SignInPageStep.password,
+          step: step,
           error:
             "code" in error
               ? error.code
