@@ -1,3 +1,5 @@
+import AuthFooter from "@/components/Auth/AuthFooter";
+
 export default function AuthLayout({
   children,
 }: Readonly<{
@@ -13,6 +15,8 @@ export default function AuthLayout({
         </div>
       </div>
       <main>{children}</main>;
+
+      <AuthFooter />
     </>
   );
 }

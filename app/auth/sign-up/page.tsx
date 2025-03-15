@@ -64,27 +64,7 @@ export default async function SignUpPage({ searchParams }: PagePropsCommon) {
                 Continuar con Microsoft
               </button>
             </div>
-            <div className="mt-12 flex items-center justify-center gap-2 text-xs">
-              <Link href="/auth/sign-up" className="text-primary-600">
-                Terminos de uso
-              </Link>
-              |
-              <Link href="/auth/sign-up" className="text-primary-600">
-                Politica y privacidad
-              </Link>
-            </div>
           </>
-        )}
-        {state?.step === SignUpPageStep.password && (
-          <div className="mt-12 flex items-center justify-center gap-2 text-xs fixed bottom-12 left-1/2 -translate-x-1/2">
-            <Link href="/auth/sign-up" className="text-primary-600">
-              Terminos de uso
-            </Link>
-            |
-            <Link href="/auth/sign-up" className="text-primary-600">
-              Politica y privacidad
-            </Link>
-          </div>
         )}
       </div>
     </div>

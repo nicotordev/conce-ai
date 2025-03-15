@@ -16,6 +16,7 @@ import {
 import CondorPasswordInput from "../Common/Forms/CondorPasswordInput";
 import toast from "react-hot-toast";
 import AuthTokenExpired from "./AuthTokenExpired";
+import Link from "next/link";
 
 export default function ResetPassword({ state }: ResetPasswordProps) {
   const [doingRedirection, setDoingRedirection] = useState(false);
@@ -133,6 +134,12 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
             >
               Continuar
             </Button>
+          </div>
+
+          <div className="flex items-center justify-center mt-4">
+            <Link href="/auth/sign-in" className="text-primary-600 text-sm font-medium">
+                Volver al inicio de sesión
+            </Link>
           </div>
         </form>
       </Transition>

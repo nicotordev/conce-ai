@@ -3,7 +3,6 @@ import { decryptData } from "@/lib/crypto";
 import { ResetPasswordState } from "@/types/auth";
 import { ResetPasswordStep } from "@/types/auth.enum";
 import { PagePropsCommon } from "@/types/pages";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function ResetPasswordPage({
@@ -43,15 +42,6 @@ export default async function ResetPasswordPage({
           }}
         />
 
-        <div className="mt-12 flex items-center justify-center gap-2 text-xs">
-          <Link href="/auth/sign-up" className="text-primary-600">
-            Terminos de uso
-          </Link>
-          |
-          <Link href="/auth/sign-up" className="text-primary-600">
-            Politica y privacidad
-          </Link>
-        </div>
       </div>
     </div>
   );

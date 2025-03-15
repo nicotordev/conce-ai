@@ -58,15 +58,6 @@ export default async function SignInPage({ searchParams }: PagePropsCommon) {
             Continuar con Microsoft
           </button>
         </div>
-        <div className="mt-12 flex items-center justify-center gap-2 text-xs">
-          <Link href="/auth/sign-up" className="text-primary-600">
-            Terminos de uso
-          </Link>
-          |
-          <Link href="/auth/sign-up" className="text-primary-600">
-            Politica y privacidad
-          </Link>
-        </div>
       </div>
     </div>
   );

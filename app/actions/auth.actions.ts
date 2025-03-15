@@ -352,6 +352,10 @@ async function doSendResetPasswordEmail(data: { email: string }) {
     const emailVerificationValidation = EmailSchema.safeParse(data.email);
 
     if (!emailVerificationValidation.success) {
+      logger.info(
+        "[ACTIONS:DO_SEND_RESET_PASSWORD_EMAIL]:",
+        emailVerificationValidation.error.errors[0].message
+      );
       return await doSendResetPasswordRedirection({
         step: ResetPasswordStep.email,
         email: data.email,
@@ -360,6 +364,10 @@ async function doSendResetPasswordEmail(data: { email: string }) {
     }
 
     if (!authAdapterPrisma.createVerificationToken) {
+      logger.info(
+        "[ACTIONS:DO_SEND_RESET_PASSWORD_EMAIL]:",
+        "La función createVerificationToken no está disponible"
+      );
       return await doSendResetPasswordRedirection({
         step: ResetPasswordStep.email,
         email: data.email,
@@ -374,6 +382,10 @@ async function doSendResetPasswordEmail(data: { email: string }) {
     });
 
     if (!user || !user.email) {
+      logger.info(
+        "[ACTIONS:DO_SEND_RESET_PASSWORD_EMAIL]:",
+        "No se encontró el usuario"
+      );
       return await doSendResetPasswordRedirection({
         step: ResetPasswordStep.email,
         email: data.email,
@@ -388,6 +400,10 @@ async function doSendResetPasswordEmail(data: { email: string }) {
     });
 
     if (!createdToken) {
+      logger.error(
+        "[ACTIONS:DO_SEND_RESET_PASSWORD_EMAIL]:",
+        "No se pudo crear el token, error interno"
+      );
       return await doSendResetPasswordRedirection({
         step: ResetPasswordStep.email,
         email: data.email,
