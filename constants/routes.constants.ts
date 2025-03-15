@@ -2,7 +2,7 @@ const allRoutes = {
   home: "/",
   authSignIn: "/auth/sign-in",
   authSignUp: "/auth/sign-up",
-  autnSignOut: "/auth/sign-out",
+  authSignOut: "/auth/sign-out",
   authForgotPassword: "/auth/forgot-password",
   authResetPassword: "/auth/reset-password",
   authVerifyEmail: "/auth/email-verification",
