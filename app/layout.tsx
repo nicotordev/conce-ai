@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Lato, Lora, Poppins, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
