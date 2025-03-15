@@ -1,4 +1,4 @@
-export default function emailPasswordReset(resetUrl: string) {
+export default function emailPasswordReset(resetUrl: string, resetToken: string) {
     return `
   <!DOCTYPE html>
   <html lang="es">
@@ -157,7 +157,7 @@ export default function emailPasswordReset(resetUrl: string) {
             margin: 16px 0;
           "
         >
-          587249
+          ${resetToken}
         </div>
   
         <div
