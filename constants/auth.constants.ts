@@ -10,6 +10,8 @@ const authConstants = {
     INVALID_VERIFICATION_TOKEN: "invalid-verification-token",
     EXPIRED_VERIFICATION_TOKEN: "expired-verification-token",
     INVALID_USER: "invalid user",
+    INVALID_RESET_PASSWORD_TOKEN: "invalid-reset-password-token",
+    EXPIRED_RESET_PASSWORD_TOKEN: " expired-reset-password-token",
   },
   SUCCESS_MESSAGES_CODES: {
     SIGN_UP: "account-created",
