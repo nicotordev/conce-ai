@@ -6,5 +6,4 @@ class AuthCredentialsError extends CredentialsSignin {
     this.code = code;
   }
 }
-
 export { AuthCredentialsError };
