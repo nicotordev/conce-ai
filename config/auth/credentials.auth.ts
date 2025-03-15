@@ -5,9 +5,9 @@ import {
   CredentialsSchema,
 } from "@/validation/auth.validation";
 import CredentialsProvider from "next-auth/providers/credentials";
-import slugify from "slugify";
 import bcrypt from "bcryptjs";
 import { User } from "next-auth";
+import authConstants from "@/constants/auth.constants";
 
 const credentialsAuthConfig = CredentialsProvider({
   id: "credentials",
@@ -22,13 +22,7 @@ const credentialsAuthConfig = CredentialsProvider({
 
     if (!credentialsValidation.success) {
       throw new AuthCredentialsError(
-        slugify(credentialsValidation.error.errors.join(", "), {
-          lower: true,
-          replacement: "-",
-          strict: true,
-          trim: true,
-          remove: /[*+~.()'"!:@]/g,
-        })
+        authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS
       );
     }
 
@@ -36,13 +30,7 @@ const credentialsAuthConfig = CredentialsProvider({
 
     if (!passwordValidation.success) {
       throw new AuthCredentialsError(
-        slugify(passwordValidation.error.errors.join(", "), {
-          lower: true,
-          replacement: "-",
-          strict: true,
-          trim: true,
-          remove: /[*+~.()'"!:@]/g,
-        })
+        authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR
       );
     }
 
@@ -52,7 +40,9 @@ const credentialsAuthConfig = CredentialsProvider({
     };
 
     if (!authAdapterPrisma.getUserByEmail) {
-      throw new AuthCredentialsError("internal-server-error");
+      throw new AuthCredentialsError(
+        authConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR
+      );
     }
 
     const user = await authAdapterPrisma.getUserByEmail(
@@ -60,7 +50,9 @@ const credentialsAuthConfig = CredentialsProvider({
     );
 
     if (!user || !user.password) {
-      throw new AuthCredentialsError("password-or-username-incorrect");
+      throw new AuthCredentialsError(
+        authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS
+      );
     }
 
     const isValid = bcrypt.compareSync(
@@ -70,7 +62,7 @@ const credentialsAuthConfig = CredentialsProvider({
 
     if (!isValid) {
       throw new AuthCredentialsError(
-        "El correo electrónico o la contraseña son incorrectos"
+        authConstants.ERROR_MESSAGES_CODES.INVALID_CREDENTIALS
       );
     }
 
