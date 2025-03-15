@@ -7,10 +7,10 @@ import clsx from "clsx";
 import { PasswordInputProps } from "@/types/common";
 
 export default function CondorPasswordInput({
-  setPassword: setPasswordExternal,
+  password,
+  setPassword,
   ...rest
 }: PasswordInputProps) {
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [passwordRequeriments, setPasswordRequeriments] = useState({
     atLeast8Characters: false,
@@ -39,12 +39,6 @@ export default function CondorPasswordInput({
         : requirements
     );
   }, [password]);
-
-  useEffect(() => {
-    if (setPasswordExternal) {
-      setPasswordExternal(password);
-    }
-  }, [password, setPasswordExternal]);
 
   return (
     <CondorInput
