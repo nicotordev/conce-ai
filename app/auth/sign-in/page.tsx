@@ -14,7 +14,7 @@ export default async function SignInPage({ searchParams }: PagePropsCommon) {
       ? decryptData<SignInState>(_searchParams.state)
       : null;
 
-  if (await _searchParams.email || await _searchParams.password) {
+  if ((await _searchParams.email) || (await _searchParams.password)) {
     redirect("/auth/sign-in");
   }
 
@@ -24,7 +24,11 @@ export default async function SignInPage({ searchParams }: PagePropsCommon) {
         <SignIn
           state={{
             ...state,
-            step: state?.step || SignInPageStep.email,
+            step: Object.values(SignInPageStep).includes(
+              state?.step as SignInPageStep
+            )
+              ? (state?.step as SignInPageStep)
+              : SignInPageStep.email,
             email: state?.email || "",
             password: state?.password || "",
             error: state?.error || "",
