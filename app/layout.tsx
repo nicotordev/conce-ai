@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Lato, Lora, Poppins, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import Providers from "./providers";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -47,7 +48,8 @@ export default function RootLayout({
       className={`${inter.variable} ${lora.variable} ${poppins.variable} ${spaceGrotesk.variable} ${lato.variable} antialiased`}
     >
       <body>
-        {children} <Toaster position="top-center" reverseOrder={false} />
+        <Providers>{children}</Providers>{" "}
+        <Toaster position="top-center" reverseOrder={false} />
       </body>
     </html>
   );
