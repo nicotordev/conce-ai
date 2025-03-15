@@ -1,186 +1,17 @@
 import { CondorAIError } from "@/errors/condor-ai.errors";
 import { Session } from "next-auth";
 import { NextRequest } from "next/server";
+import FetchClient from "./fetch-client";
+import { FetchClientError } from "@/errors/fetch-client.errors";
 
 class CondorAI {
   private apiUrl: string = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
+  private fetchClient: FetchClient = new FetchClient(this.apiUrl);
+  private get = this.fetchClient["get"].bind(this.fetchClient);
+  private post = this.fetchClient["post"].bind(this.fetchClient);
 
-  public constructor() {}
-
-  private async get<T>(
-    endpoint: string | URL,
-    config: RequestInit = {},
-    request?: NextRequest
-  ): Promise<T> {
-    try {
-      const requestInit: RequestInit = {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        ...config,
-      };
-
-      if (request) {
-        requestInit.headers = {
-          Cookie: request.headers.get("cookie") || "",
-          Authorization: request.headers.get("authorization") || "",
-        };
-      }
-
-      const response = await fetch(`${this.apiUrl}${endpoint}`, requestInit);
-
-      if (!response.ok) {
-        throw new CondorAIError(response.statusText);
-      }
-      return response.json() as Promise<T>;
-    } catch (err) {
-      throw new CondorAIError(
-        err instanceof Error ? err.message : "Unknown error"
-      );
-    }
-  }
-
-  private async post<T, P>(
-    endpoint: string | URL,
-    data: P,
-    config: RequestInit = {},
-    request?: NextRequest
-  ) {
-    try {
-      const requestInit: RequestInit = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        ...config,
-      };
-
-      if (request) {
-        requestInit.headers = {
-          Cookie: request.headers.get("cookie") || "",
-          Authorization: request.headers.get("authorization") || "",
-        };
-      }
-
-      const response = await fetch(`${this.apiUrl}${endpoint}`, requestInit);
-
-      if (!response.ok) {
-        throw new CondorAIError(response.statusText);
-      }
-      return response.json() as Promise<T>;
-    } catch (err) {
-      throw new CondorAIError(
-        err instanceof Error ? err.message : "Unknown error"
-      );
-    }
-  }
-
-  private async put<T, P>(
-    endpoint: string | URL,
-    data: P,
-    config: RequestInit = {},
-    request?: NextRequest
-  ) {
-    try {
-      const requestInit: RequestInit = {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        ...config,
-      };
-
-      if (request) {
-        requestInit.headers = {
-          Cookie: request.headers.get("cookie") || "",
-          Authorization: request.headers.get("authorization") || "",
-        };
-      }
-
-      const response = await fetch(`${this.apiUrl}${endpoint}`, requestInit);
-
-      if (!response.ok) {
-        throw new CondorAIError(response.statusText);
-      }
-      return response.json() as Promise<T>;
-    } catch (err) {
-      throw new CondorAIError(
-        err instanceof Error ? err.message : "Unknown error"
-      );
-    }
-  }
-
-  private async delete<T>(
-    endpoint: string | URL,
-    config: RequestInit = {},
-    request?: NextRequest
-  ) {
-    try {
-      const requestInit: RequestInit = {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        ...config,
-      };
-
-      if (request) {
-        requestInit.headers = {
-          Cookie: request.headers.get("cookie") || "",
-          Authorization: request.headers.get("authorization") || "",
-        };
-      }
-
-      const response = await fetch(`${this.apiUrl}${endpoint}`, requestInit);
-
-      if (!response.ok) {
-        throw new CondorAIError(response.statusText);
-      }
-      return response.json() as Promise<T>;
-    } catch (err) {
-      throw new CondorAIError(
-        err instanceof Error ? err.message : "Unknown error"
-      );
-    }
-  }
-
-  private async patch<T, D>(
-    endpoint: string | URL,
-    data: D,
-    config: RequestInit = {},
-    request?: NextRequest
-  ) {
-    try {
-      const requestInit: RequestInit = {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        ...config,
-      };
-
-      if (request) {
-        requestInit.headers = {
-          Cookie: request.headers.get("cookie") || "",
-          Authorization: request.headers.get("authorization") || "",
-        };
-      }
-
-      const response = await fetch(`${this.apiUrl}${endpoint}`, requestInit);
-
-      if (!response.ok) {
-        throw new CondorAIError(response.statusText);
-      }
-      return response.json() as Promise<T>;
-    } catch (err) {
-      throw new CondorAIError(
-        err instanceof Error ? err.message : "Unknown error"
-      );
-    }
+  public constructor() {
+    this.fetchClient = new FetchClient(this.apiUrl);
   }
 
   public async getSession(request?: NextRequest): Promise<Session> {
@@ -205,7 +36,7 @@ class CondorAI {
       });
       return encryptedData;
     } catch (err) {
-      throw err;
+      throw new CondorAIError((err as FetchClientError).message);
     }
   }
 
@@ -221,7 +52,7 @@ class CondorAI {
       );
       return decryptedData;
     } catch (err) {
-      throw err;
+      throw new CondorAIError((err as FetchClientError).message);
     }
   }
 }
