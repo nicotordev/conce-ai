@@ -1,7 +1,12 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./index.prisma";
 import { stripUndefined } from "@/utils/objects.utilts";
-import { AdapterSession, AdapterUser } from "next-auth/adapters";
+import {
+  AdapterSession,
+  AdapterUser,
+  VerificationToken,
+} from "next-auth/adapters";
+import { Prisma } from "@prisma/client";
 
 const authAdapterPrisma = {
   ...PrismaAdapter(prisma),
@@ -11,9 +16,12 @@ const authAdapterPrisma = {
       include: { Role: true },
     }) as Awaitable<AdapterUser>;
   },
-  createUser: async (data: Partial<AdapterUser>): Promise<AdapterUser> => {
+  createUser: async (
+    data: Partial<AdapterUser>,
+    prismaTx: Prisma.TransactionClient = prisma
+  ): Promise<AdapterUser> => {
     const userData = { ...stripUndefined(data) };
-    const createdUser = prisma.user.create({
+    const createdUser = prismaTx.user.create({
       data: {
         ...userData,
         roleId: undefined,
@@ -30,15 +38,17 @@ const authAdapterPrisma = {
     });
     return createdUser as Awaitable<AdapterUser>;
   },
-  createSession(session: {
-    sessionToken: string;
-    accessToken: string;
-    userId: string;
-    expires: Date;
-  }): Awaitable<AdapterSession> {
-    return prisma.session.create({
+  createSession(
+    session: {
+      sessionToken: string;
+      accessToken: string;
+      userId: string;
+      expires: Date;
+    },
+    prismaTx: Prisma.TransactionClient = prisma
+  ): Awaitable<AdapterSession> {
+    return prismaTx.session.create({
       data: {
-        accessToken: session.sessionToken,
         sessionToken: session.sessionToken,
         expires: session.expires,
         user: {
@@ -48,6 +58,18 @@ const authAdapterPrisma = {
         },
       },
     }) as Awaitable<AdapterSession>;
+  },
+  createVerificationToken(
+    verificationToken: VerificationToken,
+    prismaTx: Prisma.TransactionClient = prisma
+  ): Awaitable<VerificationToken | null | undefined> {
+    return prismaTx.verificationToken.create({
+      data: {
+        identifier: verificationToken.identifier,
+        token: verificationToken.token,
+        expires: verificationToken.expires,
+      },
+    });
   },
 };
 
