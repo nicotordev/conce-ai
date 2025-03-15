@@ -67,7 +67,8 @@ class Mailer {
         code,
         step: EmailVerificationStep.start,
         userId,
-      })}`
+      })}`,
+      code
     );
     await this.sendBrevoEmail(subject, htmlContent, to);
   }
@@ -84,7 +85,8 @@ class Mailer {
         code,
         userId,
         step: ResetPasswordStep.reset,
-      })}`
+      })}`,
+      code
     );
     await this.sendBrevoEmail(subject, htmlContent, to);
   }
