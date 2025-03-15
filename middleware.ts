@@ -4,6 +4,7 @@ import condorAi from "./lib/condor-ai";
 import { setCookie } from "cookies-next/client";
 import { Session } from "next-auth";
 import logger from "./lib/logger";
+import { EmailVerificationStep } from "./types/auth.enum";
 export async function middleware(request: NextRequest) {
   const nextUrl = request.nextUrl.clone();
   let session: Session | null = null;
@@ -21,6 +22,12 @@ export async function middleware(request: NextRequest) {
       nextUrl.pathname !== routesConstants.allRoutes.authVerifyEmail
     ) {
       nextUrl.pathname = routesConstants.allRoutes.authVerifyEmail;
+      const encryptedData = await condorAi.encryptData({
+        step: EmailVerificationStep.start,
+        userId: session.user.id,
+      });
+      console.log(encryptedData);
+      nextUrl.search = `?state=${encryptedData}`;
       return NextResponse.redirect(nextUrl);
     }
   }
