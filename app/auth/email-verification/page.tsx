@@ -6,6 +6,7 @@ import { EmailVerificationState } from "@/types/auth";
 import { EmailVerificationStep } from "@/types/auth.enum";
 import { PagePropsCommon } from "@/types/pages";
 import { User } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 export default async function EmailVerificationPage(props: PagePropsCommon) {
   const session = await auth();
@@ -25,6 +26,10 @@ export default async function EmailVerificationPage(props: PagePropsCommon) {
         email: true,
       },
     });
+  }
+
+  if (session?.user.emailVerified !== null) {
+    return redirect("/app");
   }
 
   return (
