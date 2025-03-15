@@ -1,11 +1,11 @@
 import { auth } from "@/auth";
-import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import apiConstants from "@/constants/api.constants";
 import logger from "@/lib/consola/logger";
 import { AxiosError } from "axios";
 import { NextURL } from "next/dist/server/web/next-url";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { CustomApiHandler } from "@/types/api";
+import transformObjectForSerialization from "./serialization.utils";
 
 class ApiResponse {
   constructor() {}
@@ -29,7 +29,7 @@ class ApiResponse {
   static success<T = null>(data?: T, message = "Exito") {
     return NextResponse.json(
       {
-        data: data || null,
+        data: transformObjectForSerialization(data) || null,
         meta: {
           message,
           status: apiConstants.RESPONSES.SUCCESS.CODE,
@@ -168,33 +168,35 @@ class ApiResponse {
   }
 }
 
-const withApiAuthRequired = (handler: CustomApiHandler): NextApiHandler => {
-  return async (req: NextApiRequest, res: NextApiResponse) => {
+const withApiAuthRequired = (handler: CustomApiHandler) => {
+  return async (req: NextRequest) => {
     const isAuth = await auth();
 
     if (!isAuth) {
-      ApiResponse.unauthorized();
-      return;
+      return ApiResponse.unauthorized();
     }
 
-    return handler(req, res);
+    return await handler(req);
   };
 };
 
-const withApikeyAuthRequired = (handler: CustomApiHandler): NextApiHandler => {
-  return async (req: NextApiRequest, res: NextApiResponse) => {
-    const apiKey = req.headers["x-condor-ai-key"];
+const withApikeyAuthRequired = (handler: CustomApiHandler) => {
+  return async (req: NextRequest) => {
+    const apiKey = req.headers.get("x-condor-ai-key");
 
-    if (
-      !apiKey ||
-      apiKey !== process.env.CONDOR_AI_API_KEY ||
-      !process.env.CONDOR_AI_API_KEY
-    ) {
-      ApiResponse.unauthorized();
-      return;
+    if (!apiKey) {
+      return ApiResponse.unauthorized();
     }
 
-    return handler(req, res);
+    if (!process.env.CONDOR_AI_API_KEY) {
+      return ApiResponse.internalServerError("API Key not found");
+    }
+
+    if (apiKey !== process.env.CONDOR_AI_API_KEY) {
+      return ApiResponse.unauthorized();
+    }
+
+    return await handler(req);
   };
 };
 
