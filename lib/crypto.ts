@@ -2,6 +2,7 @@
 import { EncryptionResult } from "@/types/crypto";
 import transformObjectForSerialization from "@/utils/serialization.utils";
 import crypto from "crypto";
+import logger from "./logger";
 const { scryptSync } = await import("node:crypto");
 
 function generateHumanReadableToken(length: number = 8): string {
@@ -103,24 +104,29 @@ function encryptData<T = unknown>(data: T): string {
 /**
  * Decrypt a single string hash with a key
  */
-function decryptData<T = unknown>(data: string): T {
-  // Create a buffer from the key (must be exactly 32 bytes for aes-256)
-  const keyBuffer = scryptSync(process.env.ENCRYPTION_KEY, "salt", 32);
+function decryptData<T = unknown>(data: string): T | null {
+  try {
+    // Create a buffer from the key (must be exactly 32 bytes for aes-256)
+    const keyBuffer = scryptSync(process.env.ENCRYPTION_KEY, "salt", 32);
 
-  // Extract the IV from the encrypted data
-  const iv = Buffer.from(data.slice(0, 32), "hex");
+    // Extract the IV from the encrypted data
+    const iv = Buffer.from(data.slice(0, 32), "hex");
 
-  // Extract the encrypted data
-  const encrypted = data.slice(32);
+    // Extract the encrypted data
+    const encrypted = data.slice(32);
 
-  // Create decipher
-  const decipher = crypto.createDecipheriv("aes-256-cbc", keyBuffer, iv);
+    // Create decipher
+    const decipher = crypto.createDecipheriv("aes-256-cbc", keyBuffer, iv);
 
-  // Decrypt the data
-  let decrypted = decipher.update(encrypted, "hex", "utf8");
-  decrypted += decipher.final("utf8");
+    // Decrypt the data
+    let decrypted = decipher.update(encrypted, "hex", "utf8");
+    decrypted += decipher.final("utf8");
 
-  return JSON.parse(decrypted);
+    return JSON.parse(decrypted);
+  } catch (e) {
+    logger.error("[DECRYPT-DATA-ERROR]", e);
+    return null;
+  }
 }
 
 export {
