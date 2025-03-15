@@ -5,13 +5,11 @@ import { SignInPageStep } from "@/types/auth.enum";
 import { Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import CondorInput from "../Common/Forms/CondorInput";
-import { BsEnvelope } from "react-icons/bs";
-import {
-  doSignIn,
-  doSteppedRedirection,
-} from "@/app/actions/auth.actions";
+import { BsEnvelope, BsLock } from "react-icons/bs";
+import { doSignIn, doSteppedRedirection } from "@/app/actions/auth.actions";
 import toast from "react-hot-toast";
-import CondorPasswordInput from "../Common/Forms/CondorPasswordInput";
+import { CgDanger } from "react-icons/cg";
+import { getSignInErrorMessage } from "@/utils/language.utilts";
 
 export default function SignIn({ state }: SignInProps) {
   const step = state?.step ?? SignInPageStep.email;
@@ -19,6 +17,7 @@ export default function SignIn({ state }: SignInProps) {
   const [loadingSignUp, setLoadingSignUp] = useState(false);
   const [email, setEmail] = useState(state?.email ?? "");
   const [password, setPassword] = useState(state?.password ?? "");
+  const error = state?.error ?? "";
 
   async function prevStep() {
     setDoingRedirection(true);
@@ -47,6 +46,7 @@ export default function SignIn({ state }: SignInProps) {
         step: SignInPageStep.password,
       });
       setDoingRedirection(false);
+
       if (!redirectionData.success) {
         toast.error("Ha ocurrido un error al intentar crear la cuenta");
         return;
@@ -60,15 +60,33 @@ export default function SignIn({ state }: SignInProps) {
         email,
         password,
       });
-
-      setLoadingSignUp(false);
-
-      toast.error("Ha ocurrido un error al intentar iniciar sesión");
     }
   }
 
   return (
     <form onSubmit={handleNextStep} className="relative">
+      <Transition
+        show={Boolean(error)}
+        enter="transition ease-out duration-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition ease-in duration-200"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+        unmount={true}
+      >
+        <div>
+          {/* Error UI */}
+          <div className="flex flex-col gap-2 text-center bg-white rounded-md border border-solid border-gray-300 p-4 my-4">
+            <p className="!text-silver-700 font-semibold text-xs flex flex-col gap-1">
+              <strong className="!text-red-500 !text-sm !font-medium flex items-center justify-center gap-2">
+                <CgDanger /> Ocurrio un error
+              </strong>
+              {getSignInErrorMessage(error)}
+            </p>
+          </div>
+        </div>
+      </Transition>
       <Transition
         show={step === SignInPageStep.email}
         enter="transition ease-out duration-300"
@@ -114,7 +132,7 @@ export default function SignIn({ state }: SignInProps) {
                   role="status"
                   aria-label="loading"
                 >
-                  <span className="sr-only">Loading...</span>
+                  <span className="sr-only">Cargando...</span>
                 </div>
               </div>
             </div>
@@ -143,13 +161,16 @@ export default function SignIn({ state }: SignInProps) {
             defaultValue={email}
             readOnly
           />
-          <CondorPasswordInput
+          <CondorInput
             name="password"
             id="password"
             placeholder="Contraseña"
+            type="password"
             label="Contraseña"
             required
-            setPassword={setPassword}
+            leftIcon={<BsLock />}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             disabled={doingRedirection || loadingSignUp}
           />
         </div>
