@@ -30,6 +30,7 @@ type EmailVerificationState = {
   code: string;
   userId: string;
   error: string;
+  email: string;
 } | null;
 
 type EmailVerificationProps = {
@@ -37,6 +38,7 @@ type EmailVerificationProps = {
 };
 
 type EmailVerificationModalProps = {
+  email: string;
   loading: boolean;
   handleStep: (step: EmailVerificationStep, error?: string) => Promise<void>;
   setLoading: (loading: boolean) => void;
