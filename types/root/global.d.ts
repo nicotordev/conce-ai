@@ -25,6 +25,7 @@ declare global {
       BREVO_SMTP_PORT: string;
       BREVO_SMTP_LOGIN: string;
       BREVO_SMTP_PASSWORD: string;
+      CONDOR_AI_API_KEY: string;
     }
   }
 
@@ -39,6 +40,15 @@ declare global {
         message: string;
         data: null;
       };
+  type BaseApiResponse<T = unknown> = {
+    data: T;
+    meta: {
+      message: string;
+      status: number;
+      ok: boolean;
+    };
+  };
+
   type Awaitable<T> = T | PromiseLike<T>;
   type Awaited<T> = T extends Promise<infer U> ? U : T;
 }
