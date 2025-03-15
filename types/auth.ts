@@ -20,6 +20,7 @@ type SignInState = {
   step: SignInPageStep;
   email: string;
   password: string;
+  error: string;
 } | null;
 type SignInProps = {
   state: SignInState | null;
