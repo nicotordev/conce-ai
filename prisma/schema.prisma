@@ -78,3 +78,20 @@ model Role {
   updatedAt   DateTime @updatedAt
   users       User[]
 }
+
+model Model {
+  id                          String   @id @default(uuid())
+  name                        String   @unique
+  version                     String
+  displayName                 String
+  description                 String?
+  inputTokenLimit             Int
+  outputTokenLimit            Int
+  supportedGenerationMethods  String[]
+  temperature                 Float?
+  topP                        Float?
+  topK                        Int?
+  maxTemperature              Float?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+}
