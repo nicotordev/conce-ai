@@ -56,10 +56,13 @@ export default function SignIn({ state }: SignInProps) {
     } else {
       setLoadingSignUp(true);
 
-      await doSignIn({
-        email,
-        password,
-      });
+      await doSignIn(
+        {
+          email,
+          password,
+        },
+        SignInPageStep.password
+      );
     }
   }
 
