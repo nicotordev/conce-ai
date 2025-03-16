@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import logger from "../lib/logger";
+import logger from "@/lib/consola/logger";
 import type { Address } from "nodemailer/lib/addressparser";
 import { Attachment } from "nodemailer/lib/mailer";
 import { encryptData } from "@/lib/crypto";
