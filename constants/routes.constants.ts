@@ -1,11 +1,26 @@
 const allRoutes = {
   home: "/",
-  authSignIn: "/auth/sign-in",
-  authSignUp: "/auth/sign-up",
-  authSignOut: "/api/auth/sign-out",
-  authResetPassword: "/auth/reset-password",
-  authVerifyEmail: "/auth/email-verification",
+  auth: {
+    index: "/auth",
+    authSignIn: "/auth/sign-in",
+    authSignUp: "/auth/sign-up",
+    authSignOut: "/api/auth/sign-out",
+    authResetPassword: "/auth/reset-password",
+    authVerifyEmail: "/auth/email-verification",
+  },
   app: "/app",
+  admin: {
+    index: "/admin",
+  },
+  api: {
+    condorAi: {
+      userModels: "/api/condor-ai/models",
+    },
+    crypto: {
+      decrypt: "/api/crypto/decrypt",
+      encrypt: "/api/crypto/encrypt",
+    },
+  },
 };
 
 const routesConstants = {
@@ -14,10 +29,13 @@ const routesConstants = {
     app: allRoutes.app,
   },
   noAuth: {
-    authSignIn: allRoutes.authSignIn,
-    authSignUp: allRoutes.authSignUp,
+    authIndex: allRoutes.auth.index,
+    authSignIn: allRoutes.auth.authSignIn,
+    authSignUp: allRoutes.auth.authSignUp,
   },
-  adminPaths: {},
+  adminPaths: {
+    admin: allRoutes.admin,
+  },
 };
 
 export default routesConstants;
