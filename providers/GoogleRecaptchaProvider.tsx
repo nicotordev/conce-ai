@@ -2,14 +2,10 @@
 
 import React, { createContext, useContext, useState } from "react";
 import Script from "next/script";
-import { GoogleRecaptchaProviderProps } from "@/types/providers";
-
-// Define la interfaz para el contexto
-interface RecaptchaContextType {
-  executeRecaptcha: (action: string) => Promise<string>;
-  isLoaded: boolean;
-  error: Error | null;
-}
+import {
+  GoogleRecaptchaProviderProps,
+  RecaptchaContextType,
+} from "@/types/providers";
 
 // Crea el contexto
 const RecaptchaContext = createContext<RecaptchaContextType | null>(null);
