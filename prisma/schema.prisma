@@ -44,18 +44,19 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String?
   password      String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
+  email         String?        @unique
+  emailVerified DateTime?      @map("email_verified")
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   accounts      Account[]
   sessions      Session[]
-  Role          Role?     @relation(fields: [roleId], references: [id])
+  Role          Role?          @relation(fields: [roleId], references: [id])
   roleId        String?
+  Conversation  Conversation[]
 
   @@map("users")
 }
@@ -80,18 +81,43 @@ model Role {
 }
 
 model Model {
-  id                          String   @id @default(uuid())
-  name                        String   @unique
-  version                     String
-  displayName                 String
-  description                 String?
-  inputTokenLimit             Int
-  outputTokenLimit            Int
-  supportedGenerationMethods  String[]
-  temperature                 Float?
-  topP                        Float?
-  topK                        Int?
-  maxTemperature              Float?
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
+  id                         String   @id @default(uuid())
+  name                       String   @unique
+  version                    String
+  displayName                String
+  description                String?
+  inputTokenLimit            Int
+  outputTokenLimit           Int
+  supportedGenerationMethods String[]
+  temperature                Float?
+  topP                       Float?
+  topK                       Int?
+  maxTemperature             Float?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  title     String?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id             String        @id @default(cuid())
+  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String
+  sender         MessageSender
+  content        String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum MessageSender {
+  USER
+  ASSISTANT
 }
