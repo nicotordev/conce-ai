@@ -1,4 +1,4 @@
-import { AppNavModel } from "./layout";
+import { AppNavConversation, AppNavModel } from "./layout";
 
 type GoogleRecaptchaProviderProps = {
   children: React.ReactNode;
@@ -11,23 +11,33 @@ type RecaptchaContextType = {
 
 type CondorAIProviderProps = {
   children: React.ReactNode;
+  selectedModelId: string | null;
+  selectedConversationId: string | null;
 };
 
 type CondorAIContextType = {
-  models: AppNavModel[];
-  selectedModel: AppNavModel | null;
-  isLoading: boolean;
-  setSelectedModel: (model: AppNavModel) => void;
+  models: {
+    models: AppNavModel[];
+    selectedModel: AppNavModel | null;
+    isLoading: boolean;
+    setSelectedModel: (model: AppNavModel) => void;
+  };
+  conversations: {
+    conversations: AppNavConversation[];
+    selectedConversation: AppNavConversation | null;
+    isLoading: boolean;
+    setSelectedConversation: (conversation: AppNavConversation) => void;
+  };
 };
 
 type TanstackUseQueryProviderProps = {
   children: React.ReactNode;
-}
+};
 
 export type {
   GoogleRecaptchaProviderProps,
   CondorAIProviderProps,
   RecaptchaContextType,
   CondorAIContextType,
-  TanstackUseQueryProviderProps
+  TanstackUseQueryProviderProps,
 };
