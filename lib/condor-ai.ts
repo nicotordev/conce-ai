@@ -3,6 +3,7 @@ import { Session } from "next-auth";
 import { NextRequest } from "next/server";
 import FetchClient from "./fetch-client";
 import { FetchClientError } from "@/errors/fetch-client.errors";
+import { AppNavModel } from "@/types/layout";
 
 class CondorAI {
   private apiUrl: string = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
@@ -51,6 +52,17 @@ class CondorAI {
         }
       );
       return decryptedData;
+    } catch (err) {
+      throw new CondorAIError((err as FetchClientError).message);
+    }
+  }
+
+  public async getModels(): Promise<AppNavModel[]> {
+    try {
+      const { data: models } = await this.get<BaseApiResponse<AppNavModel[]>>(
+        "/condor-ai/models"
+      );
+      return models;
     } catch (err) {
       throw new CondorAIError((err as FetchClientError).message);
     }
