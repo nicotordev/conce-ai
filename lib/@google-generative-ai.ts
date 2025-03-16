@@ -1,7 +1,7 @@
 import * as google from "@google/generative-ai";
 import FetchClient from "./fetch-client";
 import { GoogleModel } from "@/types/@google-generative-ai";
-import logger from "./logger";
+import logger from "./consola/logger";
 
 class GoogleGenerativeAI {
   private googleGenerativeAiApiKey: string =
