@@ -7,7 +7,7 @@ import recaptchaConstants from "@/constants/recaptcha.constants";
 import { RecaptchaError, RecaptchaLabel } from "@/types/recaptcha.enum";
 import { RecaptchaEnterpriseServiceClient } from "@google-cloud/recaptcha-enterprise";
 import { google } from "@google-cloud/recaptcha-enterprise/build/protos/protos";
-import logger from "@/lib/logger";
+import logger from "@/lib/consola/logger";
 
 interface AssessmentResult {
   assessment: google.cloud.recaptchaenterprise.v1.IAssessment | null;

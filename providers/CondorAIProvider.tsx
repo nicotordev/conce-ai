@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { CondorAIContextType, CondorAIProviderProps } from "@/types/providers";
-import { useModelsQuery } from "@/useQuery/mutations/users.mutations";
+import { useModelsQuery } from "@/useQuery/mutations/condor-ai.mutations";
 import { AppNavModel } from "@/types/layout";
 // Crea el contexto
 const CondorAIContext = createContext<CondorAIContextType | null>(null);

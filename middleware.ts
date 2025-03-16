@@ -3,7 +3,7 @@ import routesConstants from "./constants/routes.constants";
 import condorAi from "./lib/condor-ai";
 import { setCookie } from "cookies-next/client";
 import { Session } from "next-auth";
-import logger from "./lib/logger";
+import logger from "./lib/consola/logger";
 import { EmailVerificationStep } from "./types/auth.enum";
 export async function middleware(request: NextRequest) {
   const nextUrl = request.nextUrl.clone();
@@ -19,10 +19,10 @@ export async function middleware(request: NextRequest) {
   if (session && session.user) {
     if (
       session.user.emailVerified === null &&
-      nextUrl.pathname !== routesConstants.allRoutes.authVerifyEmail
+      nextUrl.pathname !== routesConstants.allRoutes.auth.authVerifyEmail
     ) {
-      nextUrl.pathname = routesConstants.allRoutes.authVerifyEmail;
-      const encryptedData = await condorAi.encryptData({
+      nextUrl.pathname = routesConstants.allRoutes.auth.authVerifyEmail;
+      const encryptedData = await condorAi.crypto.encryptData({
         step: EmailVerificationStep.start,
         userId: session.user.id,
       });
@@ -42,7 +42,7 @@ export async function middleware(request: NextRequest) {
     Object.values(routesConstants.protectedPaths).includes(nextUrl.pathname)
   ) {
     if (!session) {
-      nextUrl.pathname = routesConstants.allRoutes.authSignIn;
+      nextUrl.pathname = routesConstants.allRoutes.auth.authSignIn;
       const response = NextResponse.redirect(nextUrl);
       setCookie("redirectTo", request.nextUrl.pathname, {
         maxAge: 60 * 60,
@@ -51,7 +51,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (Object.values(routesConstants.adminPaths).includes(nextUrl.pathname)) {
+  if (
+    Object.values(routesConstants.adminPaths.admin).includes(nextUrl.pathname)
+  ) {
     if (session && session.user.Role?.name !== "ADMIN") {
       nextUrl.pathname = "/404";
       return NextResponse.redirect(nextUrl);

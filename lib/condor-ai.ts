@@ -3,7 +3,7 @@ import { Session } from "next-auth";
 import { NextRequest } from "next/server";
 import FetchClient from "./fetch-client";
 import { FetchClientError } from "@/errors/fetch-client.errors";
-import { AppNavModel } from "@/types/layout";
+import { AppNavConversation, AppNavModel } from "@/types/layout";
 
 class CondorAI {
   private apiUrl: string = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
@@ -23,50 +23,67 @@ class CondorAI {
       throw err;
     }
   }
-
-  public async encryptData<T extends object>(data: T): Promise<string> {
-    try {
-      const { data: encryptedData } = await this.post<
-        BaseApiResponse<string>,
-        unknown
-      >("/crypto/encrypt", data, {
-        headers: {
-          "Content-Type": "application/json",
-          "x-condor-ai-key": process.env.CONDOR_AI_API_KEY || "",
-        },
-      });
-      return encryptedData;
-    } catch (err) {
-      throw new CondorAIError((err as FetchClientError).message);
-    }
-  }
-
-  public async decryptData<T>(encryptedData: string): Promise<T> {
-    try {
-      const { data: decryptedData } = await this.get<BaseApiResponse<T>>(
-        `/crypto/decrypt?encryption=${encryptedData}`,
-        {
+  // <T extends object>(data: T): Promise<string>
+  public crypto = {
+    encryptData: async <T = unknown>(data: T): Promise<string> => {
+      try {
+        const { data: encryptedData } = await this.post<
+          BaseApiResponse<string>,
+          unknown
+        >("/crypto/encrypt", data, {
           headers: {
+            "Content-Type": "application/json",
             "x-condor-ai-key": process.env.CONDOR_AI_API_KEY || "",
           },
-        }
-      );
-      return decryptedData;
-    } catch (err) {
-      throw new CondorAIError((err as FetchClientError).message);
-    }
-  }
+        });
+        return encryptedData;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
+    decryptData: async <T = unknown>(encryptedData: string): Promise<T> => {
+      try {
+        const { data: decryptedData } = await this.get<BaseApiResponse<T>>(
+          `/crypto/decrypt?encryption=${encryptedData}`,
+          {
+            headers: {
+              "x-condor-ai-key": process.env.CONDOR_AI_API_KEY || "",
+            },
+          }
+        );
+        return decryptedData;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
+  };
 
-  public async getModels(): Promise<AppNavModel[]> {
-    try {
-      const { data: models } = await this.get<BaseApiResponse<AppNavModel[]>>(
-        "/condor-ai/models"
-      );
-      return models;
-    } catch (err) {
-      throw new CondorAIError((err as FetchClientError).message);
-    }
-  }
+  public condorAI = {
+    getModels: async (): Promise<AppNavModel[]> => {
+      try {
+        const { data: models } = await this.get<BaseApiResponse<AppNavModel[]>>(
+          "/condor-ai/models"
+        );
+        return models;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
+  };
+
+  public user = {
+    getConversations: async (): Promise<AppNavConversation[]> => {
+      try {
+        const { data: conversations } = await this.get<
+          BaseApiResponse<AppNavConversation[]>
+        >("/user/conversations");
+
+        return conversations;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
+  };
 }
 
 const condorAi = new CondorAI();

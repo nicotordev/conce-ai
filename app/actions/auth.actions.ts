@@ -2,7 +2,7 @@
 
 import { signIn } from "@/auth";
 import { encryptData, generateHumanReadableToken } from "@/lib/crypto";
-import logger from "@/lib/logger";
+import logger from "@/lib/consola/logger";
 import authAdapterPrisma from "@/lib/prisma/authAdapter.prisma";
 import prisma from "@/lib/prisma/index.prisma";
 import {

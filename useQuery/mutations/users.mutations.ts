@@ -1,13 +1,13 @@
 import condorAi from "@/lib/condor-ai";
 import { useQuery } from "@tanstack/react-query";
 
-function useModelsQuery() {
-  const modelsQuery = useQuery({
-    queryKey: ["users/models"],
-    queryFn: () => condorAi.getModels(),
+function useConversationsQuery() {
+  const conversationsQuery = useQuery({
+    queryKey: ["users/get-conversations"],
+    queryFn: () => condorAi.user.getConversations(),
   });
 
-  return modelsQuery;
+  return conversationsQuery;
 }
 
-export { useModelsQuery };
+export { useConversationsQuery };

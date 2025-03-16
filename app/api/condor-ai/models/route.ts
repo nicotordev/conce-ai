@@ -1,4 +1,4 @@
-import logger from "@/lib/logger";
+import logger from "@/lib/consola/logger";
 import { getGoogleGenerativeAIModels } from "@/utils/@google-generative-ai.utils";
 import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
 

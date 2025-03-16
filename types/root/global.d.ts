@@ -30,6 +30,10 @@ declare global {
     }
   }
 
+  type NextRequest = {
+    session: Session;
+  };
+
   type ActionResponse<T = unknownm> =
     | {
         success: true;

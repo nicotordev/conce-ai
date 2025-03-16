@@ -4,7 +4,11 @@ import logger from "@/lib/consola/logger";
 import { AxiosError } from "axios";
 import { NextURL } from "next/dist/server/web/next-url";
 import { NextRequest, NextResponse } from "next/server";
-import { CustomApiHandler } from "@/types/api";
+import {
+  AuthenticatedNextRequest,
+  CustomApiHandler,
+  CustomApiKeyHandler,
+} from "@/types/api";
 import transformObjectForSerialization from "./serialization.utils";
 
 class ApiResponse {
@@ -169,18 +173,20 @@ class ApiResponse {
 }
 
 const withApiAuthRequired = (handler: CustomApiHandler) => {
-  return async (req: NextRequest) => {
-    const isAuth = await auth();
+  return async (req: AuthenticatedNextRequest) => {
+    const session = await auth();
 
-    if (!isAuth) {
+    if (!session) {
       return ApiResponse.unauthorized();
     }
+
+    req.session = session;
 
     return await handler(req);
   };
 };
 
-const withApikeyAuthRequired = (handler: CustomApiHandler) => {
+const withApikeyAuthRequired = (handler: CustomApiKeyHandler) => {
   return async (req: NextRequest) => {
     const apiKey = req.headers.get("x-condor-ai-key");
 
