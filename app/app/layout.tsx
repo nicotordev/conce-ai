@@ -1,15 +1,15 @@
-import AppNav from "@/components/App/Layout/AppNav";
-import { getGoogleGenerativeAIModels } from "@/utils/@google-generative-ai.utils";
+import { auth } from "@/auth";
+import AppNav from "@/components/App/Layout/AppNav/AppNav";
 
 export default async function AppRootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const models = await getGoogleGenerativeAIModels();
+  const session = await auth();
   return (
     <>
-      <AppNav models={models} />
+      <AppNav session={session} />
       <main>{children}</main>
     </>
   );
