@@ -1,7 +1,13 @@
 import { Model } from "@prisma/client";
+import { Session } from "next-auth";
+
+type AppNavModel = Partial<Model> & Pick<Model, "displayName" | "description">;
 
 type AppNavProps = {
-  models: (Partial<Model> & Pick<Model, 'displayName' | 'description'>)[];
+  session: Session | null;
 };
 
-export type { AppNavProps };
+export type {
+  AppNavModel,
+  AppNavProps,
+};
