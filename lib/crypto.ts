@@ -2,7 +2,7 @@
 import { EncryptionResult } from "@/types/crypto";
 import transformObjectForSerialization from "@/utils/serialization.utils";
 import crypto from "crypto";
-import logger from "./logger";
+import logger from "./consola/logger";
 const { scryptSync } = await import("node:crypto");
 
 function generateHumanReadableToken(length: number = 8): string {
