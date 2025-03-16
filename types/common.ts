@@ -35,7 +35,7 @@ type UserProfilePicProps = {
   session: Session | null;
 };
 
-type AppNavUserProps = {
+type AppNavUserDropdownProps = {
   session: Session | null;
 };
 
@@ -43,5 +43,5 @@ export type {
   InputProps,
   PasswordInputProps,
   UserProfilePicProps,
-  AppNavUserProps,
+  AppNavUserDropdownProps,
 };
