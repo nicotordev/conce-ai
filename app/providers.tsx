@@ -1,3 +1,4 @@
+import { CondorAIProvider } from "@/providers/CondorAIProvider";
 import { GoogleRecaptchaProvider } from "@/providers/GoogleRecaptchaProvider";
 import TanstackUseQueryProvider from "@/providers/TanstackUseQueryProvider";
 
@@ -6,7 +7,9 @@ export default function Providers({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <TanstackUseQueryProvider>
-      <GoogleRecaptchaProvider>{children}</GoogleRecaptchaProvider>
+      <GoogleRecaptchaProvider>
+        <CondorAIProvider>{children}</CondorAIProvider>
+      </GoogleRecaptchaProvider>
     </TanstackUseQueryProvider>
   );
 }

@@ -11,9 +11,7 @@ const CondorAIContext = createContext<CondorAIContextType | null>(null);
 export const useCondorAI = () => {
   const context = useContext(CondorAIContext);
   if (!context) {
-    throw new Error(
-      "useRecaptcha debe ser usado dentro de un CondorAIProvider"
-    );
+    throw new Error("useCondorAI debe ser usado dentro de un CondorAIProvider");
   }
   return context;
 };

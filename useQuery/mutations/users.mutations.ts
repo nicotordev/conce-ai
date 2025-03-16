@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 function useModelsQuery() {
   const modelsQuery = useQuery({
     queryKey: ["users/models"],
-    queryFn: condorAi.getModels,
+    queryFn: () => condorAi.getModels(),
   });
 
   return modelsQuery;

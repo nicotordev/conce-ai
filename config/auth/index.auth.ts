@@ -9,7 +9,7 @@ import { Adapter } from "next-auth/adapters";
 
 export const nextAuthConfig: NextAuthConfig = {
   adapter: authAdapterPrisma as Adapter,
-  providers: [googleAuthConfig, credentialsAuthConfig,],
+  providers: [googleAuthConfig, credentialsAuthConfig],
   pages: {
     signIn: "/auth/sign-in",
     newUser: "/auth/sign-up",
@@ -62,6 +62,11 @@ export const nextAuthConfig: NextAuthConfig = {
       };
 
       return customSession;
+    },
+    authorized({ auth }) {
+      const isAuthenticated = !!auth?.user;
+
+      return isAuthenticated;
     },
   },
   jwt: {

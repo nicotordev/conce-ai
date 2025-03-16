@@ -172,6 +172,8 @@ const withApiAuthRequired = (handler: CustomApiHandler) => {
   return async (req: NextRequest) => {
     const isAuth = await auth();
 
+    console.log(isAuth);
+
     if (!isAuth) {
       return ApiResponse.unauthorized();
     }
