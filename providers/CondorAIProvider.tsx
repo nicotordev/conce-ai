@@ -32,6 +32,7 @@ export const CondorAIProvider = ({
     useState<AppNavConversation | null>(null);
   const [loadingModels, setLoadingModels] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(false);
+  const [conversationsOpen, setConversationsOpen] = useState(false);
 
   async function setSelectedModelHandler(model: AppNavModel) {
     setLoadingModels(true);
@@ -116,6 +117,8 @@ export const CondorAIProvider = ({
           selectedConversation: selectedConversation,
           isLoading: loadingConversations,
           setSelectedConversation: setSelectedConversationHandler,
+          setConversationsOpen: setConversationsOpen,
+          conversationsOpen: conversationsOpen,
         },
       }}
     >
