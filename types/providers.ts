@@ -26,7 +26,9 @@ type CondorAIContextType = {
     conversations: AppNavConversation[];
     selectedConversation: AppNavConversation | null;
     isLoading: boolean;
+    conversationsOpen: boolean;
     setSelectedConversation: (conversation: AppNavConversation) => void;
+    setConversationsOpen: (open: boolean) => void;
   };
 };
 
