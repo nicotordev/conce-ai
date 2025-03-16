@@ -1,9 +1,12 @@
 import { GoogleRecaptchaProvider } from "@/providers/GoogleRecaptchaProvider";
+import TanstackUseQueryProvider from "@/providers/TanstackUseQueryProvider";
 
 export default function Providers({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <GoogleRecaptchaProvider>{children}</GoogleRecaptchaProvider>
+    <TanstackUseQueryProvider>
+      <GoogleRecaptchaProvider>{children}</GoogleRecaptchaProvider>
+    </TanstackUseQueryProvider>
   );
 }
