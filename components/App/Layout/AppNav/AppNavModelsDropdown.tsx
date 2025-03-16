@@ -14,7 +14,8 @@ import { useCondorAI } from "@/providers/CondorAIProvider";
 import AppNavModelsDropdownSkeleton from "@/components/Common/Skeletons/AppNavModelsDropdownSkeleton";
 
 export default function AppNavModelsDropdown() {
-  const { models, setSelectedModel, selectedModel, isLoading } = useCondorAI();
+  const { models: modelsContext } = useCondorAI();
+  const { models, setSelectedModel, selectedModel, isLoading } = modelsContext;
 
   if (isLoading) {
     return <AppNavModelsDropdownSkeleton />;
