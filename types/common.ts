@@ -1,3 +1,5 @@
+import { Session } from "next-auth";
+
 type InputProps = React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
@@ -27,4 +29,19 @@ type PasswordInputProps = {
   "value" | "defaultValue"
 >;
 
-export type { InputProps, PasswordInputProps };
+type UserProfilePicProps = {
+  size?: "sm" | "md" | "lg";
+  className?: string;
+  session: Session | null;
+};
+
+type AppNavUserProps = {
+  session: Session | null;
+};
+
+export type {
+  InputProps,
+  PasswordInputProps,
+  UserProfilePicProps,
+  AppNavUserProps,
+};
