@@ -3,11 +3,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { CondorAIContextType, CondorAIProviderProps } from "@/types/providers";
 import { useModelsQuery } from "@/useQuery/mutations/condor-ai.mutations";
-import { AppNavConversation, AppNavModel } from "@/types/layout";
+import {
+  AppNavConversation,
+  AppNavConversationJoinedByDate,
+  AppNavModel,
+} from "@/types/layout";
 import { useConversationsQuery } from "@/useQuery/mutations/users.mutations";
 import { encryptDataAction } from "@/app/actions/crypto.actions";
 import { setCookie } from "cookies-next/client";
 import cookiesConstants from "@/constants/cookies.constants";
+import { startOfDay } from "date-fns";
 // Crea el contexto
 const CondorAIContext = createContext<CondorAIContextType | null>(null);
 
@@ -33,6 +38,8 @@ export const CondorAIProvider = ({
   const [loadingModels, setLoadingModels] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const [conversationsOpen, setConversationsOpen] = useState(false);
+  const [conversationsJoinedByDate, setConversationsJoinedByDate] =
+    useState<AppNavConversationJoinedByDate>({});
 
   async function setSelectedModelHandler(model: AppNavModel) {
     setLoadingModels(true);
@@ -92,6 +99,31 @@ export const CondorAIProvider = ({
           return;
         }
       }
+      setConversationsJoinedByDate(
+        conversationsQuery.data.reduce((acc, conversation) => {
+          const date = conversation.updatedAt.toDateString();
+          const todaysDate = startOfDay(new Date()).getTime();
+          const yesterdayDate = startOfDay(
+            new Date(Date.now() - 86400000)
+          ).getTime();
+          if (startOfDay(conversation.updatedAt).getTime() === todaysDate) {
+            acc["Hoy"] = acc["Hoy"] || [];
+            acc["Hoy"].push(conversation);
+            return acc;
+          } else if (
+            startOfDay(conversation.updatedAt).getTime() === yesterdayDate
+          ) {
+            acc["Ayer"] = acc["Ayer"] || [];
+            acc["Ayer"].push(conversation);
+            return acc;
+          }
+          if (!acc[date]) {
+            acc[date] = [];
+          }
+          acc[date].push(conversation);
+          return acc;
+        }, {} as AppNavConversationJoinedByDate)
+      );
     }
   }, [conversationsQuery.data, selectedConversation, selectedConversationId]);
 
@@ -119,6 +151,7 @@ export const CondorAIProvider = ({
           setSelectedConversation: setSelectedConversationHandler,
           setConversationsOpen: setConversationsOpen,
           conversationsOpen: conversationsOpen,
+          conversationsJoinedByDate,
         },
       }}
     >

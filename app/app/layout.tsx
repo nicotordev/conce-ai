@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import AppConversationsNav from "@/components/App/Layout/AppConversationsNav";
 import AppNav from "@/components/App/Layout/AppNav/AppNav";
 
 export default async function AppRootLayout({
@@ -9,8 +10,10 @@ export default async function AppRootLayout({
   const session = await auth();
   return (
     <>
-      <AppNav session={session} />
-      <main>{children}</main>
+      <div className="flex">
+        <AppConversationsNav conversations={[]} />
+        <AppNav session={session}>{children}</AppNav>
+      </div>
     </>
   );
 }

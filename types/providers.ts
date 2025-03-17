@@ -1,3 +1,4 @@
+import React from "react";
 import { AppNavConversation, AppNavModel } from "./layout";
 
 type GoogleRecaptchaProviderProps = {
@@ -27,8 +28,9 @@ type CondorAIContextType = {
     selectedConversation: AppNavConversation | null;
     isLoading: boolean;
     conversationsOpen: boolean;
+    conversationsJoinedByDate: Record<string, AppNavConversation[]>;
+    setConversationsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setSelectedConversation: (conversation: AppNavConversation) => void;
-    setConversationsOpen: (open: boolean) => void;
   };
 };
 
