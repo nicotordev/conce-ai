@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { TbMessageCircle } from "react-icons/tb";
 import { IoSearch } from "react-icons/io5";
-import clsx from "clsx";
 import { Transition } from "@headlessui/react";
 import { useUser } from "@/providers/UserProvider";
+import { useRouter } from "next/navigation";
 
 export default function AppConversationsNav() {
+  const router = useRouter();
   const {
     conversations: {
       conversationsJoinedByDate,
@@ -20,13 +21,13 @@ export default function AppConversationsNav() {
     <Transition
       as="div"
       show={conversationsOpen}
-      enter="transition-all duration-300 [&_*]:whitespace-nowrap"
-      enterFrom="w-0 overflow-clip [&_*]:whitespace-nowrap"
-      enterTo="w-2/12 [&_*]:whitespace-nowrap"
-      leave="transition-all duration-300"
-      leaveFrom="w-2/12 [&_*]:whitespace-nowrap"
-      leaveTo="w-0 overflow-clip [&_*]:whitespace-nowrap"
-      className={clsx("bg-white px-4 py-3")}
+      enter="transition-transform duration-300 origin-left"
+      enterFrom="scale-x-0 overflow-hidden"
+      enterTo="scale-x-100"
+      leave="transition-transform duration-150 origin-left"
+      leaveFrom="scale-x-100"
+      leaveTo="scale-x-0 overflow-hidden"
+      className="bg-white px-4 py-3 w-2/12"
     >
       <ul className="flex items-center justify-between text-2xl text-dark-text-accent">
         <li className="flex items-center justify-center">
@@ -55,6 +56,9 @@ export default function AppConversationsNav() {
             <Button
               variant={"outline"}
               className="border-none shadow-none bg-transparent"
+              onClick={() => {
+                router.push("/app");
+              }}
             >
               <TbMessageCircle className="!w-6 !h-6" />
             </Button>
