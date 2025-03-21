@@ -1,79 +1,25 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useCondorAI } from "@/providers/CondorAIProvider";
-import { AppConversationsNavProps } from "@/types/layout";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { TbMessageCircle } from "react-icons/tb";
 import { IoSearch } from "react-icons/io5";
 import clsx from "clsx";
 import { Transition } from "@headlessui/react";
+import { useUser } from "@/providers/UserProvider";
 
-const conversationsArray = {
-  [new Date().toDateString()]: [
-    {
-      id: "1",
-      title: "Alguien tiene un buen dato de empanadas en Santiago?",
-      description:
-        "Quiero comer empanadas ricas, alguna picada que recomienden",
+export default function AppConversationsNav() {
+  const {
+    conversations: {
+      conversationsJoinedByDate,
+      conversationsOpen,
+      setConversationsOpen,
     },
-    {
-      id: "2",
-      title: "Cuándo juega Colo-Colo esta semana",
-      description: "No cacho cuándo es el partido, alguien sabe?",
-    },
-    {
-      id: "3",
-      title: "Qué micro tomo pa llegar a Providencia?",
-      description: "Me confundí con los nuevos recorridos",
-    },
-  ],
-
-  [new Date(Date.now() - 86400000).toDateString()]: [
-    // Ayer
-    {
-      id: "4",
-      title: "Está abierto el Costanera hoy",
-      description: "Alguien sabe si puedo ir al mall hoy?",
-    },
-    {
-      id: "5",
-      title: "Habrá fila hoy en el Registro Civil?",
-      description:
-        "Tengo que renovar el carnet y quiero cachar cómo anda el tiempo de espera",
-    },
-    {
-      id: "5",
-      title: "Cómo está la Ruta 68 hacia Viña",
-      description: "Voy saliendo ahora y quiero saber si hay taco?",
-    },
-  ],
-
-  [new Date(Date.now() - 2 * 86400000).toDateString()]: [
-    {
-      id: "6",
-      title: "Qué micro sirve para ir al Costanera Center?",
-      description: "Necesito llegar rápido al mall y no sé cuál tomar",
-    },
-    {
-      id: "7",
-      title: "Dónde ir a carretear en Conce este finde",
-      description: "Estoy buscando recomendaciones buenas para salir en Conce?",
-    },
-    {
-      id: "8",
-      title: "En qué canal transmiten el partido de Chile hoy?",
-      description: "No puedo encontrar dónde verlo",
-    },
-  ],
-};
-
-export default function AppConversationsNav({}: AppConversationsNavProps) {
-  const { conversations } = useCondorAI();
+  } = useUser();
 
   return (
     <Transition
       as="div"
-      show={conversations.conversationsOpen}
+      show={conversationsOpen}
       enter="transition-all duration-300 [&_*]:whitespace-nowrap"
       enterFrom="w-0 overflow-clip [&_*]:whitespace-nowrap"
       enterTo="w-2/12 [&_*]:whitespace-nowrap"
@@ -86,7 +32,7 @@ export default function AppConversationsNav({}: AppConversationsNavProps) {
         <li className="flex items-center justify-center">
           <Button
             variant={"outline"}
-            onClick={() => conversations.setConversationsOpen((prev) => !prev)}
+            onClick={() => setConversationsOpen((prev) => !prev)}
             className="border-none shadow-none relative group bg-transparent"
           >
             <div
@@ -116,41 +62,37 @@ export default function AppConversationsNav({}: AppConversationsNavProps) {
         </ul>
       </ul>
       <div className="flex items-stretch min-h-screen">
-        <div className="w-full flex flex-col gap-8">
-          {Object.entries(conversationsArray).map(
+        <div className="w-full flex flex-col gap-4">
+          {Object.entries(conversationsJoinedByDate).map(
             ([date, conversationArray]) => (
-              <>
-                <ul className="py-2 px-0">
-                  <li className="px-4">
-                    {/**
-                     * [TODO] - Add locale to date
-                     */}
-                    <strong className="text-sm font-semibold">
-                      {date === "Hoy" || date === "Ayer"
-                        ? date
-                        : new Date(date).toLocaleDateString("es-CL")}
-                    </strong>
-                  </li>
-                  {conversationArray.map((singleConversation) => (
-                    <li
-                      key={singleConversation.id}
-                      className="text-base hover:bg-silver-100 flex items-center justify-start"
+              <ul className="py-2 px-0" key={date}>
+                <li className="px-4">
+                  {/**
+                   * [TODO] - Add locale to date
+                   */}
+                  <strong className="text-sm font-semibold">
+                    {date === "Hoy" || date === "Ayer"
+                      ? date
+                      : new Date(date).toLocaleDateString("es-CL")}
+                  </strong>
+                </li>
+                {conversationArray.map((singleConversation) => (
+                  <li
+                    key={singleConversation.id}
+                    className="text-sm hover:bg-silver-100 flex items-center justify-start"
+                  >
+                    <Button
+                      className="text-xs w-full h-full bg-transparent border-none shadow-none text-left font-normal flex items-start justify-start whitespace-pre-wrap text-dark-text-primary rounded-md"
+                      variant={"outline"}
+                      onClick={() => {
+                        window.location.href = `/app/${singleConversation.id}`;
+                      }}
                     >
-                      {
-                        // conversations.setSelectedConversation(
-                        //   singleConversation
-                        // ) [TODO] - Add setSelectedConversation
-                      }
-                      <Button
-                        className="text-sm w-full h-full bg-transparent border-none text-left font-normal flex items-start justify-start whitespace-pre-wrap hover:bg-silver-100/50 text-dark-text-primary hover:text-black"
-                        variant={"outline"}
-                      >
-                        <span>{singleConversation.title}</span>
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              </>
+                      <span>{singleConversation.title}</span>
+                    </Button>
+                  </li>
+                ))}
+              </ul>
             )
           )}
         </div>
