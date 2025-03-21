@@ -1,6 +1,7 @@
 import { CondorAIProvider } from "@/providers/CondorAIProvider";
 import { GoogleRecaptchaProvider } from "@/providers/GoogleRecaptchaProvider";
 import TanstackUseQueryProvider from "@/providers/TanstackUseQueryProvider";
+import { UserProvider } from "@/providers/UserProvider";
 import { cookies } from "next/headers";
 
 export default async function Providers({
@@ -14,11 +15,10 @@ export default async function Providers({
   return (
     <TanstackUseQueryProvider>
       <GoogleRecaptchaProvider>
-        <CondorAIProvider
-          selectedConversationId={selectedConversationId}
-          selectedModelId={selectedModelId}
-        >
-          {children}
+        <CondorAIProvider selectedModelId={selectedModelId}>
+          <UserProvider selectedConversationId={selectedConversationId}>
+            {children}
+          </UserProvider>
         </CondorAIProvider>
       </GoogleRecaptchaProvider>
     </TanstackUseQueryProvider>
