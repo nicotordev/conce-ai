@@ -11,29 +11,24 @@ async function createConversationAction(formData: FormData) {
   const session = (await auth())!;
   const message = formData.get("message") as string;
   const modelId = formData.get("modelId") as string;
+  let redirectTo = "";
 
   if (typeof message !== "string" || message.length === 0) {
-    redirect(
-      `/app?state=${encryptData({
-        error: conversationsConstants.ERROR_MESSAGES_CODES.MESSAGE_IS_NOT_VALID,
-      })}`
-    );
+    redirectTo = `/app?state=${encryptData({
+      error: conversationsConstants.ERROR_MESSAGES_CODES.MESSAGE_IS_NOT_VALID,
+    })}`;
   }
 
   if (typeof modelId !== "string" || modelId.length === 0) {
-    redirect(
-      `/app?state=${encryptData({
-        error: conversationsConstants.ERROR_MESSAGES_CODES.MODEL_IS_NOT_VALID,
-      })}`
-    );
+    redirectTo = `/app?state=${encryptData({
+      error: conversationsConstants.ERROR_MESSAGES_CODES.MODEL_IS_NOT_VALID,
+    })}`;
   }
 
   if (!session.user.id) {
-    redirect(
-      `/app?state=${encryptData({
-        error: conversationsConstants.ERROR_MESSAGES_CODES.USER_NOT_AUTHORIZED,
-      })}`
-    );
+    redirectTo = `/app?state=${encryptData({
+      error: conversationsConstants.ERROR_MESSAGES_CODES.USER_NOT_AUTHORIZED,
+    })}`;
   }
 
   try {
@@ -44,22 +39,19 @@ async function createConversationAction(formData: FormData) {
     );
 
     if (newConversation.error) {
-      redirect(
-        `/app?state=${encryptData({
-          error: newConversation.error,
-        })}`
-      );
+      redirectTo = `/app?state=${encryptData({
+        error: newConversation.error,
+      })}`;
     }
 
-    redirect(`/app/${newConversation.id}`);
+    redirectTo = `/app/${newConversation.id}`;
   } catch (err) {
     logger.error("[ACTIONS-CREATE-CONVERSATION]", err);
-    redirect(
-      `/app?state=${encryptData({
-        error:
-          conversationsConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
-      })}`
-    );
+    redirectTo = `/app?state=${encryptData({
+      error: conversationsConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+    })}`;
+  } finally {
+    redirect(redirectTo);
   }
 }
 
