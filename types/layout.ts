@@ -1,10 +1,14 @@
-import { Conversation, Model } from "@prisma/client";
+import { Model } from "@prisma/client";
 import { Session } from "next-auth";
 
 type AppNavModel = Partial<Model> & Pick<Model, "displayName" | "description">;
 
-type AppNavConversation = Partial<Conversation> &
-  Pick<Conversation, "id" | "title" | "updatedAt">;
+type AppNavConversation = {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 type AppNavConversationJoinedByDate = Record<string, AppNavConversation[]>;
 
