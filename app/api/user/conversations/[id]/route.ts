@@ -102,6 +102,7 @@ const updateUserConversationHandler = async (
     await prisma.conversation.update({
       where: {
         id,
+        userId: req.session.user.id,
       },
       data: {
         messages: {
