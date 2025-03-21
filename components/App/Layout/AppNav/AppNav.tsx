@@ -8,7 +8,10 @@ import AppNavModelsDropdownProps from "./AppNavModelsDropdown";
 import AppNavUserDropdown from "./AppNavUserDropdown";
 import clsx from "clsx";
 import { useUser } from "@/providers/UserProvider";
+import { useRouter } from "next/navigation";
 export default function AppNav({ session, children }: AppNavProps) {
+  const router = useRouter();
+
   const { conversations } = useUser();
   return (
     <div className="w-full">
@@ -48,6 +51,9 @@ export default function AppNav({ session, children }: AppNavProps) {
                       <Button
                         variant={"outline"}
                         className="border-none shadow-none"
+                        onClick={() => {
+                          router.push("/app");
+                        }}
                       >
                         <TbMessageCircle className="!w-6 !h-6" />
                       </Button>
