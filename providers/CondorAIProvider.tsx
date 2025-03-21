@@ -2,17 +2,13 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { CondorAIContextType, CondorAIProviderProps } from "@/types/providers";
-import { useModelsQuery } from "@/useQuery/mutations/condor-ai.mutations";
+import { useModelsQuery } from "@/useQuery/queries/condor-ai.queries";
 import {
-  AppNavConversation,
-  AppNavConversationJoinedByDate,
   AppNavModel,
 } from "@/types/layout";
-import { useConversationsQuery } from "@/useQuery/mutations/users.mutations";
 import { encryptDataAction } from "@/app/actions/crypto.actions";
 import { setCookie } from "cookies-next/client";
 import cookiesConstants from "@/constants/cookies.constants";
-import { startOfDay } from "date-fns";
 // Crea el contexto
 const CondorAIContext = createContext<CondorAIContextType | null>(null);
 
@@ -27,19 +23,11 @@ export const useCondorAI = () => {
 
 export const CondorAIProvider = ({
   children,
-  selectedConversationId,
   selectedModelId,
 }: CondorAIProviderProps) => {
   const modelsQuery = useModelsQuery();
-  const conversationsQuery = useConversationsQuery();
   const [selectedModel, setSelectedModel] = useState<AppNavModel | null>(null);
-  const [selectedConversation, setSelectedConversation] =
-    useState<AppNavConversation | null>(null);
   const [loadingModels, setLoadingModels] = useState(false);
-  const [loadingConversations, setLoadingConversations] = useState(false);
-  const [conversationsOpen, setConversationsOpen] = useState(false);
-  const [conversationsJoinedByDate, setConversationsJoinedByDate] =
-    useState<AppNavConversationJoinedByDate>({});
 
   async function setSelectedModelHandler(model: AppNavModel) {
     setLoadingModels(true);
@@ -52,20 +40,6 @@ export const CondorAIProvider = ({
       sameSite: "strict",
     });
     setLoadingModels(false);
-  }
-  async function setSelectedConversationHandler(
-    conversation: AppNavConversation
-  ) {
-    setLoadingConversations(true);
-    setSelectedConversation(conversation);
-    const encryptedData = await encryptDataAction({ id: conversation.id });
-    setCookie(cookiesConstants.selectedConversationId, encryptedData, {
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-      path: "/",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
-    setLoadingConversations(false);
   }
 
   useEffect(() => {
@@ -85,55 +59,8 @@ export const CondorAIProvider = ({
   }, [modelsQuery.data, selectedModel, selectedModelId]);
 
   useEffect(() => {
-    if (
-      conversationsQuery.data &&
-      conversationsQuery.data.length > 0 &&
-      !selectedConversation
-    ) {
-      if (selectedConversationId) {
-        const conversation = conversationsQuery.data.find(
-          (conversation) => conversation.id === selectedConversationId
-        );
-        if (conversation) {
-          setSelectedConversation(conversation);
-          return;
-        }
-      }
-      setConversationsJoinedByDate(
-        conversationsQuery.data.reduce((acc, conversation) => {
-          const date = conversation.updatedAt.toDateString();
-          const todaysDate = startOfDay(new Date()).getTime();
-          const yesterdayDate = startOfDay(
-            new Date(Date.now() - 86400000)
-          ).getTime();
-          if (startOfDay(conversation.updatedAt).getTime() === todaysDate) {
-            acc["Hoy"] = acc["Hoy"] || [];
-            acc["Hoy"].push(conversation);
-            return acc;
-          } else if (
-            startOfDay(conversation.updatedAt).getTime() === yesterdayDate
-          ) {
-            acc["Ayer"] = acc["Ayer"] || [];
-            acc["Ayer"].push(conversation);
-            return acc;
-          }
-          if (!acc[date]) {
-            acc[date] = [];
-          }
-          acc[date].push(conversation);
-          return acc;
-        }, {} as AppNavConversationJoinedByDate)
-      );
-    }
-  }, [conversationsQuery.data, selectedConversation, selectedConversationId]);
-
-  useEffect(() => {
     setLoadingModels(modelsQuery.isLoading);
   }, [modelsQuery.isLoading]);
-
-  useEffect(() => {
-    setLoadingConversations(conversationsQuery.isLoading);
-  }, [conversationsQuery.isLoading]);
 
   return (
     <CondorAIContext.Provider
@@ -143,15 +70,6 @@ export const CondorAIProvider = ({
           selectedModel: selectedModel,
           isLoading: loadingModels,
           setSelectedModel: setSelectedModelHandler,
-        },
-        conversations: {
-          conversations: conversationsQuery.data || [],
-          selectedConversation: selectedConversation,
-          isLoading: loadingConversations,
-          setSelectedConversation: setSelectedConversationHandler,
-          setConversationsOpen: setConversationsOpen,
-          conversationsOpen: conversationsOpen,
-          conversationsJoinedByDate,
         },
       }}
     >
