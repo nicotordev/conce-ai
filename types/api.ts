@@ -7,11 +7,13 @@ type AuthenticatedNextRequest = NextRequest & {
   session: Session;
 };
 type CustomApiHandler = (
-  req: AuthenticatedNextRequest
+  req: AuthenticatedNextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) => void | Promise<void | NextApiResponse<unknown>> | ApiResponse;
 
 type CustomApiKeyHandler = (
-  req: NextRequest
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) => void | Promise<void | NextApiResponse<unknown>> | ApiResponse;
 
 export type { CustomApiHandler, CustomApiKeyHandler, AuthenticatedNextRequest };
