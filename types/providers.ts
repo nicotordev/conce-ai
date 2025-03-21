@@ -13,7 +13,6 @@ type RecaptchaContextType = {
 type CondorAIProviderProps = {
   children: React.ReactNode;
   selectedModelId: string | null;
-  selectedConversationId: string | null;
 };
 
 type CondorAIContextType = {
@@ -23,6 +22,9 @@ type CondorAIContextType = {
     isLoading: boolean;
     setSelectedModel: (model: AppNavModel) => void;
   };
+};
+
+type UserProviderContextType = {
   conversations: {
     conversations: AppNavConversation[];
     selectedConversation: AppNavConversation | null;
@@ -32,7 +34,12 @@ type CondorAIContextType = {
     setConversationsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setSelectedConversation: (conversation: AppNavConversation) => void;
   };
-};
+}
+
+type UserProviderProps = {
+  children: React.ReactNode;
+  selectedConversationId: string | null;
+}
 
 type TanstackUseQueryProviderProps = {
   children: React.ReactNode;
@@ -44,4 +51,6 @@ export type {
   RecaptchaContextType,
   CondorAIContextType,
   TanstackUseQueryProviderProps,
+  UserProviderContextType,
+  UserProviderProps
 };
