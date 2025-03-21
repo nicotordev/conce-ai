@@ -1,17 +1,5 @@
 import { MessageSender } from "@prisma/client";
 
-type AppConversation = {
-  id: string;
-  title: string;
-  createdAt: string;
-  message: {
-    id: string;
-    content: string;
-    createdAt: string;
-    sender: MessageSender;
-  }[];
-};
-
 type AppMessageDTO = {
   modelId: string;
   content: string;
@@ -19,10 +7,34 @@ type AppMessageDTO = {
 
 type AppNewConversationState = {
   error: string;
-}
+};
 
 type AppNewConversationProps = {
-  state: AppNewConversationState
-}
+  state: AppNewConversationState;
+};
 
-export type { AppConversation, AppMessageDTO, AppNewConversationProps, AppNewConversationState };
+type AppConversationType = {
+  id: string;
+  title: string | null; 
+  createdAt: string;
+  updatedAt: string;
+  messages: {
+    id: string;
+    content: string;
+    sender: MessageSender;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+};
+
+type AppConversationProps = {
+  conversation: AppConversationType;
+};
+
+export type {
+  AppConversationType,
+  AppMessageDTO,
+  AppNewConversationProps,
+  AppNewConversationState,
+  AppConversationProps,
+};

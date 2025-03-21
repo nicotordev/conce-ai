@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import FetchClient from "./fetch-client";
 import { FetchClientError } from "@/errors/fetch-client.errors";
 import { AppNavConversation, AppNavModel } from "@/types/layout";
+import { AppConversationType } from "@/types/app";
 
 class CondorAI {
   private apiUrl: string = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
@@ -83,10 +84,10 @@ class CondorAI {
         throw new CondorAIError((err as FetchClientError).message);
       }
     },
-    getConversation: async (id: string): Promise<AppNavConversation> => {
+    getConversation: async (id: string): Promise<AppConversationType> => {
       try {
         const { data: conversation } = await this.get<
-          BaseApiResponse<AppNavConversation>
+          BaseApiResponse<AppConversationType>
         >(`/user/conversations/${id}`);
 
         return conversation;

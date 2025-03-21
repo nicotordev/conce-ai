@@ -1,7 +1,9 @@
 import { auth } from "@/auth";
+import AppConversation from "@/components/App/AppConversation";
 import prisma from "@/lib/prisma/index.prisma";
+import { AppConversationType } from "@/types/app";
 import { PagePropsCommon } from "@/types/pages";
-import { MessageSender } from "@prisma/client";
+import transformObjectForSerialization from "@/utils/serialization.utils";
 import { notFound } from "next/navigation";
 
 export default async function Conversation(props: PagePropsCommon) {
@@ -22,6 +24,7 @@ export default async function Conversation(props: PagePropsCommon) {
       userId: session.user.id,
     },
     select: {
+      id: true,
       title: true,
       createdAt: true,
       updatedAt: true,
@@ -44,29 +47,14 @@ export default async function Conversation(props: PagePropsCommon) {
     notFound();
   }
 
-  const messages = conversation.messages;
+  const conversationDTO = transformObjectForSerialization<
+    typeof conversation,
+    AppConversationType
+  >(conversation);
 
   return (
     <div className="w-full h-full">
-      <div className="max-w-3xl mx-auto">
-        {messages.map((message) => {
-          if (message.sender === MessageSender.USER) {
-            return (
-              <div
-                className="w-full flex items-center justify-end"
-                key={message.id}
-              >
-                <div className="w-fit text-start break-words whitespace-normal min-h-8 relative bg-white px-5 py-2.5 rounded-xl border border-gray-200 shadow-sm">
-                  {message.content}
-                </div>
-              </div>
-            );
-          } else if (message.sender === MessageSender.ASSISTANT) {
-          }
-
-          return null;
-        })}
-      </div>
+      <AppConversation conversation={conversationDTO} />
     </div>
   );
 }

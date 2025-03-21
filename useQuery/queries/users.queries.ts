@@ -1,4 +1,5 @@
 import condorAi from "@/lib/condor-ai";
+import { AppConversationType } from "@/types/app";
 import { useQuery } from "@tanstack/react-query";
 
 function useConversationsQuery() {
@@ -10,10 +11,11 @@ function useConversationsQuery() {
   return conversationsQuery;
 }
 
-function useConversationQuery(id: string) {
+function useConversationQuery(id: string, conversation?: AppConversationType) {
   const conversationQuery = useQuery({
     queryKey: ["users/get-conversation", id],
-    queryFn: () => condorAi.user.getConversation(id),
+    queryFn: ({ queryKey }) => condorAi.user.getConversation(queryKey[1] as string),
+    initialData: conversation,
   });
 
   return conversationQuery;
