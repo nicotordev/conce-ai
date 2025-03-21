@@ -2,8 +2,9 @@ import logger from "@/lib/consola/logger";
 import prisma from "@/lib/prisma/index.prisma";
 import { AuthenticatedNextRequest } from "@/types/api";
 import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
+import { createConversation } from "@/utils/conversations.utils";
 
-const userConversationsHandler = async (req: AuthenticatedNextRequest) => {
+const userGetConversationsHandler = async (req: AuthenticatedNextRequest) => {
   try {
     const session = req.session;
 
@@ -14,6 +15,8 @@ const userConversationsHandler = async (req: AuthenticatedNextRequest) => {
       select: {
         id: true,
         title: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
@@ -24,6 +27,39 @@ const userConversationsHandler = async (req: AuthenticatedNextRequest) => {
   }
 };
 
-const handler = withApiAuthRequired(userConversationsHandler);
+const userCreateConversationHandler = async (req: AuthenticatedNextRequest) => {
+  try {
+    const session = req.session;
 
-export { handler as GET };
+    const body = await req.json();
+
+    const { message, modelId } = body;
+
+    if (!session.user.id) {
+      return ApiResponse.unauthorized();
+    }
+
+    const newConversation = await createConversation(
+      message,
+      modelId,
+      session.user.id
+    );
+
+    return ApiResponse.ok(newConversation);
+  } catch (err) {
+    logger.error(`[ERROR-USER-CONVERSATIONS-HANDLER]`, err);
+    return ApiResponse.internalServerError();
+  }
+};
+
+const userGetConversationsHandlerAuthenticated = withApiAuthRequired(
+  userGetConversationsHandler
+);
+const userCreateConversationHandlerAuthenticated = withApiAuthRequired(
+  userCreateConversationHandler
+);
+
+export {
+  userGetConversationsHandlerAuthenticated as GET,
+  userCreateConversationHandlerAuthenticated as POST,
+};
