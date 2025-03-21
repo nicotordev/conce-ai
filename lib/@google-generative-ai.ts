@@ -3,6 +3,7 @@ import FetchClient from "./fetch-client";
 import { GoogleModel } from "@/types/@google-generative-ai";
 import logger from "./consola/logger";
 
+
 class GoogleGenerativeAI {
   private googleGenerativeAiApiKey: string =
     process.env.GOOGLE_GENERATIVE_AI_API_KEY;
