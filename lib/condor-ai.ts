@@ -83,6 +83,48 @@ class CondorAI {
         throw new CondorAIError((err as FetchClientError).message);
       }
     },
+    getConversation: async (id: string): Promise<AppNavConversation> => {
+      try {
+        const { data: conversation } = await this.get<
+          BaseApiResponse<AppNavConversation>
+        >(`/user/conversations/${id}`);
+
+        return conversation;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
+    createConversation: async (
+      message: string,
+      modelId: string
+    ): Promise<AppNavConversation> => {
+      try {
+        const { data: conversation } = await this.post<
+          BaseApiResponse<AppNavConversation>,
+          { message: string; modelId: string }
+        >("/user/conversations", { message, modelId });
+
+        return conversation;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
+    updateConversation: async (
+      id: string,
+      message: string,
+      modelId: string
+    ): Promise<AppNavConversation> => {
+      try {
+        const { data: conversation } = await this.post<
+          BaseApiResponse<AppNavConversation>,
+          { message: string; modelId: string }
+        >(`/user/conversations/${id}`, { message, modelId });
+
+        return conversation;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
   };
 }
 
