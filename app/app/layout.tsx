@@ -11,7 +11,7 @@ export default async function AppRootLayout({
   return (
     <>
       <div className="flex">
-        <AppConversationsNav conversations={[]} />
+        <AppConversationsNav />
         <AppNav session={session}>{children}</AppNav>
       </div>
     </>
