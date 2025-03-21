@@ -6,10 +6,10 @@ import { TbMessageCircle } from "react-icons/tb";
 import { BsFillShareFill } from "react-icons/bs";
 import AppNavModelsDropdownProps from "./AppNavModelsDropdown";
 import AppNavUserDropdown from "./AppNavUserDropdown";
-import { useCondorAI } from "@/providers/CondorAIProvider";
 import clsx from "clsx";
+import { useUser } from "@/providers/UserProvider";
 export default function AppNav({ session, children }: AppNavProps) {
-  const { conversations } = useCondorAI();
+  const { conversations } = useUser();
   return (
     <div className="w-full">
       <header>
