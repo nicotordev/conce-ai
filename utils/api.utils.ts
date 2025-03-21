@@ -173,7 +173,10 @@ class ApiResponse {
 }
 
 const withApiAuthRequired = (handler: CustomApiHandler) => {
-  return async (req: AuthenticatedNextRequest) => {
+  return async (
+    req: AuthenticatedNextRequest,
+    params: { params: Promise<{ id: string }> }
+  ) => {
     const session = await auth();
 
     if (!session) {
@@ -182,12 +185,15 @@ const withApiAuthRequired = (handler: CustomApiHandler) => {
 
     req.session = session;
 
-    return await handler(req);
+    return await handler(req, params);
   };
 };
 
 const withApikeyAuthRequired = (handler: CustomApiKeyHandler) => {
-  return async (req: NextRequest) => {
+  return async (
+    req: NextRequest,
+    params: { params: Promise<{ id: string }> }
+  ) => {
     const apiKey = req.headers.get("x-condor-ai-key");
 
     if (!apiKey) {
@@ -202,7 +208,7 @@ const withApikeyAuthRequired = (handler: CustomApiKeyHandler) => {
       return ApiResponse.unauthorized();
     }
 
-    return await handler(req);
+    return await handler(req, params);
   };
 };
 
