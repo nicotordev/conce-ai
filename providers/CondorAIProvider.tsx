@@ -3,11 +3,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { CondorAIContextType, CondorAIProviderProps } from "@/types/providers";
 import { useModelsQuery } from "@/useQuery/queries/condor-ai.queries";
-import {
-  AppNavModel,
-} from "@/types/layout";
-import { encryptDataAction } from "@/app/actions/crypto.actions";
-import { setCookie } from "cookies-next/client";
+import { AppNavModel } from "@/types/layout";
+import { getCookie, setCookie } from "cookies-next/client";
 import cookiesConstants from "@/constants/cookies.constants";
 // Crea el contexto
 const CondorAIContext = createContext<CondorAIContextType | null>(null);
@@ -21,10 +18,7 @@ export const useCondorAI = () => {
   return context;
 };
 
-export const CondorAIProvider = ({
-  children,
-  selectedModelId,
-}: CondorAIProviderProps) => {
+export const CondorAIProvider = ({ children }: CondorAIProviderProps) => {
   const modelsQuery = useModelsQuery();
   const [selectedModel, setSelectedModel] = useState<AppNavModel | null>(null);
   const [loadingModels, setLoadingModels] = useState(false);
@@ -32,8 +26,7 @@ export const CondorAIProvider = ({
   async function setSelectedModelHandler(model: AppNavModel) {
     setLoadingModels(true);
     setSelectedModel(model);
-    const encryptedData = await encryptDataAction({ id: model.id });
-    setCookie(cookiesConstants.selectedModelId, encryptedData, {
+    setCookie(cookiesConstants.selectedModelId, model.id, {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
       path: "/",
       secure: process.env.NODE_ENV === "production",
@@ -44,6 +37,7 @@ export const CondorAIProvider = ({
 
   useEffect(() => {
     if (modelsQuery.data && modelsQuery.data.length > 0 && !selectedModel) {
+      const selectedModelId = getCookie(cookiesConstants.selectedModelId);
       if (selectedModelId) {
         const model = modelsQuery.data.find(
           (model) => model.id === selectedModelId
@@ -56,7 +50,7 @@ export const CondorAIProvider = ({
 
       setSelectedModel(modelsQuery.data[0]);
     }
-  }, [modelsQuery.data, selectedModel, selectedModelId]);
+  }, [modelsQuery.data, selectedModel]);
 
   useEffect(() => {
     setLoadingModels(modelsQuery.isLoading);

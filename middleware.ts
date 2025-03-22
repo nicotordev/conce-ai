@@ -58,12 +58,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(nextUrl);
     }
   }
-
-  if (session && nextUrl.pathname !== "/app") {
-    nextUrl.pathname = "/app";
-    return NextResponse.redirect(nextUrl);
-  }
-
   return NextResponse.next();
 }
 

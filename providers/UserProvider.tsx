@@ -8,8 +8,7 @@ import {
   AppNavConversationJoinedByDate,
 } from "@/types/layout";
 import { startOfDay } from "date-fns";
-import { setCookie } from "cookies-next/client";
-import { encryptDataAction } from "@/app/actions/crypto.actions";
+import { getCookie, setCookie } from "cookies-next/client";
 import cookiesConstants from "@/constants/cookies.constants";
 
 const UserProviderContext = createContext<UserProviderContextType | null>(null);
@@ -22,10 +21,7 @@ export const useUser = () => {
   return context;
 };
 
-export const UserProvider = ({
-  children,
-  selectedConversationId,
-}: UserProviderProps) => {
+export const UserProvider = ({ children }: UserProviderProps) => {
   const conversationsQuery = useConversationsQuery();
   const [selectedConversation, setSelectedConversation] =
     useState<AppNavConversation | null>(null);
@@ -40,8 +36,7 @@ export const UserProvider = ({
   ) {
     setLoadingConversations(true);
     setSelectedConversation(conversation);
-    const encryptedData = await encryptDataAction({ id: conversation.id });
-    setCookie(cookiesConstants.selectedConversationId, encryptedData, {
+    setCookie(cookiesConstants.selectedConversationId, conversation.id, {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
       path: "/",
       secure: process.env.NODE_ENV === "production",
@@ -56,6 +51,10 @@ export const UserProvider = ({
       conversationsQuery.data.length > 0 &&
       !selectedConversation
     ) {
+      const selectedConversationId = getCookie(
+        cookiesConstants.selectedConversationId
+      );
+
       if (selectedConversationId) {
         const conversation = conversationsQuery.data.find(
           (conversation) => conversation.id === selectedConversationId
@@ -91,7 +90,7 @@ export const UserProvider = ({
         }, {} as AppNavConversationJoinedByDate)
       );
     }
-  }, [conversationsQuery.data, selectedConversation, selectedConversationId]);
+  }, [conversationsQuery.data, selectedConversation]);
 
   useEffect(() => {
     setLoadingConversations(conversationsQuery.isLoading);

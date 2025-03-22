@@ -28,20 +28,39 @@ export default function AppConversation({
   const { mutate: sendMessage, isPending } = useStreamConversation({
     onMessage: (chunk) => {
       const currentMessages = messagesRef.current;
-
-      const newMessage: AppConversationMessageType = {
-        id: v4(),
-        content: chunk,
-        sender: MessageSender.ASSISTANT,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      messagesRef.current = [...currentMessages, newMessage];
-      setMessages(messagesRef.current);
-    },
+      const lastMessage = currentMessages[currentMessages.length - 1];
+    
+      // Si el último mensaje es del assistant, lo actualizamos
+      if (lastMessage?.sender === MessageSender.ASSISTANT) {
+        const updatedMessage = {
+          ...lastMessage,
+          content: lastMessage.content + chunk,
+          updatedAt: new Date().toISOString(),
+        };
+    
+        const updatedMessages = [
+          ...currentMessages.slice(0, -1),
+          updatedMessage,
+        ];
+    
+        messagesRef.current = updatedMessages;
+        setMessages(updatedMessages);
+      } else {
+        // Si no hay aún mensaje del assistant, lo creamos (solo debería pasar al inicio del stream)
+        const newMessage: AppConversationMessageType = {
+          id: v4(),
+          content: chunk,
+          sender: MessageSender.ASSISTANT,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+    
+        messagesRef.current = [...currentMessages, newMessage];
+        setMessages(messagesRef.current);
+      }
+    },    
     onDone: () => {
-      queryClient.invalidateQueries({
+      queryClient.refetchQueries({
         queryKey: ["conversation", conversation.id],
       });
     },
@@ -71,10 +90,10 @@ export default function AppConversation({
   };
 
   useEffect(() => {
-    if (currentConversationQuery.data) {
+    if (currentConversationQuery.data && !currentConversationQuery.isLoading) {
       setMessages(currentConversationQuery.data.messages);
     }
-  }, [currentConversationQuery.data]);
+  }, [currentConversationQuery.data, currentConversationQuery.isLoading]);
 
   useEffect(() => {
     messagesContainerRef.current?.scrollTo({
@@ -116,7 +135,7 @@ export default function AppConversation({
           } else if (message.sender === MessageSender.ASSISTANT) {
             return (
               <Transition
-                key={message.id}
+                key={message.content}
                 show={true}
                 enter="transition-opacity duration-500"
                 enterFrom="opacity-0"
@@ -127,7 +146,7 @@ export default function AppConversation({
               >
                 <div
                   className="w-full flex items-center justify-start"
-                  key={message.id}
+                  key={message.content}
                 >
                   <div className="px-5 py-2.5 max-w-3/4 prose">
                     <MarkdownRenderer content={message.content} />
@@ -147,11 +166,6 @@ export default function AppConversation({
       >
         <div className="p-2 min-w-2xl rounded-lg shadow-md w-full border border-gray-200">
           <div className="relative w-full max-w-full pb-3">
-            {!message && (
-              <span className="absolute left-3 top-3 text-gray-400 pointer-events-none select-none">
-                Escribe tu mensaje aquí...
-              </span>
-            )}
             <EditableDiv
               placeholder="Escribe tu mensaje aquí..."
               onChange={setMessage}

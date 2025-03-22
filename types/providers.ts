@@ -12,7 +12,6 @@ type RecaptchaContextType = {
 
 type CondorAIProviderProps = {
   children: React.ReactNode;
-  selectedModelId: string | null;
 };
 
 type CondorAIContextType = {
@@ -38,7 +37,6 @@ type UserProviderContextType = {
 
 type UserProviderProps = {
   children: React.ReactNode;
-  selectedConversationId: string | null;
 }
 
 type TanstackUseQueryProviderProps = {

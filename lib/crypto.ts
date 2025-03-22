@@ -1,6 +1,5 @@
 "use server";
 import { EncryptionResult } from "@/types/crypto";
-import transformObjectForSerialization from "@/utils/serialization.utils";
 import crypto from "crypto";
 import logger from "./consola/logger";
 const { scryptSync } = await import("node:crypto");
@@ -80,24 +79,15 @@ function decodeUrlSafeString(encoded: string): string {
  * Encrypt data with a key, return a single string hash
  */
 function encryptData<T = unknown>(data: T): string {
-  // Create a buffer from the key (must be exactly 32 bytes for aes-256)
-  const keyBuffer = scryptSync(process.env.ENCRYPTION_KEY, "salt", 32);
-
-  // Generate a random IV
+  const key = crypto.scryptSync(process.env.ENCRYPTION_KEY!, "salt", 32);
   const iv = crypto.randomBytes(16);
 
-  // Create cipher
-  const cipher = crypto.createCipheriv("aes-256-cbc", keyBuffer, iv);
+  const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
 
-  // Encrypt the data
-  let encrypted = cipher.update(
-    JSON.stringify(transformObjectForSerialization(data)),
-    "utf8",
-    "hex"
-  );
+  let encrypted = cipher.update(JSON.stringify(data), "utf8", "hex");
   encrypted += cipher.final("hex");
 
-  // Prepend the IV to the encrypted data (convert IV to hex)
+  // Concatena IV + encrypted
   return iv.toString("hex") + encrypted;
 }
 
