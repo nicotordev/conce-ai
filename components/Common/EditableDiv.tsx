@@ -11,17 +11,21 @@ const EditableDiv = ({
   const divRef = useRef<HTMLDivElement>(null);
 
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    onChange(e.currentTarget.textContent || "");
+    const text = e.currentTarget.textContent || "";
+
+    // Solo llama a onChange si el contenido cambió
+    if (text !== value) {
+      onChange(text);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    // Enter sin Shift → enviar (prevenir salto de línea)
+    // Enter sin Shift → enviar
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
 
       const text = divRef.current?.textContent?.trim();
       if (text) {
-        // Simula submit del formulario más cercano
         const form = divRef.current?.closest("form");
         if (form) {
           const event = new Event("submit", {
@@ -32,7 +36,6 @@ const EditableDiv = ({
         }
       }
     }
-    // Shift+Enter → permite salto de línea (no hacemos nada)
   };
 
   useEffect(() => {
@@ -67,7 +70,7 @@ const EditableDiv = ({
         onKeyDown={handleKeyDown}
         className={
           className ||
-          "relative w-full p-3 bg-transparent focus:outline-none text-left break-words whitespace-pre-wrap"
+          "relative w-full p-3 bg-transparent focus:outline-none text-left break-words whitespace-pre-wrap max-h-40"
         }
         data-placeholder={placeholder}
       />

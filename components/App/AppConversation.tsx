@@ -8,15 +8,14 @@ import { Button } from "../ui/button";
 import { ArrowUp } from "lucide-react";
 import { useCondorAI } from "@/providers/CondorAIProvider";
 import EditableDiv from "../Common/EditableDiv";
-import { useQueryClient } from "@tanstack/react-query";
 import { Transition } from "@headlessui/react";
 import { v4 } from "uuid";
 import MarkdownRenderer from "../Common/MarkdownRenderer";
+import clsx from "clsx";
 export default function AppConversation({
   conversation,
 }: AppConversationProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const queryClient = useQueryClient();
   const { models } = useCondorAI();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<AppConversationMessageType[]>([]);
@@ -29,7 +28,7 @@ export default function AppConversation({
     onMessage: (chunk) => {
       const currentMessages = messagesRef.current;
       const lastMessage = currentMessages[currentMessages.length - 1];
-    
+
       // Si el último mensaje es del assistant, lo actualizamos
       if (lastMessage?.sender === MessageSender.ASSISTANT) {
         const updatedMessage = {
@@ -37,12 +36,12 @@ export default function AppConversation({
           content: lastMessage.content + chunk,
           updatedAt: new Date().toISOString(),
         };
-    
+
         const updatedMessages = [
           ...currentMessages.slice(0, -1),
           updatedMessage,
         ];
-    
+
         messagesRef.current = updatedMessages;
         setMessages(updatedMessages);
       } else {
@@ -54,15 +53,13 @@ export default function AppConversation({
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-    
+
         messagesRef.current = [...currentMessages, newMessage];
         setMessages(messagesRef.current);
       }
-    },    
+    },
     onDone: () => {
-      queryClient.refetchQueries({
-        queryKey: ["conversation", conversation.id],
-      });
+      currentConversationQuery.refetch();
     },
   });
 
@@ -90,12 +87,21 @@ export default function AppConversation({
   };
 
   useEffect(() => {
-    if (currentConversationQuery.data && !currentConversationQuery.isLoading) {
+    if (
+      currentConversationQuery.data &&
+      !currentConversationQuery.isLoading &&
+      currentConversationQuery.isSuccess
+    ) {
       setMessages(currentConversationQuery.data.messages);
     }
-  }, [currentConversationQuery.data, currentConversationQuery.isLoading]);
+  }, [
+    currentConversationQuery.data,
+    currentConversationQuery.isLoading,
+    currentConversationQuery.isSuccess,
+  ]);
 
   useEffect(() => {
+    console.log(messages);
     messagesContainerRef.current?.scrollTo({
       top: messagesContainerRef.current.scrollHeight,
       behavior: "smooth",
@@ -106,10 +112,10 @@ export default function AppConversation({
   return (
     <div className="max-w-3xl mx-auto">
       <div
-        className="h-[80vh] overflow-y-scroll space-y-3 p-2"
+        className="h-[80vh] overflow-y-scroll space-y-3 p-2 scrollbar-none"
         ref={messagesContainerRef}
       >
-        {messages.map((message) => {
+        {messages.map((message, index) => {
           if (message.sender === MessageSender.USER) {
             return (
               <Transition
@@ -145,11 +151,19 @@ export default function AppConversation({
                 leaveTo="opacity-0"
               >
                 <div
-                  className="w-full flex items-center justify-start"
+                  className={clsx(
+                    "w-full flex items-center justify-start",
+                    isPending &&
+                      index === messages.length - 1 &&
+                      "animate-pulse"
+                  )}
                   key={message.content}
                 >
                   <div className="px-5 py-2.5 max-w-3/4 prose">
-                    <MarkdownRenderer content={message.content} />
+                    <MarkdownRenderer
+                      key={message.content}
+                      content={message.content}
+                    />
                   </div>
                 </div>
               </Transition>

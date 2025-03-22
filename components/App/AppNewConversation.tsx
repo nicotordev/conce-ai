@@ -36,12 +36,12 @@ export default function AppNewConversation({ state }: AppNewConversationProps) {
     <>
       <Transition
         show={loading}
-        enter="transition-opacity duration-300"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="transition-opacity duration-300"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
+        enter="transition-all duration-300 ease-out" // Transición más suave
+        enterFrom="opacity-0 translate-y-4 z-10" // Empieza un poco más abajo
+        enterTo="opacity-100 translate-y-0 z-10" // Llega a su posición final
+        leave="transition-all duration-200 ease-in" // Salida más rápida
+        leaveFrom="opacity-100 translate-y-0 z-10"
+        leaveTo="opacity-0 translate-y-4 z-10" // Sale hacia abajo
       >
         <div className="w-full h-full">
           <AppConversation
@@ -63,14 +63,15 @@ export default function AppNewConversation({ state }: AppNewConversationProps) {
           />
         </div>
       </Transition>
+
       <Transition
         show={!loading}
-        enter="transition-opacity duration-300"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="transition-opacity duration-300"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
+        enter="transition-all duration-300 ease-out" // Similar a la otra transición
+        enterFrom="opacity-0 translate-y-4 z-0" // Empieza desde abajo
+        enterTo="opacity-100 translate-y-0 z-0" // Llega a su posición final
+        leave="transition-all duration-200 ease-in" // Similar a la otra transición
+        leaveFrom="opacity-100 translate-y-0 z-0"
+        leaveTo="opacity-0 translate-y-4 z-0" // Sale hacia abajo
       >
         <form
           className="text-center flex flex-col gap-4"

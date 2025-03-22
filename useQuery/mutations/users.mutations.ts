@@ -81,7 +81,7 @@ const useStreamConversation = ({
               throw new Error("Error del servidor");
             }
 
-            onMessage(data);
+            onMessage(data.trim());
           }
         }
       }
