@@ -1,10 +1,8 @@
 const AppConversationSkeleton = () => {
-  const bubbles = [
-    { sender: "ia", lines: 3 },
-    { sender: "user", lines: 1 },
-    { sender: "ia", lines: 2 },
-    { sender: "user", lines: 2 },
-  ];
+  const bubbles = Array.from({ length: 5 }, (_, index) => ({
+    sender: index % 2 === 0 ? "user" : "ia",
+    lines: Math.floor(Math.random() * 3) + 1,
+  }));
 
   return (
     <div className="flex flex-col gap-4 px-2 py-4">
