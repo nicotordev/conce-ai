@@ -11,6 +11,7 @@ class CondorAI {
   private fetchClient: FetchClient = new FetchClient(this.apiUrl);
   private get = this.fetchClient["get"].bind(this.fetchClient);
   private post = this.fetchClient["post"].bind(this.fetchClient);
+  private patch = this.fetchClient["patch"].bind(this.fetchClient);
 
   public constructor() {
     this.fetchClient = new FetchClient(this.apiUrl);
@@ -116,7 +117,7 @@ class CondorAI {
       modelId: string
     ): Promise<AppNavConversation> => {
       try {
-        const { data: conversation } = await this.post<
+        const { data: conversation } = await this.patch<
           BaseApiResponse<AppNavConversation>,
           { message: string; modelId: string }
         >(`/user/conversations/${id}`, { message, modelId });
