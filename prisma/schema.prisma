@@ -116,8 +116,8 @@ model Message {
 
 model CondorAIFile {
   id                   String @id @default(cuid())
-  name                 String
-  src                  String
+  name                 String @unique
+  src                  String @unique
   previewSrc           String
   type                 String
   mimeType             String
