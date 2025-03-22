@@ -6,6 +6,7 @@ import { FetchClientError } from "@/errors/fetch-client.errors";
 import { AppNavConversation, AppNavModel } from "@/types/layout";
 import { AppConversationType } from "@/types/app";
 import { NicoDropzoneFile } from "@nicotordev/nicodropzone/dist/types";
+import { CondorAIFile } from "@/types/files";
 
 class CondorAI {
   private apiUrl: string = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
@@ -13,6 +14,7 @@ class CondorAI {
   private get = this.fetchClient["get"].bind(this.fetchClient);
   private post = this.fetchClient["post"].bind(this.fetchClient);
   private patch = this.fetchClient["patch"].bind(this.fetchClient);
+  private delete = this.fetchClient["delete"].bind(this.fetchClient);
 
   public constructor() {
     this.fetchClient = new FetchClient(this.apiUrl);
@@ -152,6 +154,17 @@ class CondorAI {
           typeof formData
         >("/user/uploads", formData);
         return data;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
+    deleteFile: async (file: CondorAIFile): Promise<void> => {
+      try {
+        const searchParams = new URLSearchParams();
+        searchParams.append("src", file.src);
+        searchParams.append("preview", file.preview);
+        const finalURL = `/user/uploads?${searchParams.toString()}`;
+        await this.delete<BaseApiResponse<null>>(finalURL);
       } catch (err) {
         throw new CondorAIError((err as FetchClientError).message);
       }

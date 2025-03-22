@@ -14,11 +14,12 @@ import {
   CondorAIProviderProps,
   UploadFilesContextType,
 } from "@/types/providers";
-import { NicoDropzoneFile } from "@nicotordev/nicodropzone/dist/types";
 import condorAi from "@/lib/condor-ai";
 import { Transition } from "@headlessui/react";
 import Image from "next/image";
 import { uploadFileSvg } from "@/assets";
+import { CondorAIFile } from "@/types/files";
+import { getFileIcon } from "@/constants/files.constants";
 // Crea el contexto
 const UploadFilesContext = createContext<UploadFilesContextType | null>(null);
 
@@ -34,7 +35,7 @@ export const useUploadFiles = () => {
 };
 
 export const UploadFilesProvider = ({ children }: CondorAIProviderProps) => {
-  const [files, setFiles] = useState<NicoDropzoneFile[]>([]);
+  const [files, setFiles] = useState<CondorAIFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
   const dragCounter = useRef(0);
@@ -83,11 +84,59 @@ export const UploadFilesProvider = ({ children }: CondorAIProviderProps) => {
   };
 
   const handleFileUpload = async (file: File) => {
+    setFiles((prevFiles) => {
+      const prevFilesCopy = [...prevFiles];
+      prevFilesCopy.push({
+        name: file.name,
+        src: URL.createObjectURL(file),
+        type: file.type,
+        nameWithoutExtension: file.name.replace(/\.[^/.]+$/, ""),
+        sizeInMB: file.size / 1024 / 1024,
+        preview: URL.createObjectURL(file),
+        icon: getFileIcon(file.type),
+        status: "uploading",
+      });
+      return prevFilesCopy;
+    });
     const newFile = await condorAi.user.uploadFile(file);
     if (newFile) {
-      setFiles((prevFiles) => [...prevFiles, newFile]);
+      setFiles((prevFiles) => {
+        const prevFilesCopy = [...prevFiles];
+        prevFilesCopy.pop();
+        prevFilesCopy.push({
+          ...newFile,
+          icon: getFileIcon(newFile.type),
+          status: "uploaded",
+        });
+        return prevFilesCopy;
+      });
+    } else {
+      setFiles((prevFiles) => {
+        const prevFilesCopy = [...prevFiles];
+        prevFilesCopy.pop();
+        prevFilesCopy.push({
+          name: file.name,
+          src: URL.createObjectURL(file),
+          type: file.type,
+          nameWithoutExtension: file.name.replace(/\.[^/.]+$/, ""),
+          sizeInMB: file.size / 1024 / 1024,
+          preview: URL.createObjectURL(file),
+          icon: getFileIcon(file.type),
+          status: "error",
+        });
+        return prevFilesCopy;
+      });
     }
   };
+
+  const handleFileDeletion = async (file: CondorAIFile) => {
+    setFiles((prevFiles) => {
+      const prevFilesCopy = prevFiles.filter((prevFile) => prevFile !== file);
+      return prevFilesCopy;
+    });
+    await condorAi.user.deleteFile(file);
+  };
+
   useEffect(() => {
     const nativeHandlePaste = (e: ClipboardEvent) => handlePaste(e);
     const nativeHandleDragOver = (e: DragEvent) => handleDragOver(e);
@@ -112,7 +161,7 @@ export const UploadFilesProvider = ({ children }: CondorAIProviderProps) => {
   }, []);
 
   return (
-    <UploadFilesContext.Provider value={{ files }}>
+    <UploadFilesContext.Provider value={{ files, handleFileDeletion }}>
       {children}
       <Transition
         show={isDragging}
@@ -126,7 +175,12 @@ export const UploadFilesProvider = ({ children }: CondorAIProviderProps) => {
       >
         <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center w-screen h-screenpointer-events-none">
           <div className="flex items-center gap-4">
-            <Image src={uploadFileSvg} width={200} height={200} alt="Upload file illustration" />
+            <Image
+              src={uploadFileSvg}
+              width={200}
+              height={200}
+              alt="Upload file illustration"
+            />
             <p className="!text-white">
               <strong>Agrega cualquier elemento</strong>
               <br />

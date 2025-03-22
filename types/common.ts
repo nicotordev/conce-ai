@@ -46,10 +46,16 @@ type EditableDivProps = {
   className?: string;
 };
 
+type SpinnerProps = {
+  containerProps?: React.HTMLProps<HTMLDivElement>;
+  spinnerProps?: React.SVGProps<SVGSVGElement>;
+}
+
 export type {
   InputProps,
   PasswordInputProps,
   UserProfilePicProps,
   AppNavUserDropdownProps,
   EditableDivProps,
+  SpinnerProps
 };

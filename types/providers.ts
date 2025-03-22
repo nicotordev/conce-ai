@@ -1,6 +1,6 @@
 import React from "react";
 import { AppNavConversation, AppNavModel } from "./layout";
-import { NicoDropzoneFile } from "@nicotordev/nicodropzone/dist/types";
+import { CondorAIFile } from "./files";
 
 type GoogleRecaptchaProviderProps = {
   children: React.ReactNode;
@@ -25,8 +25,9 @@ type CondorAIContextType = {
 };
 
 type UploadFilesContextType = {
-  files: NicoDropzoneFile[];
-}
+  files: CondorAIFile[];
+  handleFileDeletion: (file: CondorAIFile) => Promise<void>;
+};
 
 type UserProviderContextType = {
   conversations: {
@@ -38,11 +39,11 @@ type UserProviderContextType = {
     setConversationsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setSelectedConversation: (conversation: AppNavConversation) => void;
   };
-}
+};
 
 type UserProviderProps = {
   children: React.ReactNode;
-}
+};
 
 type TanstackUseQueryProviderProps = {
   children: React.ReactNode;
@@ -56,5 +57,5 @@ export type {
   TanstackUseQueryProviderProps,
   UserProviderContextType,
   UserProviderProps,
-  UploadFilesContextType
+  UploadFilesContextType,
 };

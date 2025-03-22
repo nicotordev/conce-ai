@@ -30,6 +30,28 @@ const userUploadHandler = async (req: AuthenticatedNextRequest) => {
   }
 };
 
-const POST = withApiAuthRequired(userUploadHandler);
+const userUploadDeleteHandler = async (req: AuthenticatedNextRequest) => {
+  try {
+    const src = req.nextUrl.searchParams.get("src");
+    const preview = req.nextUrl.searchParams.get("preview");
 
-export { POST };
+    if (typeof src !== "string" || typeof preview !== "string") {
+      return ApiResponse.badRequest(
+        "No se han encontrado los parametros necesarios"
+      );
+    }
+
+    await nicodropzone.deleteFile(src, preview);
+
+    return ApiResponse.ok();
+  } catch (err) {
+    console.error(err);
+    logger.error(`[ERROR-USER-UPLOAD-DELETE-HANDLER]`, err);
+    return ApiResponse.internalServerError();
+  }
+};
+
+const POST = withApiAuthRequired(userUploadHandler);
+const DELETE = withApiAuthRequired(userUploadDeleteHandler);
+
+export { POST, DELETE };
