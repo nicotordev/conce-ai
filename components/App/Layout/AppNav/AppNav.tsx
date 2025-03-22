@@ -77,7 +77,7 @@ export default function AppNav({ session, children }: AppNavProps) {
           </div>
         </nav>
       </header>
-      <main>{children}</main>
+      <main className="relative">{children}</main>
     </div>
   );
 }

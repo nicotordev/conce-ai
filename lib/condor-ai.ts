@@ -5,6 +5,7 @@ import FetchClient from "./fetch-client";
 import { FetchClientError } from "@/errors/fetch-client.errors";
 import { AppNavConversation, AppNavModel } from "@/types/layout";
 import { AppConversationType } from "@/types/app";
+import { NicoDropzoneFile } from "@nicotordev/nicodropzone/dist/types";
 
 class CondorAI {
   private apiUrl: string = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
@@ -123,6 +124,34 @@ class CondorAI {
         >(`/user/conversations/${id}`, { message, modelId });
 
         return conversation;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
+    uploadFile: async (file: File): Promise<NicoDropzoneFile | null> => {
+      try {
+        const formData = new FormData();
+        formData.append("files", file);
+        const { data: files } = await this.post<
+          BaseApiResponse<NicoDropzoneFile[]>,
+          FormData
+        >("/user/uploads", formData);
+        return files[0] || null;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
+    uploadFiles: async (files: File[]): Promise<NicoDropzoneFile[]> => {
+      try {
+        const formData = new FormData();
+        files.forEach((file) => {
+          formData.append("files", file);
+        });
+        const { data } = await this.post<
+          BaseApiResponse<NicoDropzoneFile[]>,
+          typeof formData
+        >("/user/uploads", formData);
+        return data;
       } catch (err) {
         throw new CondorAIError((err as FetchClientError).message);
       }

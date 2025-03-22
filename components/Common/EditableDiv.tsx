@@ -34,38 +34,6 @@ const EditableDiv = ({
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    const items = e.clipboardData.items;
-    for (const item of items) {
-      if (item.kind === "file") {
-        const file = item.getAsFile();
-        if (file) {
-          handleFileUpload(file);
-          e.preventDefault();
-        }
-      }
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      for (const file of Array.from(e.dataTransfer.files)) {
-        handleFileUpload(file);
-      }
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
-  const handleFileUpload = (file: File) => {
-    // Aquí puedes procesar el archivo como necesites
-    console.log("Archivo recibido:", file);
-    // Puedes emitir un evento personalizado o llamar a otro callback si es necesario
-  };
-
   useEffect(() => {
     if (divRef.current && divRef.current.textContent !== value) {
       divRef.current.textContent = value;
@@ -85,26 +53,25 @@ const EditableDiv = ({
 
   return (
     <>
-      {!value && (
-        <span className="absolute left-3 top-3 text-gray-400 pointer-events-none select-none">
-          {placeholder || "Escribe tu mensaje aquí..."}
-        </span>
-      )}
-      <div
-        ref={divRef}
-        contentEditable
-        translate="no"
-        onInput={handleInput}
-        onKeyDown={handleKeyDown}
-        onPaste={handlePaste}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        className={
-          className ||
-          "relative w-full p-3 bg-transparent focus:outline-none text-left break-words whitespace-pre-wrap max-h-40"
-        }
-        data-placeholder={placeholder}
-      />
+      <div className="relative">
+        {!value && (
+          <span className="absolute left-3 top-3 text-gray-400 pointer-events-none select-none">
+            {placeholder || "Escribe tu mensaje aquí..."}
+          </span>
+        )}
+        <div
+          ref={divRef}
+          contentEditable
+          translate="no"
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          className={
+            className ||
+            "relative w-full p-3 bg-transparent focus:outline-none text-left break-words whitespace-pre-wrap max-h-40"
+          }
+          data-placeholder={placeholder}
+        />
+      </div>
     </>
   );
 };

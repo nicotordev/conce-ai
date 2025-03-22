@@ -1,5 +1,6 @@
 import React from "react";
 import { AppNavConversation, AppNavModel } from "./layout";
+import { NicoDropzoneFile } from "@nicotordev/nicodropzone/dist/types";
 
 type GoogleRecaptchaProviderProps = {
   children: React.ReactNode;
@@ -22,6 +23,10 @@ type CondorAIContextType = {
     setSelectedModel: (model: AppNavModel) => void;
   };
 };
+
+type UploadFilesContextType = {
+  files: NicoDropzoneFile[];
+}
 
 type UserProviderContextType = {
   conversations: {
@@ -50,5 +55,6 @@ export type {
   CondorAIContextType,
   TanstackUseQueryProviderProps,
   UserProviderContextType,
-  UserProviderProps
+  UserProviderProps,
+  UploadFilesContextType
 };
