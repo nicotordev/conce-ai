@@ -5,10 +5,12 @@ import { TbMessageCircle } from "react-icons/tb";
 import { IoSearch } from "react-icons/io5";
 import { Transition } from "@headlessui/react";
 import { useUser } from "@/providers/UserProvider";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import clsx from "clsx";
 
 export default function AppConversationsNav() {
   const router = useRouter();
+  const { id } = useParams();
   const {
     conversations: {
       conversationsJoinedByDate,
@@ -83,16 +85,23 @@ export default function AppConversationsNav() {
                 {conversationArray.map((singleConversation) => (
                   <li
                     key={singleConversation.id}
-                    className="text-sm hover:bg-silver-100 flex items-center justify-start"
+                    className="text-sm hover:bg-silver-100 flex items-center justify-start my-1"
                   >
                     <Button
-                      className="text-xs w-full h-full bg-transparent border-none shadow-none text-left font-normal flex items-start justify-start whitespace-pre-wrap text-dark-text-primary rounded-md"
+                      className={
+                        clsx(
+                          "text-xs w-full h-full bg-transparent border-none shadow-none text-left font-normal flex items-start justify-start whitespace-pre-wrap text-dark-text-primary rounded-md",
+                          {
+                            ["text-white bg-secondary-400"]: id === singleConversation.id,
+                          }
+                        )
+                      }
                       variant={"outline"}
                       onClick={() => {
                         router.push(`/app/${singleConversation.id}`);
                       }}
                     >
-                      <span>{singleConversation.title}</span>
+                      <span className="font-medium">{singleConversation.title}</span>
                     </Button>
                   </li>
                 ))}
