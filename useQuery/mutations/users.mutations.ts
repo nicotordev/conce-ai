@@ -1,4 +1,5 @@
 import condorAi from "@/lib/condor-ai";
+import { formatMarkdown } from "@/utils/markdown.utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 function useConversationsMutation() {
@@ -29,8 +30,9 @@ const useStreamConversation = ({
   onMessage,
   onDone,
 }: {
-  onMessage: (chunk: string) => void;
+  onMessage: (fullText: string) => void;
   onDone: () => void;
+  currentMessage?: string;
 }) => {
   return useMutation({
     mutationFn: async ({
@@ -56,38 +58,44 @@ const useStreamConversation = ({
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let partial = "";
+      let buffer = "";
+      let fullMessage = "";
 
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
 
-        partial += decoder.decode(value, { stream: true });
-        const lines = partial.split("\n\n");
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n\n");
 
-        // guarda la última línea incompleta
-        partial = lines.pop() || "";
+        // mantener última línea incompleta para la próxima vuelta
+        buffer = lines.pop() || "";
 
         for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.replace("data: ", "").trim();
+          if (!line.startsWith("data: ")) continue;
 
-            if (data === "start") continue;
-            if (data === "done") {
-              onDone?.();
-              return;
-            }
-            if (data === "error") {
-              throw new Error("Error del servidor");
-            }
+          const data = line.replace("data: ", "").trim();
 
-            onMessage(data.trim());
+          if (data === "start") continue;
+          if (data === "done") {
+            onDone?.();
+            return;
           }
+          if (data === "error") {
+            throw new Error("Error del servidor");
+          }
+
+          fullMessage += data;
+          const formattedMessage = await formatMarkdown(fullMessage);
+
+          // ✅ Enviamos el texto acumulado completo
+          onMessage(formattedMessage);
         }
       }
 
-      if (partial && partial.startsWith("data: ")) {
-        const data = partial.replace("data: ", "").trim();
+      // manejar el buffer si queda algo pendiente
+      if (buffer.startsWith("data: ")) {
+        const data = buffer.replace("data: ", "").trim();
         if (data !== "done" && data !== "error") {
           onMessage(data);
         }

@@ -98,12 +98,9 @@ const PATCH = async (
           const { stream } = await chat.sendMessageStream(message);
           for await (const chunk of stream) {
             const text = chunk.text();
-            finalText += text;
+            finalText = `${finalText}${text}`;
             controller.enqueue(encodeSSE(text));
           }
-
-          controller.enqueue(encodeSSE("done"));
-          controller.close();
 
           await prisma.conversation.update({
             where: { id },
@@ -123,6 +120,11 @@ const PATCH = async (
               conversationId: id,
             },
           });
+          
+          controller.enqueue(encodeSSE("done"));
+          controller.close();
+
+
         } catch (streamErr) {
           logger.error("[STREAM-ERROR]", streamErr);
           controller.enqueue(encodeSSE("error"));

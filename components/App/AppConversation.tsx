@@ -8,55 +8,51 @@ import { Button } from "../ui/button";
 import { ArrowUp } from "lucide-react";
 import { useCondorAI } from "@/providers/CondorAIProvider";
 import EditableDiv from "../Common/EditableDiv";
-import { Transition } from "@headlessui/react";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { v4 } from "uuid";
-import MarkdownRenderer from "../Common/MarkdownRenderer";
-import clsx from "clsx";
+import AppMessage from "./AppMessage";
+
 export default function AppConversation({
   conversation,
 }: AppConversationProps) {
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
   const { models } = useCondorAI();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<AppConversationMessageType[]>([]);
+
   const currentConversationQuery = useConversationQuery(
     conversation.id,
     conversation
   );
-  const messagesRef = useRef(messages);
+
   const { mutate: sendMessage, isPending } = useStreamConversation({
     onMessage: (chunk) => {
-      const currentMessages = messagesRef.current;
-      const lastMessage = currentMessages[currentMessages.length - 1];
+      setMessages((prevMessages) => {
+        const prevMessagesCopy = [...prevMessages];
+        const lastMessage = prevMessagesCopy[prevMessagesCopy.length - 1];
 
-      // Si el último mensaje es del assistant, lo actualizamos
-      if (lastMessage?.sender === MessageSender.ASSISTANT) {
-        const updatedMessage = {
-          ...lastMessage,
-          content: lastMessage.content + chunk,
-          updatedAt: new Date().toISOString(),
-        };
+        if (lastMessage.sender === MessageSender.ASSISTANT) {
+          const updatedLastMessage = {
+            ...lastMessage,
+            content: chunk,
+          };
+          return [
+            ...prevMessagesCopy.slice(0, prevMessagesCopy.length - 1),
+            updatedLastMessage,
+          ];
+        }
 
-        const updatedMessages = [
-          ...currentMessages.slice(0, -1),
-          updatedMessage,
+        return [
+          ...prevMessagesCopy,
+          {
+            id: v4(),
+            content: chunk,
+            sender: MessageSender.ASSISTANT,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
         ];
-
-        messagesRef.current = updatedMessages;
-        setMessages(updatedMessages);
-      } else {
-        // Si no hay aún mensaje del assistant, lo creamos (solo debería pasar al inicio del stream)
-        const newMessage: AppConversationMessageType = {
-          id: v4(),
-          content: chunk,
-          sender: MessageSender.ASSISTANT,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        messagesRef.current = [...currentMessages, newMessage];
-        setMessages(messagesRef.current);
-      }
+      });
     },
     onDone: () => {
       currentConversationQuery.refetch();
@@ -73,17 +69,20 @@ export default function AppConversation({
       modelId: models.selectedModel?.id || "",
     });
 
+    const newUserMessage: AppConversationMessageType = {
+      id: v4(),
+      content: message,
+      sender: MessageSender.USER,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+    virtuosoRef.current?.scrollToIndex({
+      index: messages.length,
+      behavior: "smooth",
+    });
     setMessage("");
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: v4(),
-        content: message,
-        sender: MessageSender.USER,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    ]);
   };
 
   useEffect(() => {
@@ -92,7 +91,13 @@ export default function AppConversation({
       !currentConversationQuery.isLoading &&
       currentConversationQuery.isSuccess
     ) {
-      setMessages(currentConversationQuery.data.messages);
+      setMessages(
+        currentConversationQuery.data.messages.sort((a, b) => {
+          return (
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+        })
+      );
     }
   }, [
     currentConversationQuery.data,
@@ -100,85 +105,26 @@ export default function AppConversation({
     currentConversationQuery.isSuccess,
   ]);
 
-  useEffect(() => {
-    console.log(messages);
-    messagesContainerRef.current?.scrollTo({
-      top: messagesContainerRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-    messagesRef.current = messages;
-  }, [messages]);
-
   return (
-    <div className="max-w-3xl mx-auto">
-      <div
-        className="h-[80vh] overflow-y-scroll space-y-3 p-2 scrollbar-none"
-        ref={messagesContainerRef}
-      >
-        {messages.map((message, index) => {
-          if (message.sender === MessageSender.USER) {
-            return (
-              <Transition
-                key={message.id}
-                show={true}
-                enter="transition-opacity duration-500"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="transition-opacity duration-500"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <div
-                  className="w-full flex items-center justify-end"
-                  key={message.id}
-                >
-                  <div className="w-fit text-start break-words whitespace-normal min-h-8 relative bg-white px-5 py-2.5 rounded-xl border border-gray-200 shadow-sm">
-                    {message.content}
-                  </div>
-                </div>
-              </Transition>
-            );
-          } else if (message.sender === MessageSender.ASSISTANT) {
-            return (
-              <Transition
-                key={message.content}
-                show={true}
-                enter="transition-opacity duration-500"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="transition-opacity duration-500"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <div
-                  className={clsx(
-                    "w-full flex items-center justify-start",
-                    isPending &&
-                      index === messages.length - 1 &&
-                      "animate-pulse"
-                  )}
-                  key={message.content}
-                >
-                  <div className="px-5 py-2.5 max-w-3/4 prose">
-                    <MarkdownRenderer
-                      key={message.content}
-                      content={message.content}
-                    />
-                  </div>
-                </div>
-              </Transition>
-            );
-          }
-
-          return null;
-        })}
+    <div className="max-w-3xl mx-auto flex flex-col h-[90vh]">
+      {/* Mensajes */}
+      <div className="flex-1">
+        <Virtuoso
+          ref={virtuosoRef}
+          data={messages}
+          followOutput
+          itemContent={(index, message) => (
+            <AppMessage key={message.id} message={message} />
+          )}
+        />
       </div>
 
+      {/* Formulario */}
       <form
-        className="text-center flex w-full"
+        className="text-center flex w-full p-2"
         onSubmit={handleSubmitNewMessage}
       >
-        <div className="p-2 min-w-2xl rounded-lg shadow-md w-full border border-gray-200">
+        <div className="p-2 w-full rounded-lg shadow-md border border-gray-200">
           <div className="relative w-full max-w-full pb-3">
             <EditableDiv
               placeholder="Escribe tu mensaje aquí..."
