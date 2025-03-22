@@ -55,6 +55,7 @@ model User {
   Role          Role?          @relation(fields: [roleId], references: [id])
   roleId        String?
   Conversation  Conversation[]
+  Files         CondorAIFile[]
 }
 
 model VerificationToken {
@@ -111,6 +112,22 @@ model Message {
   content        String
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+}
+
+model CondorAIFile {
+  id                   String @id @default(cuid())
+  name                 String
+  src                  String
+  previewSrc           String
+  type                 String
+  mimeType             String
+  nameWithoutExtension String
+  sizeInMB             Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
 }
 
 enum MessageSender {
