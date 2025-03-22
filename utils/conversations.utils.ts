@@ -6,12 +6,14 @@ import {
   getBasicAiConversationResponse,
 } from "./@google-generative-ai.utils";
 import conversationsConstants from "@/constants/conversations.constants";
+import { auth } from "@/auth";
 
 const createConversation = async (
   message: string,
   modelId: string,
   userId: string
 ) => {
+  const session = await auth();
   if (
     typeof message !== "string" ||
     message.trim() === "" ||
@@ -34,14 +36,16 @@ const createConversation = async (
       error: conversationsConstants.ERROR_MESSAGES_CODES.MODEL_IS_NOT_VALID,
     };
   }
+  const title = await generateConversationTitle(message);
 
   const aiResponse = await getBasicAiConversationResponse(
     [],
     model.name,
-    message
+    message,
+    session!,
+    title
   );
 
-  const title = await generateConversationTitle(message);
 
   const newConversation = await prisma.conversation.create({
     data: {

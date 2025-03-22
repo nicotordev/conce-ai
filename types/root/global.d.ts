@@ -29,6 +29,7 @@ declare global {
       GOOGLE_GENERATIVE_AI_API_URL: string;
       NICODROPZONE_BASE_URL: string;
       NICODROPZONE_API_KEY: string;
+      BRIGHT_DATA_TOKEN: string;
     }
   }
 
