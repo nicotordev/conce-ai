@@ -39,9 +39,17 @@ type AppNavUserDropdownProps = {
   session: Session | null;
 };
 
+type EditableDivProps = {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+};
+
 export type {
   InputProps,
   PasswordInputProps,
   UserProfilePicProps,
   AppNavUserDropdownProps,
+  EditableDivProps,
 };
