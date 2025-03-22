@@ -1,9 +1,7 @@
-"use server";
-import { marked } from "marked";
-// Importa un tema de highlight.js
-async function MarkdownRenderer({ content }: { content: string }) {
-  const html = await marked(content);
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+"use client";
+import Markdown from "markdown-to-jsx";
+function MarkdownRenderer({ content }: { content: string }) {
+  return <Markdown>{content}</Markdown>;
 }
 
 export default MarkdownRenderer;

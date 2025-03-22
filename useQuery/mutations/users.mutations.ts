@@ -1,6 +1,7 @@
 import condorAi from "@/lib/condor-ai";
 import { formatMarkdown } from "@/utils/markdown.utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { marked } from "marked";
 
 function useConversationsMutation() {
   const queryClient = useQueryClient();
@@ -88,8 +89,10 @@ const useStreamConversation = ({
           fullMessage += data;
           const formattedMessage = await formatMarkdown(fullMessage);
 
+          const html = await marked(formattedMessage);
+
           // ✅ Enviamos el texto acumulado completo
-          onMessage(formattedMessage);
+          onMessage(html);
         }
       }
 
