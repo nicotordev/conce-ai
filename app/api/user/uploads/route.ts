@@ -1,7 +1,9 @@
 import nicodropzone from "@/lib/@nicotordev/nicodropzone";
 import logger from "@/lib/consola/logger";
+import prisma from "@/lib/prisma/index.prisma";
 import { AuthenticatedNextRequest } from "@/types/api";
 import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
+import { Prisma } from "@prisma/client";
 
 const userUploadHandler = async (req: AuthenticatedNextRequest) => {
   try {
@@ -17,10 +19,40 @@ const userUploadHandler = async (req: AuthenticatedNextRequest) => {
       return ApiResponse.badRequest("No se han encontrado archivos");
     }
 
+    const todayDate = new Date();
+    const thirtyMinutesAgoDate = new Date(
+      todayDate.setMinutes(todayDate.getMinutes() - 30)
+    );
+
     const filesUploaded = await nicodropzone.uploadFiles(
       `user-uploads/${session.user.id}`,
       files
     );
+
+    await Promise.allSettled([
+      prisma.condorAIFile.createMany({
+        data: filesUploaded.map((file) => {
+          const data: Prisma.CondorAIFileCreateManyInput = {
+            name: file.name,
+            src: file.src,
+            previewSrc: file.preview,
+            type: file.type,
+            mimeType: file.type,
+            nameWithoutExtension: file.nameWithoutExtension,
+            sizeInMB: file.sizeInMB,
+            userId: session.user.id,
+          };
+          return data;
+        }),
+      }),
+      prisma.condorAIFile.deleteMany({
+        where: {
+          createdAt: {
+            lt: thirtyMinutesAgoDate,
+          },
+        },
+      }),
+    ]);
 
     return ApiResponse.ok(filesUploaded);
   } catch (err) {
@@ -40,8 +72,26 @@ const userUploadDeleteHandler = async (req: AuthenticatedNextRequest) => {
         "No se han encontrado los parametros necesarios"
       );
     }
+    const todayDate = new Date();
+    const thirtyMinutesAgoDate = new Date(
+      todayDate.setMinutes(todayDate.getMinutes() - 30)
+    );
 
-    await nicodropzone.deleteFile(src, preview);
+    await Promise.allSettled([
+      nicodropzone.deleteFile(src, preview),
+      prisma.condorAIFile.deleteMany({
+        where: {
+          src,
+        },
+      }),
+      prisma.condorAIFile.deleteMany({
+        where: {
+          createdAt: {
+            lt: thirtyMinutesAgoDate,
+          },
+        },
+      }),
+    ]);
 
     return ApiResponse.ok();
   } catch (err) {
