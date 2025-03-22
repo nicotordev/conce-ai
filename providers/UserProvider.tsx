@@ -64,31 +64,43 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           return;
         }
       }
-      setConversationsJoinedByDate(
-        conversationsQuery.data.reduce((acc, conversation) => {
-          const date = new Date(conversation.updatedAt).toDateString();
-          const todaysDate = startOfDay(new Date()).getTime();
-          const yesterdayDate = startOfDay(
-            new Date(Date.now() - 86400000)
-          ).getTime();
-          if (startOfDay(conversation.updatedAt).getTime() === todaysDate) {
-            acc["Hoy"] = acc["Hoy"] || [];
-            acc["Hoy"].push(conversation);
-            return acc;
-          } else if (
-            startOfDay(conversation.updatedAt).getTime() === yesterdayDate
-          ) {
-            acc["Ayer"] = acc["Ayer"] || [];
-            acc["Ayer"].push(conversation);
-            return acc;
-          }
-          if (!acc[date]) {
-            acc[date] = [];
-          }
+      const grouped = conversationsQuery.data.reduce((acc, conversation) => {
+        const date = new Date(conversation.updatedAt).toDateString();
+        const todaysDate = startOfDay(new Date()).getTime();
+        const yesterdayDate = startOfDay(
+          new Date(Date.now() - 86400000)
+        ).getTime();
+        const convDate = startOfDay(conversation.updatedAt).getTime();
+
+        if (convDate === todaysDate) {
+          acc["Hoy"] = acc["Hoy"] || [];
+          acc["Hoy"].push(conversation);
+        } else if (convDate === yesterdayDate) {
+          acc["Ayer"] = acc["Ayer"] || [];
+          acc["Ayer"].push(conversation);
+        } else {
+          acc[date] = acc[date] || [];
           acc[date].push(conversation);
-          return acc;
-        }, {} as AppNavConversationJoinedByDate)
-      );
+        }
+
+        return acc;
+      }, {} as AppNavConversationJoinedByDate);
+
+      // Ordenar para que "Hoy" y "Ayer" estén primero
+      const ordered: AppNavConversationJoinedByDate = {};
+
+      if (grouped["Hoy"]) ordered["Hoy"] = grouped["Hoy"];
+      if (grouped["Ayer"]) ordered["Ayer"] = grouped["Ayer"];
+
+      // Añadir el resto por orden de fecha descendente
+      Object.entries(grouped)
+        .filter(([key]) => key !== "Hoy" && key !== "Ayer")
+        .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime())
+        .forEach(([key, value]) => {
+          ordered[key] = value;
+        });
+
+      setConversationsJoinedByDate(ordered);
     }
   }, [conversationsQuery.data, selectedConversation]);
 

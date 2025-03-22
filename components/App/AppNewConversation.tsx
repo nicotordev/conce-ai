@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createConversationAction } from "@/app/actions/conversations.actions";
 import { useCondorAI } from "@/providers/CondorAIProvider";
 import { AppNewConversationProps } from "@/types/app";
@@ -12,14 +12,19 @@ import { v4 } from "uuid";
 import { useRouter } from "next/navigation";
 import EditableDiv from "../Common/EditableDiv";
 
-export default function AppNewConversation({ state }: AppNewConversationProps) {
+export default function AppNewConversation({
+  state,
+  session,
+}: AppNewConversationProps) {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const { models } = useCondorAI();
   const [loading, setLoading] = useState(false);
+  const toastMessageFired = useRef(false);
 
   useEffect(() => {
-    if (state.error.length > 0) {
+    if (state.error.length > 0 && !toastMessageFired.current) {
+      toastMessageFired.current = true;
       toast.error(state.error);
     }
   }, [state]);
@@ -29,7 +34,7 @@ export default function AppNewConversation({ state }: AppNewConversationProps) {
     setLoading(true);
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const { redirectTo } = await createConversationAction(formData);
-    router.replace(redirectTo);
+    router.replace(redirectTo, { scroll: false });
   }
 
   if (loading) {
@@ -51,6 +56,7 @@ export default function AppNewConversation({ state }: AppNewConversationProps) {
               },
             ],
           }}
+          session={session}
         />
       </div>
     );

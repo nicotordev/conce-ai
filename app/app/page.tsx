@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import AppNewConversation from "@/components/App/AppNewConversation";
 import { decryptData } from "@/lib/crypto";
 import { AppNewConversationState } from "@/types/app";
@@ -9,7 +10,7 @@ export default async function AppPage({ searchParams }: PagePropsCommon) {
     typeof _searchParams.state === "string"
       ? decryptData<AppNewConversationState>(_searchParams.state)
       : null;
-
+  const session = await auth();
   return (
     <div className="w-full h-full flex items-center justify-center">
       <AppNewConversation
@@ -17,6 +18,7 @@ export default async function AppPage({ searchParams }: PagePropsCommon) {
           ...state,
           error: state?.error || "",
         }}
+        session={session}
       />
     </div>
   );

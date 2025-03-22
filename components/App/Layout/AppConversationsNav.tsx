@@ -89,7 +89,7 @@ export default function AppConversationsNav() {
                       className="text-xs w-full h-full bg-transparent border-none shadow-none text-left font-normal flex items-start justify-start whitespace-pre-wrap text-dark-text-primary rounded-md"
                       variant={"outline"}
                       onClick={() => {
-                        window.location.href = `/app/${singleConversation.id}`;
+                        router.push(`/app/${singleConversation.id}`);
                       }}
                     >
                       <span>{singleConversation.title}</span>

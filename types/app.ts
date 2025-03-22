@@ -7,6 +7,7 @@ type AppNewConversationState = {
 
 type AppNewConversationProps = {
   state: AppNewConversationState;
+  session: Session | null;
 };
 
 type AppConversationMessageType = {
