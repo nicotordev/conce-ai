@@ -1,9 +1,7 @@
 "use server";
 import promptsConstants from "@/constants/prompts.constants";
 import googleGenerativeAI from "@/lib/@google-generative-ai";
-import {
-  fetchGoogleViaBrightDataWithQueryEvaluation,
-} from "@/lib/brightDataClient";
+import { fetchGoogleViaBrightDataWithQueryEvaluation } from "@/lib/brightDataClient";
 import logger from "@/lib/consola/logger";
 import prisma from "@/lib/prisma/index.prisma";
 import { Message, MessageSender, Model } from "@prisma/client";
@@ -123,7 +121,8 @@ async function getBasicAiConversationResponse(
 
   const searchResults = await fetchGoogleViaBrightDataWithQueryEvaluation(
     newMessage.replace(/"/g, "'").replace(/\n/g, " "),
-    modelName
+    modelName,
+    messages
   );
 
   const escapedMessage = newMessage.replace(/"/g, "'").replace(/\n/g, " ");

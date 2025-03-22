@@ -7,6 +7,7 @@ import {
   BrightDataSearchResult,
 } from "@/types/brightDataClient";
 import googleGenerativeAI from "./@google-generative-ai";
+import { MessageSender } from "@prisma/client";
 
 // Proxy con túnel Bright Data
 const agent = tunnel.httpsOverHttp({
@@ -105,39 +106,45 @@ async function fetchGoogleViaBrightData(query: string) {
     return null;
   }
 }
-
 async function fetchGoogleViaBrightDataWithQueryEvaluation(
   query: string,
-  modelName: string
+  modelName: string,
+  messages: {
+    sender: MessageSender;
+    content: string;
+  }[]
 ) {
   try {
-    /**
-     * Verify if we have to make the query to Bright Data
-     */
     const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
       model: modelName,
     });
 
-    const emtptyChat = aiModel.startChat({});
+    const chat = aiModel.startChat({});
 
-    const doBeforeSearch = await emtptyChat.sendMessage(
-      `Verifica si la frase ${query} es una frase que requiere de una búsqueda en Google, si require de una búsqueda en Google responde con "si" de lo contrario responde con "no".`
+    const checkSearch = await chat.sendMessage(
+      `
+      Contexto: ${JSON.stringify(messages, null, 2)}
+      
+      ¿La frase "${query}" requiere hacer una búsqueda en Google para obtener una respuesta precisa? Responde solo "sí" o "no".`
     );
 
-    const doBeforeSearchResponse = doBeforeSearch.response.text().trim();
+    const shouldSearch = checkSearch.response.text().trim().toLowerCase();
 
-    if (doBeforeSearchResponse === "no") {
+    if (!["si", "sí"].includes(shouldSearch)) {
       return null;
     }
 
-    const preSearch = await emtptyChat.sendMessage(
-      `Convierte la frase "${query}" en una búsqueda concreta para Google en lenguaje natural.`
+    const reformulated = await chat.sendMessage(
+      `
+        Contexto: ${JSON.stringify(messages, null, 2)}
+        Convierte la frase "${query}" en una búsqueda clara y concreta para Google.
+      `
     );
 
-    const searchQuery = preSearch.response.text().trim();
+    const searchQuery = reformulated.response.text().trim();
     const searchResults = (await fetchGoogleViaBrightData(searchQuery)) ?? [];
 
-    const searchFormatted = searchResults.length
+    const formatted = searchResults.length
       ? searchResults
           .map((r, i) => {
             const resumen =
@@ -147,7 +154,7 @@ async function fetchGoogleViaBrightDataWithQueryEvaluation(
           .join("\n\n")
       : "Sin resultados de búsqueda.";
 
-    return searchFormatted;
+    return formatted;
   } catch (err) {
     logger.error(`[FETCH-GOOGLE-VIA-BRIGHT-DATA-QUERY-EVALUATION-ERROR]`, err);
     return null;

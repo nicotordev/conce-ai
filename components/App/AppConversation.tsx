@@ -33,7 +33,12 @@ export default function AppConversation({
     onMessage: (chunk) => {
       setMessages((prevMessages) => {
         const prevMessagesCopy = [...prevMessages];
-        const lastMessage = prevMessagesCopy[prevMessagesCopy.length - 1];
+        let lastMessage = prevMessagesCopy[prevMessagesCopy.length - 1];
+
+        if (lastMessage.isGhost) {
+          prevMessagesCopy.pop();
+          lastMessage = prevMessagesCopy[prevMessagesCopy.length - 1];
+        }
 
         if (lastMessage.sender === MessageSender.ASSISTANT) {
           const updatedLastMessage = {
@@ -153,7 +158,13 @@ export default function AppConversation({
           data={messages}
           followOutput
           itemContent={(index, message) => (
-            <AppMessage key={message.id} message={message} session={session} />
+            <AppMessage
+              key={message.id}
+              message={message}
+              session={session}
+              isPending={isPending}
+              isLastIndex={index === messages.length}
+            />
           )}
         />
       </div>

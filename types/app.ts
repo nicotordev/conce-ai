@@ -17,6 +17,7 @@ type AppConversationMessageType = {
   createdAt: string;
   updatedAt: string;
   isTyping?: boolean;
+  isGhost?: boolean;
 }
 
 type AppConversationType = {
@@ -35,6 +36,8 @@ type AppConversationProps = {
 type AppMessageProps = {
   message: AppConversationMessageType;
   session: Session | null;
+  isLastIndex: boolean;
+  isPending: boolean;
 }
 
 export type {

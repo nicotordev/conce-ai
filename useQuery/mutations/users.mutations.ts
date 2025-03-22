@@ -30,9 +30,11 @@ function useConversationsMutation() {
 const useStreamConversation = ({
   onMessage,
   onDone,
+  onProgress,
 }: {
   onMessage: (fullText: string) => void;
   onDone: (message: string) => void;
+  onProgress?: (param: boolean) => void;
   currentMessage?: string;
 }) => {
   return useMutation({
@@ -45,6 +47,7 @@ const useStreamConversation = ({
       message: string;
       modelId: string;
     }) => {
+      onProgress?.(true);
       const response = await fetch(`/api/user/conversations/${id}`, {
         method: "PATCH",
         body: JSON.stringify({ message, modelId }),
@@ -79,6 +82,7 @@ const useStreamConversation = ({
 
           if (data === "start") continue;
           if (data === "done") {
+            onProgress?.(false);
             onDone?.(fullMessage);
             return;
           }
@@ -90,6 +94,7 @@ const useStreamConversation = ({
           const formattedMessage = await formatMarkdown(fullMessage);
 
           const html = await marked(formattedMessage);
+          onProgress?.(false);
 
           // ✅ Enviamos el texto acumulado completo
           onMessage(html);
@@ -105,10 +110,12 @@ const useStreamConversation = ({
           const formattedMessage = await formatMarkdown(fullMessage);
 
           const html = await marked(formattedMessage);
+          onProgress?.(false);
+
           onMessage(html);
         }
       }
-
+      onProgress?.(false);
       onDone?.(fullMessage);
     },
   });

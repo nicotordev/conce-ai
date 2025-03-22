@@ -95,7 +95,8 @@ const PATCH = async (
 
     const searchResults = await fetchGoogleViaBrightDataWithQueryEvaluation(
       message.replace(/"/g, "'").replace(/\n/g, " "),
-      model.name
+      model.name,
+      conversation.messages
     );
 
     const stream = new ReadableStream({
