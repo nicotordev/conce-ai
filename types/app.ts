@@ -16,6 +16,7 @@ type AppConversationMessageType = {
   sender: MessageSender;
   createdAt: string;
   updatedAt: string;
+  isTyping?: boolean;
 }
 
 type AppConversationType = {
@@ -33,7 +34,7 @@ type AppConversationProps = {
 
 type AppMessageProps = {
   message: AppConversationMessageType;
-  session: Session | null
+  session: Session | null;
 }
 
 export type {

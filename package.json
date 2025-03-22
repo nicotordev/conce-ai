@@ -33,6 +33,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "dompurify": "^3.2.4",
+    "framer-motion": "^12.5.0",
     "https-proxy-agent": "^7.0.6",
     "lucide-react": "^0.482.0",
     "markdown-to-jsx": "^7.7.4",
@@ -59,6 +60,7 @@
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "tunnel": "^0.0.6",
+    "turndown": "^7.2.0",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
   },
@@ -76,6 +78,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/tunnel": "^0.0.7",
+    "@types/turndown": "^5.0.5",
     "@types/uuid": "^10.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.2",

@@ -32,7 +32,7 @@ const useStreamConversation = ({
   onDone,
 }: {
   onMessage: (fullText: string) => void;
-  onDone: () => void;
+  onDone: (message: string) => void;
   currentMessage?: string;
 }) => {
   return useMutation({
@@ -75,11 +75,11 @@ const useStreamConversation = ({
         for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
 
-          const data = line.replace("data: ", "").trim();
+          const data = line.replace("data: ", "");
 
           if (data === "start") continue;
           if (data === "done") {
-            onDone?.();
+            onDone?.(fullMessage);
             return;
           }
           if (data === "error") {
@@ -97,14 +97,19 @@ const useStreamConversation = ({
       }
 
       // manejar el buffer si queda algo pendiente
-      if (buffer.startsWith("data: ")) {
-        const data = buffer.replace("data: ", "").trim();
+      if (buffer.startsWith("data:")) {
+        const data = buffer.replace("data:", "").trim();
         if (data !== "done" && data !== "error") {
-          onMessage(data);
+          fullMessage += data;
+
+          const formattedMessage = await formatMarkdown(fullMessage);
+
+          const html = await marked(formattedMessage);
+          onMessage(html);
         }
       }
 
-      onDone?.();
+      onDone?.(fullMessage);
     },
   });
 };

@@ -39,6 +39,7 @@ export default function AppConversation({
           const updatedLastMessage = {
             ...lastMessage,
             content: chunk,
+            isTyping: true,
           };
           return [
             ...prevMessagesCopy.slice(0, prevMessagesCopy.length - 1),
@@ -54,11 +55,28 @@ export default function AppConversation({
             sender: MessageSender.ASSISTANT,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
+            isTyping: true,
           },
         ];
       });
     },
-    onDone: () => {
+    onDone: (message) => {
+      setMessages((prevMessages) => {
+        const lastMessage = prevMessages[prevMessages.length - 1];
+        if (lastMessage.sender === MessageSender.ASSISTANT) {
+          const updatedLastMessage = {
+            ...lastMessage,
+            isTyping: false,
+            content: message,
+          };
+          return [
+            ...prevMessages.slice(0, prevMessages.length - 1),
+            updatedLastMessage,
+          ];
+        }
+
+        return prevMessages;
+      });
       currentConversationQuery.refetch();
     },
   });

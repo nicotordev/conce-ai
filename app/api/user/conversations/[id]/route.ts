@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
+import promptsConstants from "@/constants/prompts.constants";
 import googleGenerativeAI from "@/lib/@google-generative-ai";
-import { fetchGoogleViaBrightData } from "@/lib/brightDataClient";
+import { fetchGoogleViaBrightDataWithQueryEvaluation } from "@/lib/brightDataClient";
 import logger from "@/lib/consola/logger";
 import prisma from "@/lib/prisma/index.prisma";
 import { AuthenticatedNextRequest, CustomApiHandler } from "@/types/api";
@@ -92,90 +93,48 @@ const PATCH = async (
       })),
     });
 
-    const preSearch = await chat.sendMessage(
-      `Convierte la frase "${message}" en una búsqueda concreta para Google en lenguaje natural.`
+    const searchResults = await fetchGoogleViaBrightDataWithQueryEvaluation(
+      message.replace(/"/g, "'").replace(/\n/g, " "),
+      model.name
     );
-    const searchQuery = preSearch.response.text().trim();
-    const searchResults = (await fetchGoogleViaBrightData(searchQuery)) ?? [];
 
     const stream = new ReadableStream({
       async start(controller) {
         controller.enqueue(encodeSSE("start"));
 
         try {
-          let finalText = "";
           const escapedMessage = message.replace(/"/g, "'").replace(/\n/g, " ");
           const userName = session.user.name || "Usuario Anónimo";
           const userEmail = session.user.email;
           const convTitle = conversation.title || "Sin título";
 
-          const historyFormatted = conversation.messages
-            .map((msg, index) => {
-              const sender =
-                msg.sender === MessageSender.USER ? "Usuario" : "Condor-ai";
-              const content = msg.content
-                .replace(/"/g, "'")
-                .replace(/\n/g, " ");
-              return `${index + 1}. [${sender}]: "${content}"`;
-            })
-            .join("\n");
+          const prompt = promptsConstants.mainPrompt
+            .replaceAll("{{userName}}", userName)
+            .replaceAll("{{userEmail}}", userEmail || "")
+            .replaceAll("{{conversation.id}}", conversation.id)
+            .replaceAll("{{convTitle}}", convTitle)
+            .replaceAll("{{escapedMessage}}", escapedMessage)
+            .replaceAll("{{searchResults}}", searchResults || "");
 
-          const searchFormatted = searchResults.length
-            ? searchResults
-                .map((r, i) => {
-                  const resumen =
-                    r.textPreview?.join(" ").slice(0, 300) ?? "(sin resumen)";
-                  return `${i + 1}. [${r.title}]: ${
-                    r.link
-                  }\nResumen: ${resumen}`;
-                })
-                .join("\n\n")
-            : "Sin resultados de búsqueda.";
+          // 🔥 Obtenemos todo el mensaje de la IA de una sola vez
+          const aiMessage = await chat.sendMessage(prompt);
+          const fullText = aiMessage.response.text();
 
-          const prompt = `
-                  ### Información del usuario
-                  - Nombre: ${userName}
-                  - Email: ${userEmail}
-
-                  ### Conversación
-                  - ID: ${conversation.id}
-                  - Título: ${convTitle}
-                  - Mensaje actual: "${escapedMessage}"
-                  - Historial (${conversation.messages.length} mensajes):
-                  ${historyFormatted}
-
-                  ### Instrucciones para Condor-ai
-                  Ya se hizo una búsqueda en Google y se extrajo contenido de los resultados reales. Tu tarea es **responder usando solo esa información**, evitando suposiciones. Si no hay suficiente info, dilo claramente, pero sin inventar.
-                  Debes responder de forma cercana y clara, como una IA chilena útil y aperrada.
-                  ${searchFormatted}
-
-                  ### Instrucciones para Condor-ai
-                  Eres **Condor-ai**, una inteligencia artificial chilena, informada, confiable y aperrada. Tu misión es ayudar con respuestas claras, útiles y actualizadas, con un tono cercano y chileno. No eres un robot fome ni genérico: hablas como alguien que vive en Chile, entiende la cultura local y sabe adaptarse al tono del usuario, sin pasarte de confianzudo.
-
-                  🔎 Siempre que puedas, busca información en línea para entregar datos actualizados al momento.  
-                  📅 Si no puedes buscar, responde con lo más completo que sepas hasta tu última actualización.  
-                  📌 Nunca digas "no tengo información". En vez de eso, explica lo que sabes, por ejemplo:  
-                  - "Hasta la última vez que revisé..."  
-                  - "Según lo que se sabía en ese momento..."  
-                  - "No hay info nueva, pero esto es lo que se manejaba..."  
-
-                  🎯 Usa expresiones chilenas de manera natural cuando ayuden a conectar, pero no abuses. Ejemplos: "al tiro", "bacán", "ojo con eso", "pucha", "buena onda", "cacha esto", etc.  
-                  💬 Sé claro y directo. Si el tema lo permite, usa ejemplos locales, menciona datos de Chile y ten presente el contexto nacional.
-
-                  Tu estilo es profesional, empático y ágil. No adornes demasiado, ve al grano, pero siempre con actitud de buena onda. Querís ayudar, no marear.
-
-                  ### Responde ahora como Condor-ai:
-                  Mensaje del usuario: "${escapedMessage}"
-                  `;
-          console.log(prompt);
-
-          const { stream } = await chat.sendMessageStream(prompt);
-          for await (const chunk of stream) {
-            const text = chunk.text();
-            finalText = `${finalText}${text}`;
-            controller.enqueue(encodeSSE(text));
+          // ✂️ Simulamos un stream por partes (puede ser letra a letra, palabra por palabra, etc.)
+          const chunks = fullText.split(/(?<=[.?!])\s+/); // Divide después de punto, signo de pregunta o exclamación
+          
+          for (let i = 0; i < chunks.length; i++) {
+            const chunk = chunks[i];
+            console.log("enviando chunk:", chunk);
+            controller.enqueue(encodeSSE(chunk));
+            controller.enqueue(encodeSSE(chunk));
+            await new Promise((res) => setTimeout(res, 50)); // 🕐 Delay de 50ms entre chunks
           }
 
+          controller.enqueue(encodeSSE("done"));
+          controller.close();
+
+          // 💾 Guardamos en la BD al final
           await prisma.conversation.update({
             where: { id },
             data: {
@@ -189,16 +148,13 @@ const PATCH = async (
           });
           await prisma.message.create({
             data: {
-              content: finalText,
+              content: fullText,
               sender: MessageSender.ASSISTANT,
               conversationId: id,
             },
           });
-
-          controller.enqueue(encodeSSE("done"));
-          controller.close();
         } catch (streamErr) {
-          logger.error("[STREAM-ERROR]", streamErr);
+          console.error("[STREAM-ERROR]", streamErr);
           controller.enqueue(encodeSSE("error"));
           controller.close();
         }
@@ -225,7 +181,7 @@ const PATCH = async (
   }
 };
 
-function encodeSSE(data: string) {
+function encodeSSE(data: string): Uint8Array {
   return new TextEncoder().encode(`data: ${data}\n\n`);
 }
 

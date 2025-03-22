@@ -3,7 +3,7 @@ import MarkdownRenderer from "../Common/MarkdownRenderer";
 import { MessageSender } from "@prisma/client";
 import { AppMessageProps } from "@/types/app";
 import { Transition } from "@headlessui/react";
-
+import { motion } from "framer-motion";
 const AppMessage = memo(({ message }: AppMessageProps) => {
   if (message.sender === MessageSender.USER) {
     return (
@@ -24,11 +24,16 @@ const AppMessage = memo(({ message }: AppMessageProps) => {
   }
 
   return (
-    <div className="flex justify-start px-2 w-5/6">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex justify-start px-2 w-5/6"
+    >
       <div className="px-5 py-2.5 max-w-full prose flex items-start gap-2">
-        <MarkdownRenderer key={message.content} content={message.content} />
+        <MarkdownRenderer key={`${message.content}-${message.isTyping}`} content={message.content} />
       </div>
-    </div>
+    </motion.div>
   );
 });
 

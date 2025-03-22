@@ -6,6 +6,7 @@ import {
   BrightDataScrapedPage,
   BrightDataSearchResult,
 } from "@/types/brightDataClient";
+import googleGenerativeAI from "./@google-generative-ai";
 
 // Proxy con túnel Bright Data
 const agent = tunnel.httpsOverHttp({
@@ -105,4 +106,55 @@ async function fetchGoogleViaBrightData(query: string) {
   }
 }
 
-export { fetchGoogleViaBrightData };
+async function fetchGoogleViaBrightDataWithQueryEvaluation(
+  query: string,
+  modelName: string
+) {
+  try {
+    /**
+     * Verify if we have to make the query to Bright Data
+     */
+    const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
+      model: modelName,
+    });
+
+    const emtptyChat = aiModel.startChat({});
+
+    const doBeforeSearch = await emtptyChat.sendMessage(
+      `Verifica si la frase ${query} es una frase que requiere de una búsqueda en Google, si require de una búsqueda en Google responde con "si" de lo contrario responde con "no".`
+    );
+
+    const doBeforeSearchResponse = doBeforeSearch.response.text().trim();
+
+    if (doBeforeSearchResponse === "no") {
+      return null;
+    }
+
+    const preSearch = await emtptyChat.sendMessage(
+      `Convierte la frase "${query}" en una búsqueda concreta para Google en lenguaje natural.`
+    );
+
+    const searchQuery = preSearch.response.text().trim();
+    const searchResults = (await fetchGoogleViaBrightData(searchQuery)) ?? [];
+
+    const searchFormatted = searchResults.length
+      ? searchResults
+          .map((r, i) => {
+            const resumen =
+              r.textPreview?.join(" ").slice(0, 300) ?? "(sin resumen)";
+            return `${i + 1}. [${r.title}]: ${r.link}\nResumen: ${resumen}`;
+          })
+          .join("\n\n")
+      : "Sin resultados de búsqueda.";
+
+    return searchFormatted;
+  } catch (err) {
+    logger.error(`[FETCH-GOOGLE-VIA-BRIGHT-DATA-QUERY-EVALUATION-ERROR]`, err);
+    return null;
+  }
+}
+
+export {
+  fetchGoogleViaBrightData,
+  fetchGoogleViaBrightDataWithQueryEvaluation,
+};
