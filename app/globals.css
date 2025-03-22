@@ -225,3 +225,13 @@ button {
     @apply bg-background text-foreground;
   }
 }
+
+
+/* Tailwind: esto lo agregas si no tienes ya esta util */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
