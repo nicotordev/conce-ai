@@ -1,4 +1,5 @@
 import nicodropzone from "@/lib/@nicotordev/nicodropzone";
+import logger from "@/lib/consola/logger";
 import { AuthenticatedNextRequest } from "@/types/api";
 import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
 
@@ -23,7 +24,9 @@ const userUploadHandler = async (req: AuthenticatedNextRequest) => {
 
     return ApiResponse.ok(filesUploaded);
   } catch (err) {
-    return ApiResponse.internalServerError("Error al subir el archivo", err);
+    console.error(err);
+    logger.error(`[ERROR-USER-UPLOAD-HANDLER]`, err);
+    return ApiResponse.internalServerError();
   }
 };
 
