@@ -1,10 +1,10 @@
 import googleGenerativeAI from "@/lib/@google-generative-ai";
 import logger from "@/lib/consola/logger";
 import prisma from "@/lib/prisma/index.prisma";
-import { AuthenticatedNextRequest } from "@/types/api";
-import { AppMessageDTO } from "@/types/app";
+import { AuthenticatedNextRequest, CustomApiHandler } from "@/types/api";
 import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
 import { MessageSender } from "@prisma/client";
+import { NextRequest } from "next/server";
 
 const getUserConversationHandler = async (
   req: AuthenticatedNextRequest,
@@ -45,15 +45,13 @@ const getUserConversationHandler = async (
   }
 };
 
-const updateUserConversationHandler = async (
-  req: AuthenticatedNextRequest,
+const PATCH = async (
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
     const { id } = await params;
-    const { message } = (await req.json()) as {
-      message: AppMessageDTO;
-    };
+    const { message, modelId } = await req.json();
 
     const conversation = await prisma.conversation.findUnique({
       where: { id },
@@ -73,15 +71,10 @@ const updateUserConversationHandler = async (
     }
 
     const model = await prisma.model.findUnique({
-      where: {
-        id: message.modelId,
-      },
+      where: { id: modelId },
     });
 
     if (!model) {
-      /**
-       * [TODO] - Trigger get a new model flow
-       */
       return ApiResponse.badRequest("Invalid model id");
     }
 
@@ -90,65 +83,78 @@ const updateUserConversationHandler = async (
     });
 
     const chat = aiModel.startChat({
-      history: conversation.messages.map((message) => ({
-        role: message.sender === MessageSender.USER ? "user" : "model",
-        parts: [{ text: message.content }],
+      history: conversation.messages.map((msg) => ({
+        role: msg.sender === MessageSender.USER ? "user" : "model",
+        parts: [{ text: msg.content }],
       })),
     });
 
-    const result = await chat.sendMessage(message.content);
-    const responseText = result.response.text();
+    const stream = new ReadableStream({
+      async start(controller) {
+        controller.enqueue(encodeSSE("start"));
 
-    await prisma.conversation.update({
-      where: {
-        id,
-        userId: req.session.user.id,
-      },
-      data: {
-        messages: {
-          create: {
-            content: message.content,
-            sender: MessageSender.USER,
-          },
-        },
+        try {
+          let finalText = "";
+          const { stream } = await chat.sendMessageStream(message);
+          for await (const chunk of stream) {
+            const text = chunk.text();
+            finalText += text;
+            controller.enqueue(encodeSSE(text));
+          }
+
+          controller.enqueue(encodeSSE("done"));
+          controller.close();
+
+          await prisma.conversation.update({
+            where: { id },
+            data: {
+              messages: {
+                create: {
+                  content: message,
+                  sender: MessageSender.USER,
+                },
+              },
+            },
+          });
+          await prisma.message.create({
+            data: {
+              content: finalText,
+              sender: MessageSender.ASSISTANT,
+              conversationId: id,
+            },
+          });
+        } catch (streamErr) {
+          logger.error("[STREAM-ERROR]", streamErr);
+          controller.enqueue(encodeSSE("error"));
+          controller.close();
+        }
       },
     });
 
-    const conversationUpdated = await prisma.conversation.update({
-      where: {
-        id,
-      },
-      data: {
-        messages: {
-          create: {
-            content: responseText,
-            sender: MessageSender.ASSISTANT,
-          },
-        },
-      },
-      select: {
-        id: true,
-        title: true,
-        createdAt: true,
-        messages: {
-          select: {
-            id: true,
-            content: true,
-            createdAt: true,
-            sender: true,
-          },
-        },
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
       },
     });
-
-    return ApiResponse.ok(conversationUpdated);
   } catch (err) {
-    logger.error(`[ERROR-CREATE-CONVERSATION-HANDLER]`, err);
-    return ApiResponse.internalServerError();
+    logger.error("[ERROR-UPDATE-CONVERSATION]", err);
+    return new Response("data: error\n\n", {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+      status: 500,
+    });
   }
 };
 
-const GET = withApiAuthRequired(getUserConversationHandler);
-const PATCH = withApiAuthRequired(updateUserConversationHandler);
+function encodeSSE(data: string) {
+  return new TextEncoder().encode(`data: ${data}\n\n`);
+}
+
+const GET = withApiAuthRequired(getUserConversationHandler as unknown as CustomApiHandler);
 
 export { GET, PATCH };
