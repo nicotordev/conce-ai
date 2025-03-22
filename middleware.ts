@@ -3,7 +3,6 @@ import routesConstants from "./constants/routes.constants";
 import condorAi from "./lib/condor-ai";
 import { setCookie } from "cookies-next/client";
 import { Session } from "next-auth";
-import logger from "./lib/consola/logger";
 import { EmailVerificationStep } from "./types/auth.enum";
 export async function middleware(request: NextRequest) {
   const nextUrl = request.nextUrl.clone();
@@ -13,7 +12,7 @@ export async function middleware(request: NextRequest) {
     session = await condorAi.getSession(request);
   } catch (err) {
     const error = err instanceof Error ? err.message : "Unknown error";
-    logger.error(`Error getting session: ${error}`, err);
+    console.error(`Error getting session: ${error}`, err);
   }
 
   if (session && session.user) {
@@ -58,6 +57,11 @@ export async function middleware(request: NextRequest) {
       nextUrl.pathname = "/404";
       return NextResponse.redirect(nextUrl);
     }
+  }
+
+  if (session && nextUrl.pathname !== "/app") {
+    nextUrl.pathname = "/app";
+    return NextResponse.redirect(nextUrl);
   }
 
   return NextResponse.next();
