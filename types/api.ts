@@ -1,7 +1,5 @@
-import { ApiResponse } from "@/utils/api.utils";
-import { NextApiResponse } from "next";
 import { Session } from "next-auth";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 type AuthenticatedNextRequest = NextRequest & {
   session: Session;
@@ -9,11 +7,11 @@ type AuthenticatedNextRequest = NextRequest & {
 type CustomApiHandler = (
   req: AuthenticatedNextRequest,
   { params }: { params: Promise<{ id: string }> }
-) => void | Promise<void | NextApiResponse<unknown>> | ApiResponse;
+) => NextResponse | Promise<NextResponse>;
 
 type CustomApiKeyHandler = (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) => void | Promise<void | NextApiResponse<unknown>> | ApiResponse;
+) => NextResponse | Promise<NextResponse>;
 
 export type { CustomApiHandler, CustomApiKeyHandler, AuthenticatedNextRequest };
