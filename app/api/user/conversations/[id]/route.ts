@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import googleGenerativeAI from "@/lib/@google-generative-ai";
 import logger from "@/lib/consola/logger";
 import prisma from "@/lib/prisma/index.prisma";
@@ -49,13 +50,14 @@ const PATCH = async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
+  const session = (await auth())!;
   try {
     const { id } = await params;
     const { message, modelId } = await req.json();
 
     const conversation = await prisma.conversation.findUnique({
       where: { id },
-      select: {
+      include: {
         messages: {
           orderBy: { createdAt: "asc" },
           select: {
@@ -95,7 +97,48 @@ const PATCH = async (
 
         try {
           let finalText = "";
-          const { stream } = await chat.sendMessageStream(message);
+          const prompt = `
+          Usuario: ${session.user.name || "Usuario Anónimo"} (${
+            session.user.email
+          })
+          ID de la conversación: ${conversation.id}
+          Título de la conversación: ${conversation.title || "Sin título"}
+          Mensaje actual: "${message}"
+          
+          Historial de la conversación (${
+            conversation.messages.length
+          } mensajes):
+          ${conversation.messages
+            .map(
+              (msg, index) =>
+                `${index + 1}. [${
+                  msg.sender === MessageSender.USER ? "Usuario" : "Condor-ai"
+                }]: "${msg.content}"`
+            )
+            .join("\n")}
+          
+          Eres **Condor-ai**, una inteligencia artificial chilena, informada, confiable y aperrada. Tu misión es ayudar con respuestas claras, útiles y actualizadas, con un tono cercano y chileno. No eres un robot fome ni genérico: hablas como alguien que vive en Chile, entiende la cultura local y sabe adaptarse al tono del usuario, sin pasarte de confianzudo.
+          
+          🔎 Siempre que puedas, busca información en línea para entregar datos actualizados al momento.  
+          📅 Si no puedes buscar, responde con lo más completo que sepas hasta tu última actualización.  
+          📌 Nunca digas "no tengo información". En vez de eso, explica lo que sabes, por ejemplo:  
+          - "Hasta la última vez que revisé..."  
+          - "Según lo que se sabía en ese momento..."  
+          - "No hay info nueva, pero esto es lo que se manejaba..."  
+          
+          🎯 Usa expresiones chilenas de manera natural cuando ayuden a conectar, pero no abuses. Algunos ejemplos permitidos: "al tiro", "bacán", "ojo con eso", "pucha", "buena onda", "cacha esto", etc.  
+          💬 Sé claro y directo. Si el tema lo permite, usa ejemplos locales, menciona datos de Chile y ten presente el contexto nacional.
+          
+          Tu estilo es profesional, empático y ágil. No adornes demasiado, ve al grano, pero siempre con actitud de buena onda. Querís ayudar, no marear.
+          
+          Ahora, responde como **Condor-ai**, desde Chile, con toda tu sabiduría local y global.
+
+          Mensaje de usuario: "${message
+            .replace(/"/g, "'")
+            .replace(/\n/g, " ")}"
+          `;
+
+          const { stream } = await chat.sendMessageStream(prompt);
           for await (const chunk of stream) {
             const text = chunk.text();
             finalText = `${finalText}${text}`;
@@ -120,11 +163,9 @@ const PATCH = async (
               conversationId: id,
             },
           });
-          
+
           controller.enqueue(encodeSSE("done"));
           controller.close();
-
-
         } catch (streamErr) {
           logger.error("[STREAM-ERROR]", streamErr);
           controller.enqueue(encodeSSE("error"));
@@ -157,6 +198,8 @@ function encodeSSE(data: string) {
   return new TextEncoder().encode(`data: ${data}\n\n`);
 }
 
-const GET = withApiAuthRequired(getUserConversationHandler as unknown as CustomApiHandler);
+const GET = withApiAuthRequired(
+  getUserConversationHandler as unknown as CustomApiHandler
+);
 
 export { GET, PATCH };

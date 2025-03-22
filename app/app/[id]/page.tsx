@@ -54,7 +54,7 @@ export default async function Conversation(props: PagePropsCommon) {
 
   return (
     <div className="w-full h-full">
-      <AppConversation conversation={conversationDTO} />
+      <AppConversation conversation={conversationDTO} session={session} />
     </div>
   );
 }

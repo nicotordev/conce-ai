@@ -51,8 +51,7 @@ export default function UserProfilePic({
           }
         )}
       >
-        {" "}
-        <span className="text-xs">?</span>
+        ?
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ import AppMessage from "./AppMessage";
 
 export default function AppConversation({
   conversation,
+  session
 }: AppConversationProps) {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const { models } = useCondorAI();
@@ -114,7 +115,7 @@ export default function AppConversation({
           data={messages}
           followOutput
           itemContent={(index, message) => (
-            <AppMessage key={message.id} message={message} />
+            <AppMessage key={message.id} message={message} session={session} />
           )}
         />
       </div>

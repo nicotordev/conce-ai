@@ -1,4 +1,5 @@
 import { MessageSender } from "@prisma/client";
+import { Session } from "next-auth";
 
 type AppNewConversationState = {
   error: string;
@@ -26,12 +27,19 @@ type AppConversationType = {
 
 type AppConversationProps = {
   conversation: AppConversationType;
+  session: Session | null;
 };
+
+type AppMessageProps = {
+  message: AppConversationMessageType;
+  session: Session | null
+}
 
 export type {
   AppConversationType,
   AppNewConversationProps,
   AppNewConversationState,
   AppConversationProps,
-  AppConversationMessageType
+  AppConversationMessageType,
+  AppMessageProps
 };
