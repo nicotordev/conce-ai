@@ -7,8 +7,7 @@ import transformObjectForSerialization from "@/utils/serialization.utils";
 import { notFound } from "next/navigation";
 
 export default async function Conversation(props: PagePropsCommon) {
-  const { id } = await props.params;
-  const session = await auth();
+  const [{ id }, session] = await Promise.all([props.params, auth()]);
 
   if (!session || !session.user.id) {
     notFound();

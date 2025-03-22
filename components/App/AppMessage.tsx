@@ -24,7 +24,7 @@ const AppMessage = memo(({ message }: AppMessageProps) => {
   }
 
   return (
-    <div className="flex justify-start px-2">
+    <div className="flex justify-start px-2 w-5/6">
       <div className="px-5 py-2.5 max-w-full prose flex items-start gap-2">
         <MarkdownRenderer key={message.content} content={message.content} />
       </div>

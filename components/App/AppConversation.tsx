@@ -11,11 +11,14 @@ import EditableDiv from "../Common/EditableDiv";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { v4 } from "uuid";
 import AppMessage from "./AppMessage";
+import { usePathname } from "next/navigation";
 
 export default function AppConversation({
   conversation,
-  session
+  session,
 }: AppConversationProps) {
+  const pathname = usePathname();
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const { models } = useCondorAI();
   const [message, setMessage] = useState("");
@@ -106,10 +109,27 @@ export default function AppConversation({
     currentConversationQuery.isSuccess,
   ]);
 
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+
+    const scroll = () => {
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: "smooth",
+      });
+    };
+
+    // pequeño delay por si el contenido aún se está montando
+    const timeout = setTimeout(scroll, 10);
+
+    return () => clearTimeout(timeout);
+  }, [pathname]);
+
   return (
-    <div className="max-w-3xl mx-auto flex flex-col h-[90vh]">
+    <div className="max-w-4xl mx-auto flex flex-col h-[90vh]">
       {/* Mensajes */}
-      <div className="flex-1">
+      <div className="flex-1" ref={messagesContainerRef}>
         <Virtuoso
           ref={virtuosoRef}
           data={messages}
