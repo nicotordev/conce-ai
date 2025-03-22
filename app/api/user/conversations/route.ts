@@ -1,6 +1,6 @@
 import logger from "@/lib/consola/logger";
 import prisma from "@/lib/prisma/index.prisma";
-import { AuthenticatedNextRequest } from "@/types/api";
+import { AuthenticatedNextRequest, CustomApiHandler } from "@/types/api";
 import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
 import { createConversation } from "@/utils/conversations.utils";
 
@@ -53,10 +53,10 @@ const userCreateConversationHandler = async (req: AuthenticatedNextRequest) => {
 };
 
 const userGetConversationsHandlerAuthenticated = withApiAuthRequired(
-  userGetConversationsHandler
+  userGetConversationsHandler as unknown as CustomApiHandler
 );
 const userCreateConversationHandlerAuthenticated = withApiAuthRequired(
-  userCreateConversationHandler
+  userCreateConversationHandler as unknown as CustomApiHandler
 );
 
 export {
