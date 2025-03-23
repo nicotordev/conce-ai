@@ -1,5 +1,5 @@
+import AppChatFormSkeleton from "@/components/Common/Skeletons/AppChatFormSkeleton";
 import AppConversationSkeleton from "@/components/Common/Skeletons/AppConversationSkeleton";
-import AppNewConversationSkeleton from "@/components/Common/Skeletons/AppNewConversationSkeleton";
 
 export default function Loading() {
   return (
@@ -10,7 +10,7 @@ export default function Loading() {
           <div className="flex-1">
             <AppConversationSkeleton />
           </div>
-          <AppNewConversationSkeleton />
+          <AppChatFormSkeleton isInitialChat={false} />
         </div>
       </div>
     </div>

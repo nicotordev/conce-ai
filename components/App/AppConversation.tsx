@@ -230,7 +230,12 @@ export default function AppConversation({
         </div>
       </div>
 
-      <AppChatForm onSubmit={handleSubmitNewMessage} message={message} setMessage={setMessage} isPending={isPending} />
+      <AppChatForm
+        onSubmit={handleSubmitNewMessage}
+        message={message}
+        setMessage={setMessage}
+        isPending={isPending}
+      />
     </div>
   );
 }

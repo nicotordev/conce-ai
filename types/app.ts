@@ -74,9 +74,16 @@ type AppUserMessageProps = {
 type AppChatFormProps = {
   isPending: boolean;
   message: string;
+  isInitialChat?: boolean;
   setMessage: (message: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleQuery?: (message: string) => void;
 }
+
+type AppSuggestionBarProps = {
+  handleQuery?: (message: string) => void;
+}
+
 export type {
   AppConversationType,
   AppNewConversationProps,
@@ -90,4 +97,5 @@ export type {
   AppAsistantMessageProps,
   AppUserMessageProps,
   AppChatFormProps,
+  AppSuggestionBarProps
 };

@@ -1,9 +1,9 @@
-import AppNewConversationSkeleton from "@/components/Common/Skeletons/AppNewConversationSkeleton";
+import AppChatFormSkeleton from "@/components/Common/Skeletons/AppChatFormSkeleton";
 
 export default function Loading() {
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <AppNewConversationSkeleton />
+      <AppChatFormSkeleton isInitialChat={true} />
     </div>
   );
 }

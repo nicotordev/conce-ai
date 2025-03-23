@@ -7,10 +7,10 @@ import toast from "react-hot-toast";
 import AppConversation from "./AppConversation";
 import { v4 } from "uuid";
 import AppConversationSkeleton from "../Common/Skeletons/AppConversationSkeleton";
-import AppNewConversationSkeleton from "../Common/Skeletons/AppNewConversationSkeleton";
 import { createEmptyConversationAction } from "@/app/actions/conversations.actions";
 import { useRouter } from "next/navigation";
 import AppChatForm from "./AppChatForm";
+import AppChatFormSkeleton from "../Common/Skeletons/AppChatFormSkeleton";
 
 export default function AppNewConversation({
   state,
@@ -31,11 +31,10 @@ export default function AppNewConversation({
     }
   }, [state]);
 
-  async function handleSubmitNewMessage(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleNewMessage(message: string) {
     setLoading(true);
     const formData = new FormData();
-    formData.append("modelId", models.selectedModel?.id ?? "");
+    formData.append("modelId", models.selectedModel?.id || "");
     formData.append("message", message);
     const { conversationId, success, redirectTo } =
       await createEmptyConversationAction(formData);
@@ -56,6 +55,11 @@ export default function AppNewConversation({
 
     setLoading(false);
     router.replace(redirectTo);
+  }
+
+  async function handleSubmitNewMessage(e: React.FormEvent) {
+    e.preventDefault();
+    await handleNewMessage(message);
   }
 
   if (loading) {
@@ -79,7 +83,7 @@ export default function AppNewConversation({
                 ]}
               />
             </div>
-            <AppNewConversationSkeleton />
+            <AppChatFormSkeleton isInitialChat={false} />
           </div>
         </div>
       </div>
@@ -118,6 +122,10 @@ export default function AppNewConversation({
       message={message}
       setMessage={setMessage}
       isPending={loading}
+      isInitialChat={true}
+      handleQuery={(message) => {
+        setMessage(message);
+      }}
     />
   );
 }
