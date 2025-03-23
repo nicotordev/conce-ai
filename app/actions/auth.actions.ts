@@ -575,6 +575,10 @@ async function doResetPasswordEmail(data: {
   }
 }
 
+async function SignInGoogleAction(){
+  return await signIn('google');
+}
+
 export {
   doSteppedRedirection,
   doSignIn,
@@ -583,4 +587,5 @@ export {
   doEmailResend,
   doSendResetPasswordEmail,
   doResetPasswordEmail,
+  SignInGoogleAction
 };

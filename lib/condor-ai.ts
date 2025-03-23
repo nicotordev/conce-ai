@@ -125,6 +125,13 @@ class CondorAI {
         throw new CondorAIError((err as FetchClientError).message);
       }
     },
+    deleteConversation: async (id: string): Promise<void> => {
+      try {
+        await this.delete<BaseApiResponse<null>>(`/user/conversations/${id}`);
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
     updateConversation: async (
       id: string,
       message: string,

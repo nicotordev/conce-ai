@@ -99,6 +99,16 @@ const PATCH = async (
           },
         },
       });
+    } else {
+      if (createMessage) {
+        await prisma.message.create({
+          data: {
+            content: message,
+            sender: MessageSender.USER,
+            conversationId: id,
+          },
+        });
+      }
     }
 
     const model = await prisma.model.findUnique({
@@ -158,8 +168,7 @@ const PATCH = async (
             const chunk = chunks[i];
             console.log("enviando chunk:", chunk);
             controller.enqueue(encodeSSE(chunk));
-            controller.enqueue(encodeSSE(chunk));
-            await new Promise((res) => setTimeout(res, 50)); // 🕐 Delay de 50ms entre chunks
+            await new Promise((res) => setTimeout(res, 500));
           }
 
           controller.enqueue(encodeSSE("done"));

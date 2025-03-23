@@ -1,18 +1,16 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ArrowUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useCondorAI } from "@/providers/CondorAIProvider";
 import { AppNewConversationProps } from "@/types/app";
 import toast from "react-hot-toast";
 import AppConversation from "./AppConversation";
 import { v4 } from "uuid";
-import EditableDiv from "../Common/EditableDiv";
 import AppConversationSkeleton from "../Common/Skeletons/AppConversationSkeleton";
 import AppNewConversationSkeleton from "../Common/Skeletons/AppNewConversationSkeleton";
 import { createEmptyConversationAction } from "@/app/actions/conversations.actions";
 import { useRouter } from "next/navigation";
+import AppChatForm from "./AppChatForm";
 
 export default function AppNewConversation({
   state,
@@ -115,38 +113,11 @@ export default function AppNewConversation({
   }
 
   return (
-    <form
-      className="text-center flex flex-col gap-4"
+    <AppChatForm
       onSubmit={handleSubmitNewMessage}
-    >
-      <input type="hidden" name="message" value={message} />
-      <input
-        type="hidden"
-        name="modelId"
-        value={models.selectedModel?.id ?? ""}
-      />
-      <h2 className="text-2xl font-semibold">¿En que puedo ayudarte hoy?</h2>
-      <div className="p-2 min-w-2xl rounded-lg shadow-md w-full max-w-2xl border border-gray-200">
-        <div className="relative w-full max-w-full pb-3">
-          <EditableDiv
-            placeholder="Escribe tu mensaje aquí..."
-            onChange={(value) => {
-              setMessage(value);
-            }}
-            value={message}
-            className="relative w-full p-3 bg-transparent focus:outline-none text-left break-words whitespace-pre-wrap"
-          />
-        </div>
-        <div className="flex items-center justify-end">
-          <Button
-            className="rounded-full text-dark-text-accent shrink-0 aspect-square w-9 h-9 hover:border-white hover:-translate-y-1"
-            variant="outline"
-            type="submit"
-          >
-            <ArrowUp />
-          </Button>
-        </div>
-      </div>
-    </form>
+      message={message}
+      setMessage={setMessage}
+      isPending={loading}
+    />
   );
 }

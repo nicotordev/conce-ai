@@ -32,7 +32,7 @@ const AppConversationSkeleton = ({
               } w-fit max-w-[75%] animate-pulse`}
             >
               <div
-                className={clsx("flex flex-col gap-2 text-gray-500 blur-xs", {
+                className={clsx("flex flex-col gap-2 text-gray-500", {
                   ["blur-xs"]: Boolean(bubble.message) === false,
                 })}
               >

@@ -1,3 +1,4 @@
+import { CondorAIModalProvider } from "@/providers/CondorAIModalProvider";
 import { CondorAIProvider } from "@/providers/CondorAIProvider";
 import { GoogleRecaptchaProvider } from "@/providers/GoogleRecaptchaProvider";
 import TanstackUseQueryProvider from "@/providers/TanstackUseQueryProvider";
@@ -12,7 +13,9 @@ export default async function Providers({
       <GoogleRecaptchaProvider>
         <CondorAIProvider>
           <UserProvider>
-            <UploadFilesProvider>{children}</UploadFilesProvider>
+            <UploadFilesProvider>
+              <CondorAIModalProvider>{children}</CondorAIModalProvider>
+            </UploadFilesProvider>
           </UserProvider>
         </CondorAIProvider>
       </GoogleRecaptchaProvider>

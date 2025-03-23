@@ -4,14 +4,12 @@ import { useStreamConversation } from "@/useQuery/mutations/users.mutations";
 import { useConversationQuery } from "@/useQuery/queries/users.queries";
 import { MessageSender } from "@prisma/client";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../ui/button";
-import { ArrowUp } from "lucide-react";
 import { useCondorAI } from "@/providers/CondorAIProvider";
-import EditableDiv from "../Common/EditableDiv";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { v4 } from "uuid";
 import AppMessage from "./AppMessage";
 import { usePathname } from "next/navigation";
+import AppChatForm from "./AppChatForm";
 
 export default function AppConversation({
   conversation,
@@ -42,6 +40,7 @@ export default function AppConversation({
             ...lastMessage,
             content: chunk,
             isTyping: true,
+            isLoading: false,
           };
           return [
             ...prevMessagesCopy.slice(0, prevMessagesCopy.length - 1),
@@ -58,6 +57,7 @@ export default function AppConversation({
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             isTyping: true,
+            isLoading: false,
           },
         ];
       });
@@ -103,7 +103,30 @@ export default function AppConversation({
       updatedAt: new Date().toISOString(),
     };
 
-    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+    setMessages((prevMessages) => {
+      const newMessages = [...prevMessages, newUserMessage];
+
+      return newMessages;
+    });
+
+    setTimeout(() => {
+      setMessages((prevMessages) => {
+        const newMessages = [
+          ...prevMessages,
+          {
+            id: v4(),
+            content: "",
+            sender: MessageSender.ASSISTANT,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            isLoading: true,
+            isTyping: false,
+          },
+        ];
+
+        return newMessages;
+      });
+    }, 150);
     virtuosoRef.current?.scrollToIndex({
       index: messages.length,
       behavior: "smooth",
@@ -185,49 +208,29 @@ export default function AppConversation({
   return (
     <div className="max-w-4xl mx-auto flex flex-col h-[90vh]">
       {/* Mensajes */}
-      <div className="flex-1" ref={messagesContainerRef}>
-        <Virtuoso
-          ref={virtuosoRef}
-          data={messages}
-          followOutput
-          itemContent={(index, message) => (
-            <AppMessage
-              key={message.id}
-              message={message}
-              session={session}
-              isPending={isPending}
-              isLastIndex={index === messages.length}
-            />
-          )}
-        />
+      <div
+        className="flex-1 relative pb-24 h-2/5 overflow-x-clip overflow-y-scroll"
+        ref={messagesContainerRef}
+      >
+        <div className="overflow-y-hidden">
+          <Virtuoso
+            ref={virtuosoRef}
+            data={messages}
+            followOutput
+            itemContent={(index, message) => (
+              <AppMessage
+                key={message.content + index}
+                message={message}
+                session={session}
+                isPending={isPending}
+                isLastIndex={index === messages.length - 1}
+              />
+            )}
+          />
+        </div>
       </div>
 
-      {/* Formulario */}
-      <form
-        className="text-center flex w-full p-2"
-        onSubmit={handleSubmitNewMessage}
-      >
-        <div className="p-2 w-full rounded-lg shadow-md border border-gray-200">
-          <div className="relative w-full max-w-full pb-3">
-            <EditableDiv
-              placeholder="Escribe tu mensaje aquí..."
-              onChange={setMessage}
-              value={message}
-              className="relative w-full p-3 bg-transparent focus:outline-none text-left break-words whitespace-pre-wrap"
-            />
-          </div>
-          <div className="flex items-center justify-end">
-            <Button
-              className="rounded-full text-dark-text-accent shrink-0 aspect-square w-9 h-9 hover:border-white hover:-translate-y-1"
-              variant="outline"
-              type="submit"
-              disabled={isPending}
-            >
-              <ArrowUp />
-            </Button>
-          </div>
-        </div>
-      </form>
+      <AppChatForm onSubmit={handleSubmitNewMessage} message={message} setMessage={setMessage} isPending={isPending} />
     </div>
   );
 }

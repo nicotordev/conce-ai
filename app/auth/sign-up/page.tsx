@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { googleLogo, microsoftLogo } from "@/assets";
+import { microsoftLogo } from "@/assets";
 import Image from "next/image";
 import SignUp from "@/components/Auth/SignUp";
 import { PagePropsCommon } from "@/types/pages";
 import { decryptData } from "@/lib/crypto";
 import { SignUpState } from "@/types/auth";
 import { SignUpPageStep } from "@/types/auth.enum";
+import AuthGoogleSignIn from "@/components/Auth/AuthGoogleSignIn";
 
 export default async function SignUpPage({ searchParams }: PagePropsCommon) {
   const _searchParams = await searchParams;
@@ -49,15 +50,8 @@ export default async function SignUpPage({ searchParams }: PagePropsCommon) {
               <hr className="w-full h-px bg-gray-300 opacity-100 border-none" />
             </div>
             <div className="mt-4 flex flex-col gap-4">
-              <button className="px-4 rounded-lg py-2 border border-gray-300 border-solid bg-transparent !font-inter flex items-center justify-start gap-2 text-xs">
-                <Image
-                  src={googleLogo}
-                  alt="Google Logo"
-                  width={16}
-                  height={16}
-                />
-                Continuar con Google
-              </button>
+              <AuthGoogleSignIn />
+
               <button className="px-4 rounded-lg py-2 border border-gray-300 border-solid bg-transparent !font-inter flex items-center justify-start gap-2 text-xs">
                 <Image
                   src={microsoftLogo}

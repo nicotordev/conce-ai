@@ -6,6 +6,7 @@ type CondorDropdownProps = {
     icon: IconType;
     text: string;
     type?: "danger" | undefined;
+    action: () => void;
   }[];
   variant: "default" | "destructive" | "secondary" | "white" | "transparent-white" | undefined;
 };

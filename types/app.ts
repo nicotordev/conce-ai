@@ -18,7 +18,7 @@ type AppConversationMessageType = {
   createdAt: string;
   updatedAt: string;
   isTyping?: boolean;
-  isGhost?: boolean;
+  isLoading?: boolean;
 }
 
 type AppConversationType = {
@@ -59,6 +59,24 @@ type AppConversationItemNavProps = {
     title: string;
   };
 }
+
+
+type AppAsistantMessageProps = {
+  isLastIndex: boolean;
+  isPending: boolean;
+  content: string;
+};
+
+type AppUserMessageProps = {
+  content: string;
+};
+
+type AppChatFormProps = {
+  isPending: boolean;
+  message: string;
+  setMessage: (message: string) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}
 export type {
   AppConversationType,
   AppNewConversationProps,
@@ -68,5 +86,8 @@ export type {
   AppMessageProps,
   AppConversationSkeletonProps,
   AppConversationSkeletonBubble,
-  AppConversationItemNavProps
+  AppConversationItemNavProps,
+  AppAsistantMessageProps,
+  AppUserMessageProps,
+  AppChatFormProps,
 };

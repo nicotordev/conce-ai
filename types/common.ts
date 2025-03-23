@@ -49,7 +49,7 @@ type EditableDivProps = {
 type SpinnerProps = {
   containerProps?: React.HTMLProps<HTMLDivElement>;
   spinnerProps?: React.SVGProps<SVGSVGElement>;
-}
+};
 
 export type {
   InputProps,
@@ -57,5 +57,5 @@ export type {
   UserProfilePicProps,
   AppNavUserDropdownProps,
   EditableDivProps,
-  SpinnerProps
+  SpinnerProps,
 };

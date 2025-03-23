@@ -18,9 +18,10 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { UserProfileMenuProps } from "@/types/layout";
+import { useRouter } from "next/navigation";
 
 const AppNavUserDropdown = ({ session }: UserProfileMenuProps) => {
-
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -105,7 +106,12 @@ const AppNavUserDropdown = ({ session }: UserProfileMenuProps) => {
             <span>Ayuda y soporte</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem variant="white">
+          <DropdownMenuItem
+            variant="white"
+            onClick={() => {
+              router.push("/auth/sign-out");
+            }}
+          >
             <LogOut className="mr-2 h-4 w-4" />
             <span>Cerrar sesión</span>
           </DropdownMenuItem>

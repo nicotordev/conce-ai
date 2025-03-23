@@ -25,7 +25,17 @@ function useConversationsMutation() {
     },
   });
 
-  return { createConversation, updateConversation };
+  const deleteConversation = useMutation({
+    mutationKey: ["user/conversations/delete"],
+    mutationFn: (id: string) => condorAi.user.deleteConversation(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["user/conversations"],
+      });
+    },
+  });
+
+  return { createConversation, updateConversation, deleteConversation };
 }
 const useStreamConversation = ({
   onMessage,
@@ -103,7 +113,7 @@ const useStreamConversation = ({
 
       // manejar el buffer si queda algo pendiente
       if (buffer.startsWith("data:")) {
-        const data = buffer.replace("data:", "").trim();
+        const data = buffer.replace("data:", "");
         if (data !== "done" && data !== "error") {
           fullMessage += data;
 

@@ -28,7 +28,7 @@ export default function AppConversationItemNav({
           router.push(`/app/${conversation.id}`);
         }}
       >
-        <span className="font-medium">{conversation.title}</span>
+        <span className="font-medium max-w-4/5">{conversation.title}</span>
       </Button>
       <CondorDropdown
         variant="transparent-white"
