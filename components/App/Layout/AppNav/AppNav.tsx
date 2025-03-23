@@ -14,7 +14,7 @@ export default function AppNav({ session, children }: AppNavProps) {
 
   const { conversations } = useUser();
   return (
-    <div className="w-full">
+    <div className="w-full h-screen overflow-y-scroll">
       <header>
         <nav>
           <div className="flex w-full">

@@ -35,11 +35,9 @@ interface ModalData {
   description?: string;
   type: ModalType;
   content?: ReactNode;
-  footer?: (onClose: () => void, onConfirm: () => Promise<void>) => ReactNode;
+  footer?: ReactNode;
   size?: "sm" | "md" | "lg" | "xl" | "full";
   showCloseButton?: boolean;
-  onConfirm?: () => void | Promise<void>;
-  body?: ReactNode;
 }
 
 // Define context type
@@ -123,9 +121,6 @@ export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [modalData, setModalData] = useState<ModalData | null>(null);
-  const [onConfirm, setOnConfirm] = useState<
-    (() => void | Promise<void>) | null
-  >(null);
 
   const openModal = (data: ModalData) => {
     setModalData(data);
@@ -135,14 +130,6 @@ export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
   const closeModal = () => {
     setIsOpen(false);
   };
-
-  const handleConfirm = async () => {
-    if (onConfirm) {
-      await onConfirm();
-    }
-    closeModal();
-  };
-
   return (
     <ModalContext.Provider value={{ openModal, closeModal, setModalData }}>
       {children}
@@ -178,9 +165,6 @@ export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
                     {modalData.description}
                   </DialogDescription>
                 )}
-                {modalData?.body && (
-                  <div className="mt-4">{modalData.body}</div>
-                )}
               </div>
             </DialogHeader>
 
@@ -190,12 +174,7 @@ export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
 
             {modalData?.footer && (
               <DialogFooter className="mt-6 pt-4 border-t border-border">
-                {modalData.footer(closeModal, () => {
-                  if (modalData.onConfirm) {
-                    setOnConfirm(modalData.onConfirm);
-                  }
-                  return handleConfirm();
-                })}
+                {modalData.footer}
               </DialogFooter>
             )}
           </div>

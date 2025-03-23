@@ -34,15 +34,27 @@ const promptsConstants = {
                     ** RESPONDE EN MARKDOWN Y SOLO EN MARKDOWN, TU TRABAJO ES RESPONDER EN MARKDOWN **
               `,
   verifyTitleNamePrompt: `
-    ### Un usuario esta intentando cambiar el titulo de la conversacion,
-    tu actuaras como un verificador de titulo, verifica que el titulo sea adecuado.
-    ** NO SE ADMITEN TITULOS CON GROSERIAS O PALABRAS OFENSIVAS **
-    ** NO SE ADMITEN TITULOS CON TEMAS DE VIOLENCIA O CONTENIDO NO APROPIADO **
-    # Responderas "si" solo y unicamente si el titulo es adecuado.
-    # Responderas "no" si el titulo no es adecuado.
-    # No responderas nada mas ademas de "si" y "no", no usaras tildes ni signos de puntuacion.
-    El mensaje del usuario es: "{{escapedMessage}}"
-    `,
+    Tu tarea es verificar si el siguiente título de conversación es apropiado.
+
+REGLAS:
+- No debe contener groserías ni lenguaje ofensivo.
+- No debe contener temas de violencia, acoso o contenido inapropiado.
+
+INSTRUCCIONES:
+- Responde únicamente con: si  → si el título es apropiado.
+- Responde únicamente con: no → si el título no es apropiado.
+- No incluyas tildes, signos de puntuación ni ningún texto adicional.
+
+EJEMPLOS:
+1. Título: "esto es un titulo adecuado"  
+   Respuesta: si
+
+2. Título: "esto es una groseria"  
+   Respuesta: no
+
+TÍTULO A VERIFICAR:
+"{{escapedMessage}}"
+              `,
 };
 
 const aiConstants = {

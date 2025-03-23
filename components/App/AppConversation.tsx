@@ -69,6 +69,7 @@ export default function AppConversation({
           const updatedLastMessage = {
             ...lastMessage,
             isTyping: false,
+            isLoading: false,
             content: message,
           };
           return [
@@ -209,25 +210,24 @@ export default function AppConversation({
     <div className="max-w-4xl mx-auto flex flex-col h-[90vh]">
       {/* Mensajes */}
       <div
-        className="flex-1 relative pb-24 h-2/5 overflow-x-clip overflow-y-scroll"
+        className="flex-1 relative pb-24 flex-grow w-full"
         ref={messagesContainerRef}
       >
-        <div className="overflow-y-hidden">
-          <Virtuoso
-            ref={virtuosoRef}
-            data={messages}
-            followOutput
-            itemContent={(index, message) => (
-              <AppMessage
-                key={message.content + index}
-                message={message}
-                session={session}
-                isPending={isPending}
-                isLastIndex={index === messages.length - 1}
-              />
-            )}
-          />
-        </div>
+        <Virtuoso
+          ref={virtuosoRef}
+          data={messages}
+          followOutput
+          className="overflow-x-clip"
+          itemContent={(index, message) => (
+            <AppMessage
+              key={message.content + index}
+              message={message}
+              session={session}
+              isPending={isPending}
+              isLastIndex={index === messages.length - 1}
+            />
+          )}
+        />
       </div>
 
       <AppChatForm

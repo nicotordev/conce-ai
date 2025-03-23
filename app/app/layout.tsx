@@ -10,7 +10,7 @@ export default async function AppRootLayout({
   const session = await auth();
   return (
     <>
-      <div className="flex">
+      <div className="flex h-screen overflow-clip">
         <AppConversationsNav />
         <AppNav session={session}>{children}</AppNav>
       </div>

@@ -23,7 +23,7 @@ export default function CondorInput({
 }: InputProps) {
   const [isOnFocus, setIsOnFocus] = useState(false);
   return (
-    <div>
+    <div className="w-full">
       {label && (
         <Label
           htmlFor="hs-leading-icon"

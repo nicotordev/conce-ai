@@ -19,7 +19,7 @@ export default function AppConversationItemNav({
 }: AppConversationItemNavProps) {
   const condorAIModal = useCondorAIModal();
   const router = useRouter();
-  const { deleteConversation, updateConversation } = useConversationsMutation();
+  const { deleteConversation } = useConversationsMutation();
 
   async function handleDeleteConversation() {
     condorAIModal.openModal({
@@ -27,26 +27,33 @@ export default function AppConversationItemNav({
       description: `¿Estás seguro que deseas eliminar la conversación "${conversation.title}"?`,
       size: "sm",
       type: "warning",
-      footer: (onClose, onConfirm) => (
+      footer: (
         <>
-          <Button onClick={onConfirm}>Confirmar</Button>
-          <Button variant="ghost" onClick={onClose}>
+          <Button
+            onClick={async () => {
+              condorAIModal.closeModal();
+
+              const toastId = toast.loading("Eliminando conversación...");
+              try {
+                await deleteConversation.mutateAsync(conversation.id);
+                toast.success("Conversación eliminada exitosamente", {
+                  id: toastId,
+                });
+              } catch (err) {
+                console.error(err);
+                toast.error("Ocurrió un error al eliminar la conversación", {
+                  id: toastId,
+                });
+              }
+            }}
+          >
+            Confirmar
+          </Button>
+          <Button variant="ghost" onClick={condorAIModal.closeModal}>
             Cancelar
           </Button>
         </>
       ),
-      onConfirm: async () => {
-        const toastId = toast.loading("Eliminando conversación...");
-        try {
-          await deleteConversation.mutateAsync(conversation.id);
-          toast.success("Conversación eliminada exitosamente", { id: toastId });
-        } catch (err) {
-          console.error(err);
-          toast.error("Ocurrió un error al eliminar la conversación", {
-            id: toastId,
-          });
-        }
-      },
     });
   }
 
@@ -56,41 +63,12 @@ export default function AppConversationItemNav({
       description: `Ingresa el nuevo nombre para la conversación "${conversation.title}"`,
       size: "sm",
       type: "info",
-      body: (
+      content: (
         <AppConversationItemNavEditConversationName
           conversationName={conversation.title}
+          conversationId={conversation.id}
         />
       ),
-      footer: (onClose, onConfirm) => (
-        <>
-          <Button onClick={onConfirm}>Confirmar</Button>
-          <Button variant="ghost" onClick={onClose}>
-            Cancelar
-          </Button>
-        </>
-      ),
-      onConfirm: async () => {
-        const toastId = toast.loading(
-          "Actualizando nombre de la conversación..."
-        );
-        try {
-          await updateConversation.mutateAsync({
-            id: conversation.id,
-            title: conversation.title,
-          });
-          toast.success("Nombre de la conversación actualizado exitosamente", {
-            id: toastId,
-          });
-        } catch (err) {
-          console.error(err);
-          toast.error(
-            "Ocurrió un error al actualizar el nombre de la conversación",
-            {
-              id: toastId,
-            }
-          );
-        }
-      },
     });
   }
 
@@ -100,14 +78,29 @@ export default function AppConversationItemNav({
       description: `Comparte el enlace de la conversación "${conversation.title}"`,
       size: "sm",
       type: "info",
-      body: (
+      content: (
         <CondorInput
           label="Enlace de la Conversación"
           value={`${window.location.origin}/app/${conversation.id}`}
           readOnly
         />
       ),
-      footer: (onClose) => <Button onClick={onClose}>Cerrar</Button>,
+      footer: (
+        <>
+          <Button
+            onClick={async () => {
+              await navigator.clipboard.writeText(
+                `${window.location.origin}/app/${conversation.id}`
+              );
+              toast.success("Enlace copiado al portapapeles");
+              condorAIModal.closeModal();
+            }}
+          >
+            Confirmar
+          </Button>
+          <Button onClick={condorAIModal.closeModal}>Cerrar</Button>
+        </>
+      ),
     });
   }
 
@@ -165,19 +158,60 @@ export default function AppConversationItemNav({
 
 function AppConversationItemNavEditConversationName({
   conversationName,
+  conversationId,
 }: AppConversationItemNavEditConversationNameProps) {
-  const [name, setName] = useState(conversationName);
+  const condorAIModal = useCondorAIModal();
+
+  const { updateConversation } = useConversationsMutation();
+
+  const [name, setName] = useState(conversationName || "");
 
   return (
-    <div className="flex items-center justify-between">
-      <CondorInput
-        label="Nuevo Nombre"
-        placeholder="Nuevo Nombre"
-        value={name}
-        onChange={(e) => {
-          setName(e.target.value);
+    <>
+      <div className="flex items-center justify-between w-full">
+        <CondorInput
+          label="Nuevo Nombre"
+          placeholder="Nuevo Nombre"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+          className="w-full"
+        />
+      </div>
+      <Button
+        onClick={async () => {
+          condorAIModal.closeModal();
+          const toastId = toast.loading(
+            "Actualizando nombre de la conversación..."
+          );
+          try {
+            await updateConversation.mutateAsync({
+              id: conversationId,
+              title: name,
+            });
+            toast.success(
+              "Nombre de la conversación actualizado exitosamente",
+              {
+                id: toastId,
+              }
+            );
+          } catch (err) {
+            console.error(err);
+            toast.error(
+              "Ocurrió un error al actualizar el nombre de la conversación",
+              {
+                id: toastId,
+              }
+            );
+          }
         }}
-      />
-    </div>
+      >
+        Confirmar
+      </Button>
+      <Button variant="ghost" onClick={condorAIModal.closeModal}>
+        Cancelar
+      </Button>
+    </>
   );
 }

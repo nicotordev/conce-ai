@@ -86,6 +86,7 @@ type AppSuggestionBarProps = {
 
 type AppConversationItemNavEditConversationNameProps = {
   conversationName: string;
+  conversationId: string;
 }
 
 export type {

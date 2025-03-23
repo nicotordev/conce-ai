@@ -1,3 +1,4 @@
+import { decryptDataAction } from "@/app/actions/crypto.actions";
 import condorAi from "@/lib/condor-ai";
 import { formatMarkdown } from "@/utils/markdown.utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +10,11 @@ function useConversationsMutation() {
     mutationKey: ["user/conversations/create"],
     mutationFn: (data: { message: string; modelId: string }) =>
       condorAi.user.createConversation(data.message, data.modelId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["users/get-conversations"],
+      });
+    },
   });
 
   const deleteConversation = useMutation({
@@ -16,7 +22,7 @@ function useConversationsMutation() {
     mutationFn: (id: string) => condorAi.user.deleteConversation(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["user/conversations"],
+        queryKey: ["users/get-conversations"],
       });
     },
   });
@@ -25,6 +31,11 @@ function useConversationsMutation() {
     mutationKey: ["user/conversations/update"],
     mutationFn: (data: { id: string; title: string }) =>
       condorAi.user.updateConversation(data.id, data.title),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["users/get-conversations"],
+      });
+    },
   });
 
   return { createConversation, deleteConversation, updateConversation };
@@ -82,9 +93,6 @@ const useStreamConversation = ({
           const data = line.replace("data: ", "");
 
           if (data === "start") continue;
-          if (data.includes("CONVERSATION_ID:")) {
-            continue;
-          }
           if (data === "done") {
             onDone?.(fullMessage);
             return;
@@ -93,7 +101,9 @@ const useStreamConversation = ({
             throw new Error("Error del servidor");
           }
 
-          fullMessage += data;
+          const dataDecrypted = await decryptDataAction<string>(data);
+
+          fullMessage += dataDecrypted;
           const formattedMessage = await formatMarkdown(fullMessage);
 
           const html = await marked(formattedMessage);
@@ -107,7 +117,8 @@ const useStreamConversation = ({
       if (buffer.startsWith("data:")) {
         const data = buffer.replace("data:", "");
         if (data !== "done" && data !== "error") {
-          fullMessage += data;
+          const dataDecrypted = await decryptDataAction<string>(data);
+          fullMessage += dataDecrypted;
 
           const formattedMessage = await formatMarkdown(fullMessage);
 
@@ -116,7 +127,6 @@ const useStreamConversation = ({
           onMessage(html);
         }
       }
-      onDone?.(fullMessage);
     },
   });
 };

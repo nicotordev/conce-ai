@@ -3,6 +3,7 @@ import aiConstants from "@/constants/ai.constants";
 import googleGenerativeAI from "@/lib/@google-generative-ai";
 import { fetchGoogleViaBrightDataWithQueryEvaluation } from "@/lib/brightDataClient";
 import logger from "@/lib/consola/logger";
+import { encryptData } from "@/lib/crypto";
 import prisma from "@/lib/prisma/index.prisma";
 import { AuthenticatedNextRequest, CustomApiHandler } from "@/types/api";
 import { generateConversationTitle } from "@/utils/@google-generative-ai.utils";
@@ -162,13 +163,13 @@ const POST = async (
           const fullText = aiMessage.response.text();
 
           // ✂️ Simulamos un stream por partes (puede ser letra a letra, palabra por palabra, etc.)
-          const chunks = fullText.split(/(?<=[.?!])\s+/); // Divide después de punto, signo de pregunta o exclamación
-
+          const chunks = fullText.split(/(?<=[.?!])\s+/); // divide en oraciones
+          
           for (let i = 0; i < chunks.length; i++) {
-            const chunk = chunks[i];
+            const chunk = encryptData(chunks[i])
             console.log("enviando chunk:", chunk);
             controller.enqueue(encodeSSE(chunk));
-            await new Promise((res) => setTimeout(res, 500));
+            await new Promise((res) => setTimeout(res, 150));
           }
 
           controller.enqueue(encodeSSE("done"));

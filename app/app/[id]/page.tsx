@@ -53,7 +53,7 @@ export default async function Conversation(props: PagePropsCommon) {
 
   return (
     <div className="w-full h-full">
-      <AppConversation conversation={conversationDTO} session={session} />
+      <AppConversation conversation={conversationDTO} session={session} currentQuery={null} />
     </div>
   );
 }
