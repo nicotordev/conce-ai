@@ -204,8 +204,47 @@ function encodeSSE(data: string): Uint8Array {
   return new TextEncoder().encode(`data: ${data}\n\n`);
 }
 
+const deleteUserConversationHandler: CustomApiHandler = async (
+  req,
+  { params }: { params: Promise<{ id: string }> }
+) => {
+  try {
+    const userId = req.session.user.id;
+    const { id } = await params;
+
+    const conversation = await prisma.conversation.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!conversation) {
+      return ApiResponse.notFound();
+    }
+
+    if (conversation.userId !== userId) {
+      return ApiResponse.forbidden();
+    }
+
+    await prisma.conversation.delete({
+      where: {
+        id,
+      },
+    });
+
+    return ApiResponse.noContent();
+  } catch (err) {
+    logger.error(`[ERROR-DELETE-CONVERSATION]`, err);
+    return ApiResponse.internalServerError();
+  }
+};
+
 const GET = withApiAuthRequired(
   getUserConversationHandler as unknown as CustomApiHandler
 );
 
-export { GET, PATCH };
+const DELETE = withApiAuthRequired(
+  deleteUserConversationHandler as unknown as CustomApiHandler
+);
+
+export { GET, PATCH, DELETE };
