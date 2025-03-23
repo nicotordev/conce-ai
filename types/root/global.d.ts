@@ -30,6 +30,7 @@ declare global {
       NICODROPZONE_BASE_URL: string;
       NICODROPZONE_API_KEY: string;
       BRIGHT_DATA_TOKEN: string;
+      CLOUDFARE_AI_WORKER_TOKEN: string;
     }
   }
 
