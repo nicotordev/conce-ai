@@ -82,7 +82,7 @@ const PATCH = async (
       return ApiResponse.badRequest("Invalid model id");
     }
 
-    const aiModel = await googleGenerativeAI.genAI.getGenerativeModel({
+    const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
       model: model.name,
     });
 
