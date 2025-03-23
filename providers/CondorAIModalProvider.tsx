@@ -35,9 +35,11 @@ interface ModalData {
   description?: string;
   type: ModalType;
   content?: ReactNode;
-  footer?: ReactNode;
+  footer?: (onClose: () => void, onConfirm: () => Promise<void>) => ReactNode;
   size?: "sm" | "md" | "lg" | "xl" | "full";
   showCloseButton?: boolean;
+  onConfirm?: () => void | Promise<void>;
+  body?: ReactNode;
 }
 
 // Define context type
@@ -115,50 +117,15 @@ const TypeIcon = ({ type }: { type: ModalType }) => {
   );
 };
 
-// Condor-AI Logo component
-const CondorLogo = () => (
-  <div className="flex items-center font-title text-lg font-bold text-primary">
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="mr-2"
-    >
-      <path
-        d="M12 2L3 9L5 20L19 20L21 9L12 2Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M9 9.5C9 8.12 10.12 7 11.5 7C12.88 7 14 8.12 14 9.5C14 10.88 12.88 12 11.5 12"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <line
-        x1="11.5"
-        y1="12"
-        x2="11.5"
-        y2="16"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-    Condor-AI
-  </div>
-);
-
 // Modal Provider Component
 export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [modalData, setModalData] = useState<ModalData | null>(null);
+  const [onConfirm, setOnConfirm] = useState<
+    (() => void | Promise<void>) | null
+  >(null);
 
   const openModal = (data: ModalData) => {
     setModalData(data);
@@ -167,6 +134,13 @@ export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
 
   const closeModal = () => {
     setIsOpen(false);
+  };
+
+  const handleConfirm = async () => {
+    if (onConfirm) {
+      await onConfirm();
+    }
+    closeModal();
   };
 
   return (
@@ -196,9 +170,6 @@ export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
               {modalData?.type && <TypeIcon type={modalData.type} />}
 
               <div className="flex-1">
-                <div className="flex items-center mb-2">
-                  <CondorLogo />
-                </div>
                 <DialogTitle className="text-lg font-semibold mb-2">
                   {modalData?.title}
                 </DialogTitle>
@@ -206,6 +177,9 @@ export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
                   <DialogDescription className="text-muted-foreground">
                     {modalData.description}
                   </DialogDescription>
+                )}
+                {modalData?.body && (
+                  <div className="mt-4">{modalData.body}</div>
                 )}
               </div>
             </DialogHeader>
@@ -216,7 +190,12 @@ export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
 
             {modalData?.footer && (
               <DialogFooter className="mt-6 pt-4 border-t border-border">
-                {modalData.footer}
+                {modalData.footer(closeModal, () => {
+                  if (modalData.onConfirm) {
+                    setOnConfirm(modalData.onConfirm);
+                  }
+                  return handleConfirm();
+                })}
               </DialogFooter>
             )}
           </div>

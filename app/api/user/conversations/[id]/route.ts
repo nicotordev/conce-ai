@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import promptsConstants from "@/constants/prompts.constants";
+import aiConstants from "@/constants/ai.constants";
 import googleGenerativeAI from "@/lib/@google-generative-ai";
 import { fetchGoogleViaBrightDataWithQueryEvaluation } from "@/lib/brightDataClient";
 import logger from "@/lib/consola/logger";
@@ -49,7 +49,7 @@ const getUserConversationHandler = async (
   }
 };
 
-const PATCH = async (
+const POST = async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -146,7 +146,7 @@ const PATCH = async (
           const userEmail = session.user.email;
           const convTitle = conversation.title || "Sin título";
 
-          const prompt = promptsConstants.mainPrompt
+          const prompt = aiConstants.promptsConstants.mainPrompt
             .replaceAll("{{userName}}", userName)
             .replaceAll("{{userEmail}}", userEmail || "")
             .replaceAll("{{conversation.id}}", conversation.id)
@@ -248,6 +248,47 @@ const deleteUserConversationHandler: CustomApiHandler = async (
   }
 };
 
+const updateUserConversationHandler: CustomApiHandler = async (
+  req,
+  { params }: { params: Promise<{ id: string }> }
+) => {
+  try {
+    const { id } = await params;
+    const { title } = await req.json();
+
+    const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
+      model: aiConstants.DEFAULT_AI,
+    });
+
+    const chat = aiModel.startChat({});
+
+    const response = await chat.sendMessage(
+      aiConstants.promptsConstants.verifyTitleNamePrompt.replaceAll(
+        "{{escapedMessage}}",
+        title
+      )
+    );
+
+    if (["si", "sí", "yes"].includes(response.response.text().toLowerCase())) {
+      await prisma.conversation.update({
+        where: {
+          id,
+        },
+        data: {
+          title,
+        },
+      });
+
+      return ApiResponse.noContent();
+    }
+
+    return ApiResponse.badRequest("Invalid conversation title");
+  } catch (err) {
+    logger.error(`[ERROR-UPDATE-CONVERSATION]`, err);
+    return ApiResponse.internalServerError();
+  }
+};
+
 const GET = withApiAuthRequired(
   getUserConversationHandler as unknown as CustomApiHandler
 );
@@ -256,4 +297,8 @@ const DELETE = withApiAuthRequired(
   deleteUserConversationHandler as unknown as CustomApiHandler
 );
 
-export { GET, PATCH, DELETE };
+const PATCH = withApiAuthRequired(
+  updateUserConversationHandler as unknown as CustomApiHandler
+);
+
+export { GET, POST, DELETE, PATCH };

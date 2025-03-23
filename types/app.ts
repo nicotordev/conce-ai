@@ -84,6 +84,10 @@ type AppSuggestionBarProps = {
   handleQuery?: (message: string) => void;
 }
 
+type AppConversationItemNavEditConversationNameProps = {
+  conversationName: string;
+}
+
 export type {
   AppConversationType,
   AppNewConversationProps,
@@ -97,5 +101,6 @@ export type {
   AppAsistantMessageProps,
   AppUserMessageProps,
   AppChatFormProps,
-  AppSuggestionBarProps
+  AppSuggestionBarProps,
+  AppConversationItemNavEditConversationNameProps,
 };

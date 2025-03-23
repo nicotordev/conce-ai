@@ -11,20 +11,6 @@ function useConversationsMutation() {
       condorAi.user.createConversation(data.message, data.modelId),
   });
 
-  const updateConversation = useMutation({
-    mutationKey: ["user/conversations/update"],
-    mutationFn: (data: { id: string; message: string; modelId: string }) =>
-      condorAi.user.updateConversation(data.id, data.message, data.modelId),
-    onSuccess: (_response, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["user/conversations"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["users/get-conversation", variables.id],
-      });
-    },
-  });
-
   const deleteConversation = useMutation({
     mutationKey: ["user/conversations/delete"],
     mutationFn: (id: string) => condorAi.user.deleteConversation(id),
@@ -35,7 +21,13 @@ function useConversationsMutation() {
     },
   });
 
-  return { createConversation, updateConversation, deleteConversation };
+  const updateConversation = useMutation({
+    mutationKey: ["user/conversations/update"],
+    mutationFn: (data: { id: string; title: string }) =>
+      condorAi.user.updateConversation(data.id, data.title),
+  });
+
+  return { createConversation, deleteConversation, updateConversation };
 }
 const useStreamConversation = ({
   onMessage,
@@ -58,7 +50,7 @@ const useStreamConversation = ({
       createMessage: boolean;
     }) => {
       const response = await fetch(`/api/user/conversations/${id}`, {
-        method: "PATCH",
+        method: "POST",
         body: JSON.stringify({ message, modelId, createMessage }),
         headers: {
           "Content-Type": "application/json",

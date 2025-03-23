@@ -1,5 +1,5 @@
 "use server";
-import promptsConstants from "@/constants/prompts.constants";
+import aiConstants from "@/constants/ai.constants";
 import googleGenerativeAI from "@/lib/@google-generative-ai";
 import { fetchGoogleViaBrightDataWithQueryEvaluation } from "@/lib/brightDataClient";
 import logger from "@/lib/consola/logger";
@@ -130,13 +130,16 @@ async function getBasicAiConversationResponse(
   const userEmail = session.user.email;
   const convTitle = title || "Sin título";
 
-  const prompt = promptsConstants.mainPrompt
+  const prompt = aiConstants.promptsConstants.mainPrompt
     .replaceAll("{{userName}}", userName)
     .replaceAll("{{userEmail}}", userEmail || "")
     .replaceAll("{{conversation.id}}", v4())
     .replaceAll("{{convTitle}}", convTitle)
     .replaceAll("{{escapedMessage}}", escapedMessage)
-    .replaceAll("{{searchResults}}", searchResults || "");
+    .replaceAll(
+      "{{searchResults}}",
+      JSON.stringify(searchResults, null, 2) || ""
+    );
 
   const result = await chat.sendMessage(prompt);
   const responseText = result.response.text();

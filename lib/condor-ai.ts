@@ -132,18 +132,12 @@ class CondorAI {
         throw new CondorAIError((err as FetchClientError).message);
       }
     },
-    updateConversation: async (
-      id: string,
-      message: string,
-      modelId: string
-    ): Promise<AppNavConversation> => {
+    updateConversation: async (id: string, title: string): Promise<void> => {
       try {
-        const { data: conversation } = await this.patch<
-          BaseApiResponse<AppNavConversation>,
-          { message: string; modelId: string }
-        >(`/user/conversations/${id}`, { message, modelId });
-
-        return conversation;
+        await this.patch<BaseApiResponse<null>, { title: string }>(
+          `/user/conversations/${id}`,
+          { title }
+        );
       } catch (err) {
         throw new CondorAIError((err as FetchClientError).message);
       }
