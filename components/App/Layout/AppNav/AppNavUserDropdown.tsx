@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -6,9 +6,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
   DropdownMenuGroup,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,19 +16,10 @@ import {
   LogOut,
   Bell,
   HelpCircle,
-  Moon,
-  Sun,
-  Users,
-  ShieldCheck,
 } from "lucide-react";
 import { UserProfileMenuProps } from "@/types/layout";
 
 const AppNavUserDropdown = ({ session }: UserProfileMenuProps) => {
-  const [theme, setTheme] = useState("light");
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
 
   return (
     <DropdownMenu>
@@ -98,35 +86,10 @@ const AppNavUserDropdown = ({ session }: UserProfileMenuProps) => {
             <span>Pagos</span>
           </DropdownMenuItem>
 
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger variant="white">
-              <div className="flex items-center gap-2">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Configuración</span>
-              </div>
-            </DropdownMenuSubTrigger>
-
-            <DropdownMenuSubContent variant="white" className="w-56">
-              <DropdownMenuItem variant="white">
-                <Users className="mr-2 h-4 w-4" />
-                <span>Cuenta</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem variant="white">
-                <ShieldCheck className="mr-2 h-4 w-4" />
-                <span>Privacidad y seguridad</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem variant="white" onClick={toggleTheme}>
-                {theme === "light" ? (
-                  <Moon className="mr-2 h-4 w-4" />
-                ) : (
-                  <Sun className="mr-2 h-4 w-4" />
-                )}
-                <span>{theme === "light" ? "Modo oscuro" : "Modo claro"}</span>
-              </DropdownMenuItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
+          <DropdownMenuItem variant="white">
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Personalizar Condor-AI</span>
+          </DropdownMenuItem>
 
           <DropdownMenuItem variant="white">
             <Bell className="mr-2 h-4 w-4" />
