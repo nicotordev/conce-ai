@@ -1,4 +1,5 @@
 import condorAi from "@/lib/condor-ai";
+import { News } from "@/types/news";
 import { useQuery } from "@tanstack/react-query";
 
 function useModelsQuery() {
@@ -10,4 +11,14 @@ function useModelsQuery() {
   return modelsQuery;
 }
 
-export { useModelsQuery };
+function useNewsQuery(initialData: News[] = []) {
+  const newsQuery = useQuery({
+    queryKey: ["condor-ai/get-news"],
+    queryFn: () => condorAi.condorAI.getNews(),
+    initialData,
+  });
+
+  return newsQuery;
+}
+
+export { useModelsQuery, useNewsQuery };
