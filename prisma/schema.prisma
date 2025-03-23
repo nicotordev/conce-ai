@@ -56,6 +56,7 @@ model User {
   roleId        String?
   Conversation  Conversation[]
   Files         CondorAIFile[]
+  SearchQuery   SearchQuery[]
 }
 
 model VerificationToken {
@@ -95,13 +96,14 @@ model Model {
 }
 
 model Conversation {
-  id        String    @id @default(cuid())
-  title     String?
-  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String?
-  messages  Message[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          String        @id @default(cuid())
+  title       String?
+  user        User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String?
+  messages    Message[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  SearchQuery SearchQuery[]
 }
 
 model Message {
@@ -139,6 +141,42 @@ model News {
   publishedAt DateTime @map("published_at")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model SearchQuery {
+  id             String         @id @default(cuid())
+  originalQuery  String
+  searchQuery    String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  results        SearchResult[]
+  conversation   Conversation?  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String?
+  user           User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId         String?
+
+  @@index([originalQuery])
+  @@index([searchQuery])
+  @@index([createdAt])
+  @@index([userId])
+  @@index([conversationId])
+}
+
+model SearchResult {
+  id          String      @id @default(cuid())
+  position    Int
+  title       String
+  url         String      @db.Text
+  snippet     String      @db.Text
+  source      String // "google", "bing", etc.
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  searchQuery SearchQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  queryId     String
+
+  @@index([position])
+  @@index([source])
+  @@index([queryId])
 }
 
 enum MessageSender {
