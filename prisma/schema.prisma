@@ -130,6 +130,17 @@ model CondorAIFile {
   userId    String?
 }
 
+model News {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  url         String
+  image       String
+  publishedAt DateTime @map("published_at")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 enum MessageSender {
   USER
   ASSISTANT
