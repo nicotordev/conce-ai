@@ -1,5 +1,6 @@
 import { MessageSender } from "@prisma/client";
 import { Session } from "next-auth";
+import { ParamValue } from "next/dist/server/request/params";
 
 type AppNewConversationState = {
   error: string;
@@ -50,6 +51,14 @@ type AppConversationSkeletonBubble = {
 type AppConversationSkeletonProps = {
   bubblesParam?: AppConversationSkeletonBubble[];
 }
+
+type AppConversationItemNavProps = {
+  id: ParamValue;
+  conversation: {
+    id: string;
+    title: string;
+  };
+}
 export type {
   AppConversationType,
   AppNewConversationProps,
@@ -58,5 +67,6 @@ export type {
   AppConversationMessageType,
   AppMessageProps,
   AppConversationSkeletonProps,
-  AppConversationSkeletonBubble
+  AppConversationSkeletonBubble,
+  AppConversationItemNavProps
 };

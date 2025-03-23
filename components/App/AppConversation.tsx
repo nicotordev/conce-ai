@@ -11,17 +11,14 @@ import EditableDiv from "../Common/EditableDiv";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { v4 } from "uuid";
 import AppMessage from "./AppMessage";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export default function AppConversation({
   conversation,
   session,
   currentQuery,
 }: AppConversationProps) {
-  const router = useRouter();
-  const conversations = useConversationQuery(conversation.id, conversation);
   const pathname = usePathname();
-  const { id } = useParams();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const { models } = useCondorAI();
@@ -83,15 +80,7 @@ export default function AppConversation({
         return prevMessages;
       });
 
-      if (id) {
-        currentConversationQuery.refetch();
-      } else {
-        conversations.refetch().then((value) => {
-          if (value.data?.id) {
-            router.push(`/app/${value.data.id}`);
-          }
-        });
-      }
+      currentConversationQuery.refetch();
     },
   });
 

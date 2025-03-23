@@ -6,7 +6,7 @@ import { IoSearch } from "react-icons/io5";
 import { Transition } from "@headlessui/react";
 import { useUser } from "@/providers/UserProvider";
 import { useParams, useRouter } from "next/navigation";
-import clsx from "clsx";
+import AppConversationItemNav from "./AppConversationItemNav";
 
 export default function AppConversationsNav() {
   const router = useRouter();
@@ -83,27 +83,11 @@ export default function AppConversationsNav() {
                   </strong>
                 </li>
                 {conversationArray.map((singleConversation) => (
-                  <li
+                  <AppConversationItemNav
                     key={singleConversation.id}
-                    className="text-sm hover:bg-silver-100 flex items-center justify-start my-1"
-                  >
-                    <Button
-                      className={
-                        clsx(
-                          "text-xs w-full h-full bg-transparent border-none shadow-none text-left font-normal flex items-start justify-start whitespace-pre-wrap text-dark-text-primary rounded-md",
-                          {
-                            ["text-white bg-secondary-400"]: id === singleConversation.id,
-                          }
-                        )
-                      }
-                      variant={"outline"}
-                      onClick={() => {
-                        router.push(`/app/${singleConversation.id}`);
-                      }}
-                    >
-                      <span className="font-medium">{singleConversation.title}</span>
-                    </Button>
-                  </li>
+                    conversation={singleConversation}
+                    id={id}
+                  />
                 ))}
               </ul>
             )

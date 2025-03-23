@@ -49,6 +49,7 @@ export default function AppNewConversation({
     }
 
     if (conversationId) {
+      router.replace(`/app/${conversationId}`);
       setConversationId(conversationId);
       setShowConversation(true);
       setLoading(false);
