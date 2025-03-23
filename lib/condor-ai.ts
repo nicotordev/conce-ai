@@ -7,6 +7,7 @@ import { AppNavConversation, AppNavModel } from "@/types/layout";
 import { AppConversationType } from "@/types/app";
 import { NicoDropzoneFile } from "@nicotordev/nicodropzone/dist/types";
 import { CondorAIFile } from "@/types/files";
+import { News } from "@/types/news";
 
 class CondorAI {
   private apiUrl: string = `${process.env.NEXT_PUBLIC_BASE_URL}/api`;
@@ -70,6 +71,16 @@ class CondorAI {
           "/condor-ai/models"
         );
         return models;
+      } catch (err) {
+        throw new CondorAIError((err as FetchClientError).message);
+      }
+    },
+    getNews: async (): Promise<News[]> => {
+      try {
+        const { data: news } = await this.get<BaseApiResponse<News[]>>(
+          "/condor-ai/news"
+        );
+        return news;
       } catch (err) {
         throw new CondorAIError((err as FetchClientError).message);
       }
