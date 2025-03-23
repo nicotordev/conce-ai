@@ -31,6 +31,7 @@ declare global {
       NICODROPZONE_API_KEY: string;
       BRIGHT_DATA_TOKEN: string;
       CLOUDFARE_AI_WORKER_TOKEN: string;
+      ADMIN_EMAIL: string;
     }
   }
 

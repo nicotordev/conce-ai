@@ -5,7 +5,7 @@ const authConstants = {
     INVALID_CREDENTIALS: "invalid-credentials",
     USER_NOT_FOUND: "user-not-found",
     USER_ALREADY_EXISTS: "user-exists",
-    ERROR_SIGN_UP_TOKEN:  "error-sign-up-token",
+    ERROR_SIGN_UP_TOKEN: "error-sign-up-token",
     INTERNAL_SERVER_ERROR: "internal-server-error",
     INVALID_VERIFICATION_TOKEN: "invalid-verification-token",
     EXPIRED_VERIFICATION_TOKEN: "expired-verification-token",
@@ -19,6 +19,11 @@ const authConstants = {
     SIGN_OUT: "signed-out",
     SIGN_UP_REDIRECT: "account-created-redirect",
     EMAIL_RESEND: "email-resend",
-  }
+  },
+  ROLES: {
+    ADMIN: {
+      name: "ADMIN",
+    },
+  },
 };
 export default authConstants;
