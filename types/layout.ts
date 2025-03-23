@@ -21,6 +21,10 @@ type AppConversationsNavProps = {
   conversations: AppNavConversation[];
 };
 
+type UserProfileMenuProps = {
+  session: Session | null;
+}
+
 
 export type {
   AppNavModel,
@@ -28,4 +32,5 @@ export type {
   AppNavConversation,
   AppConversationsNavProps,
   AppNavConversationJoinedByDate,
+  UserProfileMenuProps
 };
