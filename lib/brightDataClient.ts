@@ -138,57 +138,175 @@ async function fetchGoogleViaBrightData(query: string) {
   }
 }
 
-// Con evaluación de si vale la pena buscar
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+/**
+ * Busca en Google, verifica la caché de Prisma y guarda los resultados
+ */
 async function fetchGoogleViaBrightDataWithQueryEvaluation(
   query: string,
   modelName: string,
   messages: {
     sender: MessageSender;
     content: string;
-  }[]
+  }[],
+  userId?: string,
+  conversationId?: string
 ) {
   try {
+    // 1. Evaluar si realmente necesitamos hacer una búsqueda
     const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
       model: modelName,
     });
-
     const chat = aiModel.startChat({});
 
-    const checkSearch = await chat.sendMessage(
-      `Contexto: ${JSON.stringify(
-        messages,
-        null,
-        2
-      )}\n¿La frase "${query}" requiere hacer una búsqueda en Google para obtener una respuesta precisa? Responde solo "sí" o "no".`
-    );
+    // Prompt mejorado para evaluar necesidad de búsqueda
+    const checkSearchPrompt = `
+      Basado en el siguiente historial de conversación y la consulta actual, 
+      determina si REALMENTE es necesario hacer una búsqueda en Internet.
+      
+      Historia de la conversación:
+      ${JSON.stringify(messages.slice(-3), null, 2)}
+      
+      Consulta actual: "${query}"
+      
+      IMPORTANTE: Responde ÚNICAMENTE "sí" si:
+      - Se pregunta por información factual específica (datos, fechas, eventos)
+      - Se solicitan noticias o información actualizada
+      - Se solicita información sobre entidades, productos o personas específicas
+      
+      Responde ÚNICAMENTE "no" si:
+      - La consulta puede responderse con conocimiento general
+      - Es una pregunta hipotética o de opinión
+      - Es una solicitud de código o explicación conceptual
+      - Es una continuación de conversación que no requiere datos externos nuevos
+      
+      Responde SOLO con "sí" o "no", sin explicaciones adicionales.`;
 
+    const checkSearch = await chat.sendMessage(checkSearchPrompt);
     const shouldSearch = checkSearch.response.text().trim().toLowerCase();
-    if (!["si", "sí"].includes(shouldSearch)) return null;
 
-    const reformulated = await chat.sendMessage(
-      `Contexto: ${JSON.stringify(
-        messages,
-        null,
-        2
-      )}\nConvierte la frase "${query}" en una búsqueda clara y concreta para Google.`
-    );
+    if (!["si", "sí", "yes"].includes(shouldSearch)) {
+      logger.info(
+        `[SEARCH-SKIPPED] Query "${query}" was determined not to need search`
+      );
+      return null;
+    }
 
+    // 2. Reformular la consulta para búsqueda más efectiva
+    const reformulatePrompt = `
+      Reformula la siguiente consulta en una búsqueda efectiva para Google.
+      - Extrae SOLO las palabras clave esenciales
+      - Elimina información contextual innecesaria
+      - Mantén el idioma original de la consulta
+      - NO agregues términos adicionales que no estén en la consulta original
+      
+      Consulta original: "${query}"
+      
+      Devuelve SOLO la consulta reformulada, sin explicaciones ni comillas.`;
+
+    const reformulated = await chat.sendMessage(reformulatePrompt);
     const searchQuery = reformulated.response.text().trim();
+
+    logger.info(`[SEARCH-REFORMULATED] "${query}" → "${searchQuery}"`);
+
+    // 3. Verificar si ya tenemos esta búsqueda en la base de datos
+    const cachedSearch = await prisma.searchQuery.findFirst({
+      where: {
+        searchQuery: {
+          equals: searchQuery,
+          mode: "insensitive",
+        },
+        // Solo considerar resultados recientes (últimas 24 horas)
+        createdAt: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        },
+      },
+      include: {
+        results: {
+          orderBy: {
+            position: "asc",
+          },
+        },
+      },
+    });
+
+    // Si encontramos resultados en caché, los devolvemos
+    if (cachedSearch && cachedSearch.results.length > 0) {
+      logger.info(
+        `[SEARCH-CACHE-HIT] Found cached results for "${searchQuery}"`
+      );
+
+      return {
+        originalQuery: query,
+        searchQuery: searchQuery,
+        results: cachedSearch.results.map((r) => ({
+          position: r.position,
+          title: r.title,
+          url: r.url,
+          snippet: r.snippet,
+          source: r.source,
+        })),
+        fromCache: true,
+      };
+    }
+
+    // 4. Si no hay caché, realizar la búsqueda
     const searchResults = (await fetchGoogleViaBrightData(searchQuery)) ?? [];
 
-    const formatted = searchResults.length
-      ? searchResults
-          .map((r, i) => {
-            const resumen =
-              r.textPreview?.join(" ").slice(0, 300) ?? "(sin resumen)";
-            return `${i + 1}. [${r.title}]: ${r.link}\nResumen: ${resumen}`;
-          })
-          .join("\n\n")
-      : "Sin resultados de búsqueda.";
+    if (!searchResults.length) {
+      logger.info(`[SEARCH-NO-RESULTS] No results found for "${searchQuery}"`);
+      return null;
+    }
 
-    return formatted !== "Sin resultados de búsqueda."
-      ? JSON.parse(formatted)
-      : null;
+    // 5. Estructurar los resultados
+    const formattedResults = {
+      originalQuery: query,
+      searchQuery: searchQuery,
+      results: searchResults.map((r, i) => ({
+        position: i + 1,
+        title: r.title || "",
+        url: r.link || "",
+        snippet: r.textPreview?.join(" ").slice(0, 300) || "",
+        source: "google",
+      })),
+      fromCache: false,
+    };
+
+    // 6. Guardar los resultados en la base de datos
+    try {
+      await prisma.searchQuery.create({
+        data: {
+          originalQuery: query,
+          searchQuery: searchQuery,
+          userId: userId,
+          conversationId: conversationId,
+          results: {
+            create: formattedResults.results.map((r) => ({
+              position: r.position,
+              title: r.title,
+              url: r.url,
+              snippet: r.snippet,
+              source: r.source,
+            })),
+          },
+        },
+      });
+      logger.info(
+        `[SEARCH-SAVED] Results saved to database for "${searchQuery}"`
+      );
+    } catch (dbError) {
+      logger.error(
+        `[SEARCH-DB-ERROR] Failed to save search results: ${dbError}`
+      );
+      // Continuamos incluso si el guardado falla
+    }
+
+    logger.info(
+      `[SEARCH-SUCCESS] Found ${formattedResults.results.length} results for "${searchQuery}"`
+    );
+    return formattedResults;
   } catch (err) {
     logger.error(`[FETCH-GOOGLE-VIA-BRIGHT-DATA-QUERY-EVALUATION-ERROR]`, err);
     return null;

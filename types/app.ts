@@ -31,6 +31,7 @@ type AppConversationType = {
 type AppConversationProps = {
   conversation: AppConversationType;
   session: Session | null;
+  currentQuery: string |null;
 };
 
 type AppMessageProps = {
@@ -40,11 +41,22 @@ type AppMessageProps = {
   isPending: boolean;
 }
 
+type AppConversationSkeletonBubble = {
+  sender: "user" | "ia";
+  lines: number;
+  message?: string;
+}
+
+type AppConversationSkeletonProps = {
+  bubblesParam?: AppConversationSkeletonBubble[];
+}
 export type {
   AppConversationType,
   AppNewConversationProps,
   AppNewConversationState,
   AppConversationProps,
   AppConversationMessageType,
-  AppMessageProps
+  AppMessageProps,
+  AppConversationSkeletonProps,
+  AppConversationSkeletonBubble
 };

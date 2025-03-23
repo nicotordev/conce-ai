@@ -1,8 +1,18 @@
-const AppConversationSkeleton = () => {
-  const bubbles = Array.from({ length: 5 }, (_, index) => ({
-    sender: index % 2 === 0 ? "user" : "ia",
-    lines: Math.floor(Math.random() * 3) + 1,
-  }));
+import {
+  AppConversationSkeletonBubble,
+  AppConversationSkeletonProps,
+} from "@/types/app";
+import clsx from "clsx";
+
+const AppConversationSkeleton = ({
+  bubblesParam,
+}: AppConversationSkeletonProps) => {
+  const bubbles: AppConversationSkeletonBubble[] = bubblesParam
+    ? bubblesParam
+    : Array.from({ length: 5 }, (_, index) => ({
+        sender: index % 2 === 0 ? "user" : "ia",
+        lines: Math.floor(Math.random() * 3) + 1,
+      }));
 
   return (
     <div className="flex flex-col gap-4 px-2 py-4">
@@ -21,11 +31,21 @@ const AppConversationSkeleton = () => {
                   : "prose px-2 py-1"
               } w-fit max-w-[75%] animate-pulse`}
             >
-              <div className="flex flex-col gap-2 text-gray-500 blur-xs">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam
-                omnis neque consequatur ipsum quibusdam corporis architecto
-                sapiente dolores vel optio distinctio, reiciendis et
-                exercitationem in porro dolorum veniam tenetur maxime?
+              <div
+                className={clsx("flex flex-col gap-2 text-gray-500 blur-xs", {
+                  ["blur-xs"]: Boolean(bubble.message) === false,
+                })}
+              >
+                {bubble.message ? (
+                  bubble.message
+                ) : (
+                  <>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Aperiam omnis neque consequatur ipsum quibusdam corporis
+                    architecto sapiente dolores vel optio distinctio, reiciendis
+                    et exercitationem in porro dolorum veniam tenetur maxime?
+                  </>
+                )}
               </div>
             </div>
           </div>

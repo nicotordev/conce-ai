@@ -5,6 +5,7 @@ import { fetchGoogleViaBrightDataWithQueryEvaluation } from "@/lib/brightDataCli
 import logger from "@/lib/consola/logger";
 import prisma from "@/lib/prisma/index.prisma";
 import { AuthenticatedNextRequest, CustomApiHandler } from "@/types/api";
+import { generateConversationTitle } from "@/utils/@google-generative-ai.utils";
 import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
 import { MessageSender } from "@prisma/client";
 import { NextRequest } from "next/server";
@@ -55,9 +56,9 @@ const PATCH = async (
   const session = (await auth())!;
   try {
     const { id } = await params;
-    const { message, modelId } = await req.json();
+    const { message, modelId, createMessage } = await req.json();
 
-    const conversation = await prisma.conversation.findUnique({
+    let conversation = await prisma.conversation.findUnique({
       where: { id },
       include: {
         messages: {
@@ -71,7 +72,33 @@ const PATCH = async (
     });
 
     if (!conversation) {
-      return ApiResponse.badRequest("Invalid conversation id");
+      const messageQuery = createMessage
+        ? {
+            messages: {
+              create: {
+                content: message,
+                sender: MessageSender.USER,
+              },
+            },
+          }
+        : {};
+      const title = await generateConversationTitle(message);
+      conversation = await prisma.conversation.create({
+        data: {
+          title: title,
+          userId: session.user.id,
+          ...messageQuery,
+        },
+        include: {
+          messages: {
+            orderBy: { createdAt: "asc" },
+            select: {
+              content: true,
+              sender: true,
+            },
+          },
+        },
+      });
     }
 
     const model = await prisma.model.findUnique({
@@ -115,7 +142,10 @@ const PATCH = async (
             .replaceAll("{{conversation.id}}", conversation.id)
             .replaceAll("{{convTitle}}", convTitle)
             .replaceAll("{{escapedMessage}}", escapedMessage)
-            .replaceAll("{{searchResults}}", searchResults || "");
+            .replaceAll(
+              "{{searchResults}}",
+              JSON.stringify(searchResults, null, 2) || ""
+            );
 
           // 🔥 Obtenemos todo el mensaje de la IA de una sola vez
           const aiMessage = await chat.sendMessage(prompt);
@@ -123,7 +153,7 @@ const PATCH = async (
 
           // ✂️ Simulamos un stream por partes (puede ser letra a letra, palabra por palabra, etc.)
           const chunks = fullText.split(/(?<=[.?!])\s+/); // Divide después de punto, signo de pregunta o exclamación
-          
+
           for (let i = 0; i < chunks.length; i++) {
             const chunk = chunks[i];
             console.log("enviando chunk:", chunk);
@@ -135,18 +165,6 @@ const PATCH = async (
           controller.enqueue(encodeSSE("done"));
           controller.close();
 
-          // 💾 Guardamos en la BD al final
-          await prisma.conversation.update({
-            where: { id },
-            data: {
-              messages: {
-                create: {
-                  content: message,
-                  sender: MessageSender.USER,
-                },
-              },
-            },
-          });
           await prisma.message.create({
             data: {
               content: fullText,

@@ -30,11 +30,9 @@ function useConversationsMutation() {
 const useStreamConversation = ({
   onMessage,
   onDone,
-  onProgress,
 }: {
   onMessage: (fullText: string) => void;
   onDone: (message: string) => void;
-  onProgress?: (param: boolean) => void;
   currentMessage?: string;
 }) => {
   return useMutation({
@@ -42,15 +40,16 @@ const useStreamConversation = ({
       id,
       message,
       modelId,
+      createMessage,
     }: {
       id: string;
       message: string;
       modelId: string;
+      createMessage: boolean;
     }) => {
-      onProgress?.(true);
       const response = await fetch(`/api/user/conversations/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ message, modelId }),
+        body: JSON.stringify({ message, modelId, createMessage }),
         headers: {
           "Content-Type": "application/json",
         },
@@ -81,8 +80,10 @@ const useStreamConversation = ({
           const data = line.replace("data: ", "");
 
           if (data === "start") continue;
+          if (data.includes("CONVERSATION_ID:")) {
+            continue;
+          }
           if (data === "done") {
-            onProgress?.(false);
             onDone?.(fullMessage);
             return;
           }
@@ -94,7 +95,6 @@ const useStreamConversation = ({
           const formattedMessage = await formatMarkdown(fullMessage);
 
           const html = await marked(formattedMessage);
-          onProgress?.(false);
 
           // ✅ Enviamos el texto acumulado completo
           onMessage(html);
@@ -110,12 +110,10 @@ const useStreamConversation = ({
           const formattedMessage = await formatMarkdown(fullMessage);
 
           const html = await marked(formattedMessage);
-          onProgress?.(false);
 
           onMessage(html);
         }
       }
-      onProgress?.(false);
       onDone?.(fullMessage);
     },
   });

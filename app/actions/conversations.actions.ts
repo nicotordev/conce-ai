@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import conversationsConstants from "@/constants/conversations.constants";
 import logger from "@/lib/consola/logger";
 import { encryptData } from "@/lib/crypto";
+import prisma from "@/lib/prisma/index.prisma";
 import { createConversation } from "@/utils/conversations.utils";
 
 async function createConversationAction(formData: FormData) {
@@ -71,4 +72,82 @@ async function createConversationAction(formData: FormData) {
   }
 }
 
-export { createConversationAction };
+async function createEmptyConversationAction(formData: FormData) {
+  const session = await auth();
+  const modelId = formData.get("modelId") as string;
+  const message = formData.get("message") as string;
+
+  if (typeof message !== "string" || message.trim().length === 0) {
+    return {
+      success: false,
+      redirectTo: `/app?state=${encryptData({
+        error: conversationsConstants.ERROR_MESSAGES_CODES.MESSAGE_IS_NOT_VALID,
+      })}`,
+    };
+  }
+
+  if (!session?.user?.id) {
+    return {
+      success: false,
+      redirectTo: `/app?state=${encryptData({
+        error: conversationsConstants.ERROR_MESSAGES_CODES.USER_NOT_AUTHORIZED,
+      })}`,
+    };
+  }
+
+  if (typeof modelId !== "string" || modelId.trim().length === 0) {
+    return {
+      success: false,
+      redirectTo: `/app?state=${encryptData({
+        error: conversationsConstants.ERROR_MESSAGES_CODES.MODEL_IS_NOT_VALID,
+      })}`,
+    };
+  }
+
+  try {
+    const newConversation = await prisma.conversation.create({
+      data: {
+        user: {
+          connect: {
+            id: session.user.id,
+          },
+        },
+        messages: {
+          create: {
+            content: message,
+            sender: "USER",
+          },
+        },
+      },
+    });
+
+    if (!newConversation) {
+      return {
+        success: false,
+        redirectTo: `/app?state=${encryptData({
+          error:
+            conversationsConstants.ERROR_MESSAGES_CODES
+              .CONVERSATION_NOT_CREATED,
+        })}`,
+      };
+    }
+
+    return {
+      success: true,
+      redirectTo: `/app/${newConversation.id}`,
+      conversationId: newConversation.id,
+    };
+  } catch (err) {
+    logger.error("[ACTIONS-CREATE-CONVERSATION]", err);
+
+    return {
+      success: false,
+      redirectTo: `/app?state=${encryptData({
+        error:
+          conversationsConstants.ERROR_MESSAGES_CODES.INTERNAL_SERVER_ERROR,
+      })}`,
+    };
+  }
+}
+
+export { createConversationAction, createEmptyConversationAction };

@@ -4,6 +4,7 @@ const conversationsConstants = {
         MODEL_IS_NOT_VALID: "model-is-not-valid",
         INTERNAL_SERVER_ERROR: "internal-server-error",
         USER_NOT_AUTHORIZED: "user-not-authorized",
+        CONVERSATION_NOT_CREATED: "conversation-not-created",
     }
 }
 

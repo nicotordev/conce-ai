@@ -11,18 +11,23 @@ import EditableDiv from "../Common/EditableDiv";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { v4 } from "uuid";
 import AppMessage from "./AppMessage";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
 export default function AppConversation({
   conversation,
   session,
+  currentQuery,
 }: AppConversationProps) {
+  const router = useRouter();
+  const conversations = useConversationQuery(conversation.id, conversation);
   const pathname = usePathname();
+  const { id } = useParams();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const { models } = useCondorAI();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<AppConversationMessageType[]>([]);
+  const currentQueryExecuted = useRef(false);
 
   const currentConversationQuery = useConversationQuery(
     conversation.id,
@@ -33,12 +38,7 @@ export default function AppConversation({
     onMessage: (chunk) => {
       setMessages((prevMessages) => {
         const prevMessagesCopy = [...prevMessages];
-        let lastMessage = prevMessagesCopy[prevMessagesCopy.length - 1];
-
-        if (lastMessage.isGhost) {
-          prevMessagesCopy.pop();
-          lastMessage = prevMessagesCopy[prevMessagesCopy.length - 1];
-        }
+        const lastMessage = prevMessagesCopy[prevMessagesCopy.length - 1];
 
         if (lastMessage.sender === MessageSender.ASSISTANT) {
           const updatedLastMessage = {
@@ -82,7 +82,16 @@ export default function AppConversation({
 
         return prevMessages;
       });
-      currentConversationQuery.refetch();
+
+      if (id) {
+        currentConversationQuery.refetch();
+      } else {
+        conversations.refetch().then((value) => {
+          if (value.data?.id) {
+            router.push(`/app/${value.data.id}`);
+          }
+        });
+      }
     },
   });
 
@@ -94,6 +103,7 @@ export default function AppConversation({
       id: conversation.id,
       message,
       modelId: models.selectedModel?.id || "",
+      createMessage: true,
     });
 
     const newUserMessage: AppConversationMessageType = {
@@ -148,6 +158,40 @@ export default function AppConversation({
 
     return () => clearTimeout(timeout);
   }, [pathname]);
+
+  useEffect(() => {
+    if (currentQuery && !currentQueryExecuted.current) {
+      currentQueryExecuted.current = true;
+      sendMessage({
+        id: conversation.id,
+        message: currentQuery,
+        modelId: models.selectedModel?.id || "",
+        createMessage: false,
+      });
+
+      const newUserMessage: AppConversationMessageType = {
+        id: v4(),
+        content: currentQuery,
+        sender: MessageSender.USER,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+      virtuosoRef.current?.scrollToIndex({
+        index: messages.length,
+        behavior: "smooth",
+      });
+      setMessage("");
+    }
+  }, [
+    currentQuery,
+    conversation.id,
+    messages.length,
+    message,
+    models.selectedModel?.id,
+    sendMessage,
+  ]);
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col h-[90vh]">
