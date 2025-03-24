@@ -9,7 +9,7 @@ export default function AppUserMessage({ content }: AppUserMessageProps) {
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="flex justify-end px-2"
     >
-      <div className="bg-white px-5 py-2.5 rounded-xl border border-gray-200 shadow-sm max-w-[75%] break-words whitespace-pre-wrap mt-4">
+      <div className="bg-white dark:bg-shark-700 text-black dark:text-white px-5 py-2.5 rounded-xl border border-gray-200 dark:border-shark-600 shadow-sm max-w-[75%] break-words whitespace-pre-wrap mt-4">
         {content}
       </div>
     </motion.div>

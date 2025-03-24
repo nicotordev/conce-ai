@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
@@ -10,16 +9,16 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-white shadow-xs hover:bg-primary/90 font-semibold",
+          "bg-primary text-white shadow-xs hover:bg-primary/90 font-semibold dark:bg-shark-700 dark:text-white dark:hover:bg-shark-600",
         destructive:
-          "font-semibold bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "font-semibold bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-red-800 dark:text-white dark:hover:bg-red-700",
         outline:
-          "font-semibold border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
+          "font-semibold border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-shark-800 dark:border-shark-600 dark:text-white dark:hover:bg-shark-700",
         secondary:
-          "font-semibold bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+          "font-semibold bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 dark:bg-shark-700 dark:text-white dark:hover:bg-shark-600",
         ghost:
-          "font-semibold hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "font-semibold text-primary underline-offset-4 hover:underline",
+          "font-semibold hover:bg-accent hover:text-accent-foreground dark:text-white dark:hover:bg-shark-600",
+        link: "font-semibold text-primary underline-offset-4 hover:underline dark:text-white",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

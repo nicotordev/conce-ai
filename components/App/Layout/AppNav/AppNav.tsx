@@ -9,13 +9,14 @@ import AppNavUserDropdown from "./AppNavUserDropdown/AppNavUserDropdown";
 import clsx from "clsx";
 import { useUser } from "@/providers/UserProvider";
 import { useRouter } from "next/navigation";
+
 export default function AppNav({ session, children }: AppNavProps) {
   const router = useRouter();
-
   const { conversations } = useUser();
+
   return (
-    <div className="w-full h-screen overflow-y-scroll">
-      <header>
+    <div className="w-full h-screen overflow-y-scroll bg-white dark:bg-shark-950 text-black dark:text-white">
+      <header className="bg-white dark:bg-shark-950 border-b border-gray-200 dark:border-shark-700">
         <nav>
           <div className="flex w-full">
             <ul
@@ -31,7 +32,7 @@ export default function AppNav({ session, children }: AppNavProps) {
                 </li>
               ) : (
                 <>
-                  <ul className="flex items-center text-2xl text-dark-text-accent">
+                  <ul className="flex items-center text-2xl text-[--color-dark-text-accent] dark:text-white">
                     <li className="flex items-center justify-center">
                       <Button
                         variant={"outline"}

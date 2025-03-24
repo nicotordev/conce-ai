@@ -1,6 +1,7 @@
 import appConstants from "@/constants/app.constants";
 import { AppSuggestionBarProps } from "@/types/app";
 import { motion } from "framer-motion";
+
 const AppSuggestionBar = ({ handleQuery }: AppSuggestionBarProps) => {
   return (
     <div className="text-center max-w-4xl mx-auto">
@@ -8,7 +9,7 @@ const AppSuggestionBar = ({ handleQuery }: AppSuggestionBarProps) => {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="text-2xl font-semibold mb-4"
+        className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white"
       >
         ¿En qué puedo ayudarte hoy?
       </motion.h2>
@@ -20,11 +21,17 @@ const AppSuggestionBar = ({ handleQuery }: AppSuggestionBarProps) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * index, duration: 0.3 }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-transparent shadow-sm text-sm transition-colors ${s.bg} basis-[calc(25%-0.5rem)] cursor-pointer`}
+            className={`
+              flex items-center gap-2 px-4 py-2 rounded-lg
+              border border-transparent shadow-sm text-sm transition-colors
+              ${s.bg} hover:opacity-90
+              dark:bg-shark-700 dark:hover:bg-shark-600 dark:text-white
+              basis-[calc(25%-0.5rem)] cursor-pointer
+            `}
             onClick={() => handleQuery?.(s.label)}
           >
             {s.icon}
-            <span className="text-gray-800">{s.label}</span>
+            <span className="text-gray-800 dark:text-white">{s.label}</span>
           </motion.button>
         ))}
       </div>

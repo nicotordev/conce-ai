@@ -12,11 +12,13 @@ import { useConversationsMutation } from "@/useQuery/mutations/users.mutations";
 import { useCondorAIModal } from "@/providers/CondorAIModalProvider";
 import toast from "react-hot-toast";
 import CondorInput from "@/components/Common/Forms/CondorInput";
+import { Transition } from "@headlessui/react";
 
 export default function AppConversationItemNav({
   conversation,
   id,
 }: AppConversationItemNavProps) {
+  const [buttonOnHover, setButtonOnHover] = useState(false);
   const condorAIModal = useCondorAIModal();
   const router = useRouter();
   const { deleteConversation } = useConversationsMutation();
@@ -107,31 +109,46 @@ export default function AppConversationItemNav({
   return (
     <li
       key={conversation.id}
-      className="text-sm hover:bg-silver-100 flex items-center justify-start my-1 relative group"
+      className="text-sm hover:bg-silver-100 flex items-center justify-start my-1 relative group hover:dark:bg-transparent"
     >
       <Button
         className={clsx(
-          "text-xs w-full h-full bg-transparent border-none shadow-none text-left font-normal flex items-start justify-start whitespace-pre-wrap text-dark-text-primary rounded-md",
+          "text-xs w-full h-full bg-transparent border-none shadow-none text-left font-normal flex items-start justify-start whitespace-pre-wrap text-dark-text-primary rounded-md dark:bg-transparent",
           {
-            ["text-white bg-secondary-400"]: id === conversation.id,
+            ["text-white bg-secondary-400 dark:bg-shark-600 dark:text-white"]:
+              id === conversation.id,
           }
         )}
         variant={"outline"}
         onClick={() => {
           router.push(`/app/${conversation.id}`);
         }}
+        onMouseEnter={() => setButtonOnHover(true)}
+        onMouseLeave={() => setButtonOnHover(false)}
       >
         <span className="font-medium max-w-4/5">{conversation.title}</span>
       </Button>
       <CondorDropdown
         variant="transparent-white"
         button={
-          <Button
-            variant="ghost"
-            className="border-none hover:!bg-transparent hover:text-black group-hover:text-white active:text-black rounded-full transition-colors absolute right-5 top-1/2 -translate-y-2/4 z-50 opacity-50 hover:opacity-100 bg-transparent"
-          >
-            <BsThreeDots className="!w-4 !h-4" />
-          </Button>
+          <div>
+            <Transition
+              show={buttonOnHover}
+              enter="transition-opacity duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="transition-opacity duration-300"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Button
+                variant="ghost"
+                className="border-none hover:!bg-transparent hover:text-black group-hover:text-white active:text-black rounded-full transition-colors absolute right-5 top-1/2 -translate-y-2/4 z-50 opacity-50 hover:opacity-100 bg-transparent"
+              >
+                <BsThreeDots className="!w-4 !h-4" />
+              </Button>
+            </Transition>
+          </div>
         }
         items={[
           {
