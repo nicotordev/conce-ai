@@ -10,6 +10,8 @@ type BrightDataScrapedPage = {
   title: string;
   h1: string;
   textPreview: string[];
+  publishedAt?: string;
+  imageUrl?: string;
 };
 
 

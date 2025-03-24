@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma/index.prisma";
 import { CustomApiHandler } from "@/types/api";
 import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
 import { Prisma } from "@prisma/client";
+import { isValid } from "date-fns";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getCondorAInewsHandler: CustomApiHandler = async (req, res) => {
@@ -36,19 +37,21 @@ const getCondorAInewsHandler: CustomApiHandler = async (req, res) => {
           throw new Error("No news found");
         }
 
-        const createdNews = await prismaTx.news.createManyAndReturn({
+        const createdPrismaTxNews = await prismaTx.news.createManyAndReturn({
           data: fetchedNews.map(
             (news): Prisma.NewsCreateManyInput => ({
-              title: news.titulo,
+              title: news.title,
               url: news.link,
-              description: news.resumen,
-              image: news.imagen || "no-image",
-              publishedAt: new Date(),
+              description: news.description,
+              image: news.image || "no-image",
+              publishedAt: isValid(news.publishedAt)
+                ? new Date(news.publishedAt).toISOString()
+                : new Date().toISOString(),
             })
           ),
         });
 
-        return createdNews;
+        return createdPrismaTxNews;
       });
 
       await Promise.allSettled(
@@ -59,7 +62,7 @@ const getCondorAInewsHandler: CustomApiHandler = async (req, res) => {
             return null;
           }
 
-          return prisma.news.update({
+          return await prisma.news.update({
             where: { id: n.id },
             data: {
               image: image,
@@ -74,6 +77,38 @@ const getCondorAInewsHandler: CustomApiHandler = async (req, res) => {
       });
 
       return ApiResponse.ok(news);
+    }
+
+    if (
+      news.some((n) => !n.image) ||
+      news.some((n) => n.image === "no-image")
+    ) {
+      const newsWithoutImage = news.filter(
+        (n) => !n.image || n.image === "no-image"
+      );
+
+      const updatedNews = await Promise.all(
+        newsWithoutImage.map(async (n) => {
+          const image = await generateNewsImage(n);
+
+          if (!image) {
+            return null;
+          }
+
+          return await prisma.news.update({
+            where: { id: n.id },
+            data: {
+              image: image,
+            },
+          });
+        })
+      );
+
+      if (!updatedNews) {
+        throw new Error("No news found");
+      }
+
+      return ApiResponse.ok(updatedNews.filter((n) => n));
     }
 
     return ApiResponse.ok(news);

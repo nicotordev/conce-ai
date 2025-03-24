@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -19,6 +18,7 @@ import {
   FiAlertCircle,
   FiInfo,
 } from "react-icons/fi";
+import { CgClose } from "react-icons/cg";
 
 // Define modal types
 export type ModalType =
@@ -148,7 +148,7 @@ export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
               className="absolute top-4 right-4 p-1 rounded-full hover:bg-muted/20 text-muted-foreground transition-colors"
               aria-label="Close"
             >
-              <X className="w-5 h-5" />
+              <CgClose className="w-5 h-5" />
             </button>
           )}
 

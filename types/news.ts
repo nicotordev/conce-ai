@@ -1,8 +1,9 @@
 type AINews = {
-  titulo: string;
+  title: string;
   link: string;
-  resumen: string;
-  imagen: string | null;
+  description: string;
+  image: string;
+  publishedAt: string;
 };
 
 type News = {

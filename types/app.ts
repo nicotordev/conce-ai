@@ -19,11 +19,11 @@ type AppConversationMessageType = {
   updatedAt: string;
   isTyping?: boolean;
   isLoading?: boolean;
-}
+};
 
 type AppConversationType = {
   id: string;
-  title: string | null; 
+  title: string | null;
   createdAt: string;
   updatedAt: string;
   messages: AppConversationMessageType[];
@@ -32,7 +32,7 @@ type AppConversationType = {
 type AppConversationProps = {
   conversation: AppConversationType;
   session: Session | null;
-  currentQuery: string |null;
+  currentQuery: string | null;
 };
 
 type AppMessageProps = {
@@ -40,17 +40,17 @@ type AppMessageProps = {
   session: Session | null;
   isLastIndex: boolean;
   isPending: boolean;
-}
+};
 
 type AppConversationSkeletonBubble = {
   sender: "user" | "ia";
   lines: number;
   message?: string;
-}
+};
 
 type AppConversationSkeletonProps = {
   bubblesParam?: AppConversationSkeletonBubble[];
-}
+};
 
 type AppConversationItemNavProps = {
   id: ParamValue;
@@ -58,8 +58,7 @@ type AppConversationItemNavProps = {
     id: string;
     title: string;
   };
-}
-
+};
 
 type AppAsistantMessageProps = {
   isLastIndex: boolean;
@@ -78,16 +77,23 @@ type AppChatFormProps = {
   setMessage: (message: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   handleQuery?: (message: string) => void;
-}
+};
 
 type AppSuggestionBarProps = {
   handleQuery?: (message: string) => void;
-}
+};
 
 type AppConversationItemNavEditConversationNameProps = {
   conversationName: string;
   conversationId: string;
-}
+};
+
+type AppNavUserConfigurationModalPropsTab = 'general' | 'notifications' | 'personalization' | 'audio' | 'data-control' | 'constructor-profile' | 'connected-apps' | 'security' | 'subscription';
+
+type AppNavUserConfigurationModalProps = {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+};
 
 export type {
   AppConversationType,
@@ -104,4 +110,6 @@ export type {
   AppChatFormProps,
   AppSuggestionBarProps,
   AppConversationItemNavEditConversationNameProps,
+  AppNavUserConfigurationModalProps,
+  AppNavUserConfigurationModalPropsTab
 };

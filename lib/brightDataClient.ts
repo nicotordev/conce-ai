@@ -50,6 +50,7 @@ async function scrapePage(url: string): Promise<BrightDataScrapedPage | null> {
     }
 
     const $ = cheerio.load(html);
+
     const title = $("title").text().trim();
     const h1 = $("h1").first().text().trim();
     const paragraphs = $("p")
@@ -57,7 +58,31 @@ async function scrapePage(url: string): Promise<BrightDataScrapedPage | null> {
       .map((_, el) => $(el).text().trim())
       .get();
 
-    return { url, title, h1, textPreview: paragraphs };
+    // Buscar fecha de publicación en etiquetas comunes
+    const publishedAt =
+      $('meta[property="article:published_time"]').attr("content") ||
+      $('meta[name="pubdate"]').attr("content") ||
+      $('meta[name="publish-date"]').attr("content") ||
+      $('meta[name="date"]').attr("content") ||
+      $("[datetime]").attr("datetime") ||
+      undefined;
+
+    // Buscar imagen destacada
+    const imageUrl =
+      $('meta[property="og:image"]').attr("content") ||
+      $('meta[name="twitter:image"]').attr("content") ||
+      $("article img").first().attr("src") ||
+      $("img").first().attr("src") ||
+      undefined;
+
+    return {
+      url,
+      title,
+      h1,
+      textPreview: paragraphs,
+      publishedAt,
+      imageUrl,
+    };
   } catch (error: unknown) {
     logger.error(
       `[SCRAPE-PAGE-ERROR] ${url}`,
@@ -270,6 +295,8 @@ async function fetchGoogleViaBrightDataWithQueryEvaluation(
         url: r.link || "",
         snippet: r.textPreview?.join(" ").slice(0, 300) || "",
         source: "google",
+        image: r.imageUrl,
+        publishedAt: r.publishedAt,
       })),
       fromCache: false,
     };
@@ -355,10 +382,11 @@ El formato debe ser:
 {
   "noticias": [
     {
-      "titulo": "Título de la noticia",
+      "title": "Título de la noticia",
       "link": "https://link-a-la-noticia.com",
-      "resumen": "Resumen breve de la noticia",
-      "imagen": "https://link-a-la-imagen.com"
+      "description": "Resumen breve de la noticia",
+      "image": "https://link-a-la-imagen.com",
+      "publishedAt": "2022-01-01T12:00:00.000Z"
     }
   ]
 }

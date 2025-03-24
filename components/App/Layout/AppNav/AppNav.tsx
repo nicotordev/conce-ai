@@ -5,7 +5,7 @@ import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { TbMessageCircle } from "react-icons/tb";
 import { BsFillShareFill } from "react-icons/bs";
 import AppNavModelsDropdownProps from "./AppNavModelsDropdown";
-import AppNavUserDropdown from "./AppNavUserDropdown";
+import AppNavUserDropdown from "./AppNavUserDropdown/AppNavUserDropdown";
 import clsx from "clsx";
 import { useUser } from "@/providers/UserProvider";
 import { useRouter } from "next/navigation";
