@@ -100,9 +100,10 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
 
   return (
     <>
-      <h2 className="!font-paragraph font-bold text-dark-text-primary text-3xl text-center">
+      <h2 className="!font-paragraph font-bold text-dark-text-primary dark:text-white text-3xl text-center">
         Restablece tu contraseña
       </h2>
+
       {/* INITIAL STEP */}
       <Transition
         show={state.step === ResetPasswordStep.email}
@@ -112,24 +113,21 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
         leave="transition ease-in duration-200"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
-        unmount={true}
+        unmount
       >
         <form className="relative mt-4" onSubmit={handleSendResetPasswordEmail}>
           <AuthError error={state.error} />
-
-          <div>
-            <CondorInput
-              name="email"
-              id="email"
-              placeholder="Dirección de correo electrónico"
-              type="email"
-              required
-              leftIcon={<BsEnvelope />}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={doingRedirection || loadingResetPassword}
-            />
-          </div>
+          <CondorInput
+            name="email"
+            id="email"
+            placeholder="Dirección de correo electrónico"
+            type="email"
+            required
+            leftIcon={<BsEnvelope />}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={doingRedirection || loadingResetPassword}
+          />
 
           <AuthLoading loading={loadingResetPassword} />
           <div className="flex flex-col gap-3 mt-4">
@@ -142,13 +140,17 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
           </div>
 
           <div className="flex items-center justify-center mt-4">
-            <Link href="/auth/sign-in" className="text-primary-600 text-sm font-medium">
-                Volver al inicio de sesión
+            <Link
+              href="/auth/sign-in"
+              className="text-primary-600 dark:text-primary-400 text-sm font-medium hover:underline transition-colors"
+            >
+              Volver al inicio de sesión
             </Link>
           </div>
         </form>
       </Transition>
-      {/* SUCCESS STEP AND RESEND STEP */}
+
+      {/* SUCCESS / RESEND STEP */}
       <Transition
         show={state.step === ResetPasswordStep.resend}
         enter="transition ease-out duration-300"
@@ -157,23 +159,22 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
         leave="transition ease-in duration-200"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
-        unmount={true}
+        unmount
       >
         <form
-          className="fixed inset-0 bg-white flex items-center justify-center"
+          className="fixed inset-0 bg-white dark:bg-shark-950 flex items-center justify-center transition-colors"
           onSubmit={handleResendEmail}
         >
           <div className="flex flex-col items-center text-center">
-            <div className="text-5xl flex items-center justify-center w-24 h-24 bg-white rounded-full border-4 border-solid border-secondary-600 text-secondary-600">
+            <div className="text-5xl flex items-center justify-center w-24 h-24 bg-white dark:bg-shark-950 rounded-full border-4 border-secondary-600 text-secondary-600">
               <BsEnvelope />
             </div>
-            <h2 className="text-center text-2xl font-medium mt-4 !text-dark-text-accent">
+            <h2 className="text-center text-2xl font-medium mt-4 text-dark-text-accent dark:text-white">
               Revisa tu correo electrónico
             </h2>
-            <p className="max-w-100 text-xs mt-2 text-dark-text-muted">
-              Por favor revise la dirección de correo electrónico
-              {email} y busque un email conteniendo instrucciones acerca de como
-              restablecer su contraseña.
+            <p className="max-w-100 text-xs mt-2 text-dark-text-muted dark:text-gray-400">
+              Por favor revisa {email} y busca un correo con instrucciones para
+              restablecer tu contraseña.
             </p>
             <Button
               disabled={doingRedirection || loadingResetPassword}
@@ -186,6 +187,7 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
           </div>
         </form>
       </Transition>
+
       {/* EXPIRED TOKEN STEP */}
       <AuthTokenExpired show={state.step === ResetPasswordStep.expired}>
         <div className="flex flex-col gap-3 mt-4">
@@ -199,7 +201,7 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
         </div>
       </AuthTokenExpired>
 
-      {/* RESET PASSWORD STEP (FINAL STEP) */}
+      {/* RESET PASSWORD STEP */}
       <Transition
         show={state.step === ResetPasswordStep.reset}
         enter="transition ease-out duration-300"
@@ -208,7 +210,7 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
         leave="transition ease-in duration-200"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
-        unmount={true}
+        unmount
       >
         <form
           className="relative mt-4 space-y-3"
@@ -216,32 +218,28 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
         >
           <AuthError error={state.error} />
 
-          <div>
-            <CondorInput
-              name="token"
-              id="token"
-              placeholder="Codigo de Restablecimiento"
-              type="text"
-              required
-              leftIcon={<BsSafe />}
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              disabled={doingRedirection || loadingResetPassword}
-            />
-          </div>
+          <CondorInput
+            name="token"
+            id="token"
+            placeholder="Código de Restablecimiento"
+            type="text"
+            required
+            leftIcon={<BsSafe />}
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            disabled={doingRedirection || loadingResetPassword}
+          />
 
-          <div>
-            <CondorPasswordInput
-              name="password"
-              id="password"
-              placeholder="Contraseña"
-              type="password"
-              required
-              password={password}
-              setPassword={(e) => setPassword(e)}
-              disabled={doingRedirection || loadingResetPassword}
-            />
-          </div>
+          <CondorPasswordInput
+            name="password"
+            id="password"
+            placeholder="Contraseña"
+            type="password"
+            required
+            password={password}
+            setPassword={(e) => setPassword(e)}
+            disabled={doingRedirection || loadingResetPassword}
+          />
 
           <AuthLoading loading={loadingResetPassword} />
           <div className="flex flex-col gap-3 mt-4">

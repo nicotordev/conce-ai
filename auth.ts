@@ -1,3 +1,4 @@
+
 import NextAuth from 'next-auth'
 import { nextAuthConfig } from './config/auth/index.auth'
 

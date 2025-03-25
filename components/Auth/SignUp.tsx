@@ -89,6 +89,7 @@ export default function SignUp({ state }: SignUpProps) {
     <form onSubmit={handleNextStep} className="relative mt-4">
       <AuthLoading loading={loadingSignUp} />
       <AuthError error={state?.error} />
+
       <Transition
         show={step === SignUpPageStep.email}
         enter="transition ease-out duration-300"
@@ -97,7 +98,7 @@ export default function SignUp({ state }: SignUpProps) {
         leave="transition ease-in duration-200"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
-        unmount={true}
+        unmount
       >
         <div>
           <CondorInput
@@ -113,6 +114,7 @@ export default function SignUp({ state }: SignUpProps) {
           />
         </div>
       </Transition>
+
       <Transition
         show={step === SignUpPageStep.password}
         enter="transition ease-out duration-300"
@@ -121,7 +123,7 @@ export default function SignUp({ state }: SignUpProps) {
         leave="transition ease-in duration-200"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
-        unmount={true}
+        unmount
       >
         <div className="flex flex-col gap-3">
           <CondorInput
@@ -145,19 +147,21 @@ export default function SignUp({ state }: SignUpProps) {
           />
         </div>
       </Transition>
+
       <div className="flex flex-col gap-3">
         <button
           disabled={doingRedirection || loadingSignUp}
           type="submit"
-          className="cursor-pointer justify-center text-center mt-4 w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 focus:outline-hidden focus:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none transition-all duration-150"
+          className="cursor-pointer justify-center text-center mt-4 w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none transition-all duration-150"
         >
           Continuar
         </button>
+
         {step === SignUpPageStep.password && (
           <button
             onClick={prevStep}
             type="button"
-            className="cursor-pointer justify-center text-center w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent text-primary-600 disabled:opacity-50 disabled:pointer-events-none hover:border-primary-600 hover:text-primary-600 focus:outline-hidden focus:border-primary-600 focus:text-primary-600 transition-all duration-150"
+            className="cursor-pointer justify-center text-center w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-primary-600 text-primary-600 dark:text-primary-400 dark:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/10 focus:outline-none focus:border-primary-600 dark:focus:border-primary-400 transition-colors duration-150"
           >
             Volver
           </button>

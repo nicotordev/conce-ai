@@ -1,6 +1,6 @@
 "use server";
 
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { encryptData, generateHumanReadableToken } from "@/lib/crypto";
 import logger from "@/lib/consola/logger";
 import authAdapterPrisma from "@/lib/prisma/authAdapter.prisma";
@@ -579,6 +579,10 @@ async function SignInGoogleAction(){
   return await signIn('google');
 }
 
+async function SignOutAction(){
+  return await signOut();
+}
+
 export {
   doSteppedRedirection,
   doSignIn,
@@ -587,5 +591,6 @@ export {
   doEmailResend,
   doSendResetPasswordEmail,
   doResetPasswordEmail,
-  SignInGoogleAction
+  SignInGoogleAction,
+  SignOutAction
 };

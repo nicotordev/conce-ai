@@ -1,19 +1,14 @@
-import { signOut } from "@/auth";
-import { redirect } from "next/navigation";
+"use client";
+import { SignOutAction } from "@/app/actions/auth.actions";
+import { useEffect } from "react";
 
-export default async function SignOut() {
-  let response = "";
-  try {
-    response = (await signOut({
-      redirect: false,
-      redirectTo: "/auth/sign-in",
-    })) as string;
-  } catch (err) {
-    console.error(err);
-    response = "/auth/sign-in";
-  } finally {
-    redirect(response);
-  }
+export default function SignOut() {
+  useEffect(() => {
+    async function signOutUser() {
+      await SignOutAction();
+    }
+    signOutUser();
+  }, []);
 
   return null;
 }

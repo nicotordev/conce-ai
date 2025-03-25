@@ -29,7 +29,7 @@ export default async function ResetPasswordPage({
   }
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full bg-white dark:bg-shark-950 text-black dark:text-white transition-colors">
       <div className="mx-auto max-w-xs mt-16">
         <ResetPassword
           state={{

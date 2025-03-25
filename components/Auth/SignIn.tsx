@@ -58,11 +58,12 @@ export default function SignIn({ state }: SignInProps) {
 
   return (
     <>
-      <h2 className="!font-paragraph font-bold text-dark-text-primary text-3xl text-center">
+      <h2 className="!font-paragraph font-bold text-[--color-dark-text-primary] dark:text-white text-3xl text-center">
         {step === SignInPageStep.email
           ? "Bienvenido"
           : "Introduce tu contraseña"}
       </h2>
+
       <form onSubmit={handleNextStep} className="relative mt-4">
         <AuthLoading loading={loadingSignUp} />
         <AuthError error={error} />
@@ -75,7 +76,7 @@ export default function SignIn({ state }: SignInProps) {
           leave="transition ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-          unmount={true}
+          unmount
         >
           <div>
             <CondorInput
@@ -91,6 +92,7 @@ export default function SignIn({ state }: SignInProps) {
             />
           </div>
         </Transition>
+
         <Transition
           show={step === SignInPageStep.password}
           enter="transition ease-out duration-300"
@@ -99,7 +101,7 @@ export default function SignIn({ state }: SignInProps) {
           leave="transition ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-          unmount={true}
+          unmount
         >
           <div className="space-y-5 pt-6">
             <CondorInput
@@ -116,8 +118,7 @@ export default function SignIn({ state }: SignInProps) {
               <div className="flex items-center justify-start">
                 <Link
                   href="/auth/reset-password"
-                  type="button"
-                  className="w-fit text-xs cursor-pointer justify-center text-center py-1.5 pr-4 inline-flex items-center gap-x-2 font-medium rounded-lg border border-transparent text-primary-600 hover:text-primary-900 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:text-primary-600 transition-all duration-300"
+                  className="w-fit text-xs justify-center text-center py-1.5 pr-4 inline-flex items-center gap-x-2 font-medium rounded-lg text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 transition-colors duration-300"
                 >
                   ¿Olvidaste tu contraseña?
                 </Link>
@@ -136,11 +137,12 @@ export default function SignIn({ state }: SignInProps) {
             </div>
           </div>
         </Transition>
+
         <div className="flex flex-col gap-3">
           <button
             disabled={doingRedirection || loadingSignUp}
             type="submit"
-            className="cursor-pointer justify-center text-center mt-4 w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 focus:outline-hidden focus:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none transition-all duration-150"
+            className="cursor-pointer justify-center text-center mt-4 w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none transition-colors duration-150"
           >
             Continuar
           </button>

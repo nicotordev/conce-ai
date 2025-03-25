@@ -1,4 +1,5 @@
 "use client";
+
 import { Fragment, useState } from "react";
 import clsx from "clsx";
 import { CgDanger } from "react-icons/cg";
@@ -22,52 +23,70 @@ export default function CondorInput({
   ...rest
 }: InputProps) {
   const [isOnFocus, setIsOnFocus] = useState(false);
+
   return (
     <div className="w-full">
       {label && (
         <Label
           htmlFor="hs-leading-icon"
-          className="block text-sm font-medium mb-2"
+          className="block text-sm font-medium mb-2 text-gray-800 dark:text-white"
         >
           {label}
         </Label>
       )}
+
       <div className="flex flex-col">
         <div className="relative">
           <Input
             {...rest}
-            className={twMerge(leftIcon && "pl-10", rest.className)}
+            className={twMerge(
+              "bg-white text-black dark:bg-shark-800 dark:text-white dark:border-shark-600",
+              leftIcon && "pl-10",
+              rest.className
+            )}
             onFocus={() => setIsOnFocus(true)}
             onBlur={() => setIsOnFocus(false)}
             disabled={rest.disabled}
           />
-          <div className="absolute inset-y-0 start-0 flex items-center z-20 ps-4">
-            <div
-              className={clsx("shrink-0 size-4 text-base", {
-                ["text-gray-400"]: !isOnFocus,
-                ["text-primary-500"]: isOnFocus,
-              })}
-            >
-              {leftIcon}
+
+          {/* Left Icon */}
+          {leftIcon && (
+            <div className="absolute inset-y-0 start-0 flex items-center z-20 ps-4">
+              <div
+                className={clsx("shrink-0 size-4 text-base", {
+                  "text-gray-400 dark:text-gray-500": !isOnFocus,
+                  "text-primary-500": isOnFocus,
+                })}
+              >
+                {leftIcon}
+              </div>
             </div>
-          </div>
-          <div className="absolute inset-y-0 end-4 flex items-center z-20 ps-4">
-            <div
-              className={clsx("shrink-0 size-4 text-base", {
-                ["text-gray-400"]: !isOnFocus,
-                ["text-primary-500"]: isOnFocus,
-              })}
-            >
-              {rightIcon}
+          )}
+
+          {/* Right Icon */}
+          {rightIcon && (
+            <div className="absolute inset-y-0 end-4 flex items-center z-20 ps-4">
+              <div
+                className={clsx("shrink-0 size-4 text-base", {
+                  "text-gray-400 dark:text-gray-500": !isOnFocus,
+                  "text-primary-500": isOnFocus,
+                })}
+              >
+                {rightIcon}
+              </div>
             </div>
-          </div>
+          )}
         </div>
+
+        {/* Error */}
         {error && (
-          <span className="mt-2 text-sm text-danger-500">
+          <span className="mt-2 text-sm text-red-500">
             <CgDanger className="inline-block size-4" />
           </span>
         )}
       </div>
+
+      {/* Validations */}
       <Transition
         show={validations.show}
         enter="transition ease-out duration-200"
@@ -78,20 +97,18 @@ export default function CondorInput({
         leaveTo="opacity-0"
         as={Fragment}
       >
-        <ul
-          className={clsx(
-            "flex flex-col bg-white p-4 rounded-lg mt-4 border border-solid border-gray-300"
-          )}
-        >
-          <li className="font-inter font-semibold text-dark-text-accent mb-2 text-sm">
+        <ul className="flex flex-col bg-white dark:bg-shark-800 p-4 rounded-lg mt-4 border border-solid border-gray-300 dark:border-shark-600">
+          <li className="font-inter font-semibold text-dark-text-accent dark:text-white mb-2 text-sm">
             {validations.title}
           </li>
           {validations.items.map((validation) => (
             <li
               key={`${validation.message}-${validation.isValid}`}
               className={clsx(
-                "text-xs tw-3 flex items-center gap-2",
-                validation.isValid ? "text-primary-600" : "text-gray-800"
+                "text-xs flex items-center gap-2",
+                validation.isValid
+                  ? "text-primary-600 dark:text-primary-400"
+                  : "text-gray-800 dark:text-gray-300"
               )}
             >
               <BsCheck />
