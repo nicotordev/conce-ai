@@ -8,6 +8,7 @@ import { Message, MessageSender, Model } from "@prisma/client";
 import { Session } from "next-auth";
 import { v4 } from "uuid";
 import { extractValidJSON } from "./json.utils";
+import { AppSuggestionAiItem } from "@/types/@google-generative-ai";
 
 async function getGoogleGenerativeAIModels(): Promise<Model[]> {
   const currentModels = await prisma.model.findMany();
@@ -149,20 +150,51 @@ async function getBasicAiConversationResponse(
 }
 
 async function getAppSuggestionsForBar() {
-  const prompt = aiConstants.promptsConstants.suggestions;
-  const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
-    model: aiConstants.DEFAULT_AI,
-  });
+  const appSuggestions = await prisma.appSuggestion.findMany({});
 
-  const result = await aiModel.generateContent(prompt);
-  const responseText = result.response.text();
+  const lastUpdatedDate =
+    appSuggestions.length > 0
+      ? appSuggestions.sort(
+          (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+        )[0].updatedAt
+      : new Date(0);
 
-  return extractValidJSON(responseText);
+  /**
+   *  Watch if the last updated date is older than 1 hour
+   */
+
+  if (
+    appSuggestions.length > 0 ||
+    lastUpdatedDate.getTime() > new Date().getTime() - 3600000
+  ) {
+    const prompt = aiConstants.promptsConstants.suggestions;
+    const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
+      model: aiConstants.DEFAULT_AI,
+    });
+
+    const result = await aiModel.generateContent(prompt);
+    const responseText = result.response.text();
+    const responseObject =
+      extractValidJSON<AppSuggestionAiItem[]>(responseText);
+
+    if (responseObject && Array.isArray(responseObject)) {
+      await prisma.appSuggestion.deleteMany();
+      const createdSuggestions = await prisma.appSuggestion.createManyAndReturn(
+        {
+          data: responseObject,
+        }
+      );
+
+      return createdSuggestions;
+    }
+  }
+
+  return appSuggestions;
 }
 
 export {
   getGoogleGenerativeAIModels,
   generateConversationTitle,
   getBasicAiConversationResponse,
-  getAppSuggestionsForBar
+  getAppSuggestionsForBar,
 };

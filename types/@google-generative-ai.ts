@@ -12,4 +12,9 @@ type GoogleModel = {
   maxTemperature?: number;
 };
 
-export type { GoogleModel };
+type AppSuggestionAiItem = {
+  icon: "pensando" | "alegre" | "misterioso" | "tecnologico" | "creativo";
+  label: string;
+} 
+
+export type { GoogleModel, AppSuggestionAiItem };
