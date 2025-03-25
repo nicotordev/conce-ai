@@ -12,10 +12,13 @@ export default function AppChatForm({
   isPending,
   isInitialChat,
   handleQuery,
+  suggestions,
 }: AppChatFormProps) {
   return (
     <div className="flex flex-col gap-8">
-      {isInitialChat && <AppSuggestionBar handleQuery={handleQuery} />}
+      {isInitialChat && (
+        <AppSuggestionBar handleQuery={handleQuery} suggestions={suggestions} />
+      )}
 
       <form
         className={clsx(

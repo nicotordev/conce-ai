@@ -179,6 +179,23 @@ model SearchResult {
   @@index([queryId])
 }
 
+model AppSuggestion {
+  id          String   @id @default(cuid())
+  label       String
+  icon        AppSuggestionIcon
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+enum AppSuggestionIcon {
+  PENSANDO
+  ALEGRE
+  MISTERIOSO
+  TECNOLOGICO
+  CREATIVO
+}
+
 enum MessageSender {
   USER
   ASSISTANT

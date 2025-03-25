@@ -1,4 +1,4 @@
-import { MessageSender } from "@prisma/client";
+import { AppSuggestionIcon, MessageSender } from "@prisma/client";
 import { Session } from "next-auth";
 import { ParamValue } from "next/dist/server/request/params";
 
@@ -9,6 +9,10 @@ type AppNewConversationState = {
 type AppNewConversationProps = {
   state: AppNewConversationState;
   session: Session | null;
+  suggestions: {
+    label: string;
+    icon: AppSuggestionIcon;
+  }[]
 };
 
 type AppConversationMessageType = {
@@ -74,6 +78,10 @@ type AppChatFormProps = {
   isPending: boolean;
   message: string;
   isInitialChat?: boolean;
+  suggestions: {
+    label: string;
+    icon: AppSuggestionIcon;
+  }[]
   setMessage: (message: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   handleQuery?: (message: string) => void;
@@ -81,6 +89,10 @@ type AppChatFormProps = {
 
 type AppSuggestionBarProps = {
   handleQuery?: (message: string) => void;
+  suggestions: {
+    label: string;
+    icon: AppSuggestionIcon;
+  }[]
 };
 
 type AppConversationItemNavEditConversationNameProps = {
@@ -88,7 +100,16 @@ type AppConversationItemNavEditConversationNameProps = {
   conversationId: string;
 };
 
-type AppNavUserConfigurationModalPropsTab = 'general' | 'notifications' | 'personalization' | 'audio' | 'data-control' | 'constructor-profile' | 'connected-apps' | 'security' | 'subscription';
+type AppNavUserConfigurationModalPropsTab =
+  | "general"
+  | "notifications"
+  | "personalization"
+  | "audio"
+  | "data-control"
+  | "constructor-profile"
+  | "connected-apps"
+  | "security"
+  | "subscription";
 
 type AppNavUserConfigurationModalProps = {
   isOpen: boolean;
@@ -111,5 +132,5 @@ export type {
   AppSuggestionBarProps,
   AppConversationItemNavEditConversationNameProps,
   AppNavUserConfigurationModalProps,
-  AppNavUserConfigurationModalPropsTab
+  AppNavUserConfigurationModalPropsTab,
 };

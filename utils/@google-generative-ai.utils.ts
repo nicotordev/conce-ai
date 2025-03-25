@@ -4,7 +4,12 @@ import googleGenerativeAI from "@/lib/@google-generative-ai";
 import { fetchGoogleViaBrightDataWithQueryEvaluation } from "@/lib/brightDataClient";
 import logger from "@/lib/consola/logger";
 import prisma from "@/lib/prisma/index.prisma";
-import { Message, MessageSender, Model } from "@prisma/client";
+import {
+  AppSuggestionIcon,
+  Message,
+  MessageSender,
+  Model,
+} from "@prisma/client";
 import { Session } from "next-auth";
 import { v4 } from "uuid";
 import { extractValidJSON } from "./json.utils";
@@ -181,7 +186,19 @@ async function getAppSuggestionsForBar() {
       await prisma.appSuggestion.deleteMany();
       const createdSuggestions = await prisma.appSuggestion.createManyAndReturn(
         {
-          data: responseObject,
+          data: responseObject.map((suggestion) => ({
+            label: suggestion.label,
+            icon:
+              suggestion.icon.toLowerCase() === "pensando"
+                ? AppSuggestionIcon.PENSANDO
+                : suggestion.icon.toLowerCase() === "alegre"
+                ? AppSuggestionIcon.ALEGRE
+                : suggestion.icon.toLowerCase() === "misterioso"
+                ? AppSuggestionIcon.MISTERIOSO
+                : suggestion.icon.toLowerCase() === "tecnologico"
+                ? AppSuggestionIcon.TECNOLOGICO
+                : AppSuggestionIcon.CREATIVO,
+          })),
         }
       );
 

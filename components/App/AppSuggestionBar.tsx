@@ -1,8 +1,10 @@
-import appConstants from "@/constants/app.constants";
 import { AppSuggestionBarProps } from "@/types/app";
 import { motion } from "framer-motion";
 
-const AppSuggestionBar = ({ handleQuery }: AppSuggestionBarProps) => {
+const AppSuggestionBar = ({
+  handleQuery,
+  suggestions,
+}: AppSuggestionBarProps) => {
   return (
     <div className="text-center max-w-4xl mx-auto mt-24">
       <motion.h2
@@ -15,7 +17,7 @@ const AppSuggestionBar = ({ handleQuery }: AppSuggestionBarProps) => {
       </motion.h2>
 
       <div className="flex flex-wrap justify-center gap-2">
-        {appConstants.suggestions.map((s, index) => (
+        {suggestions.map((s, index) => (
           <motion.button
             key={s.label}
             initial={{ opacity: 0, y: 10 }}
@@ -24,7 +26,7 @@ const AppSuggestionBar = ({ handleQuery }: AppSuggestionBarProps) => {
             className={`
               flex items-center gap-2 px-4 py-2 rounded-lg
               border border-transparent shadow-sm text-sm transition-colors
-              ${s.bg} hover:opacity-90
+              hover:opacity-90 bg-gray-500 hover:bg-gray-600 text-white
               dark:bg-shark-700 dark:hover:bg-shark-600 dark:text-white
               basis-[calc(25%-0.5rem)] cursor-pointer
             `}

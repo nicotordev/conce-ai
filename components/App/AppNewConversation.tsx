@@ -15,6 +15,7 @@ import AppChatFormSkeleton from "../Common/Skeletons/AppChatFormSkeleton";
 export default function AppNewConversation({
   state,
   session,
+  suggestions
 }: AppNewConversationProps) {
   const router = useRouter();
   const [message, setMessage] = useState("");
@@ -126,6 +127,7 @@ export default function AppNewConversation({
       handleQuery={(message) => {
         setMessage(message);
       }}
+      suggestions={suggestions}
     />
   );
 }
