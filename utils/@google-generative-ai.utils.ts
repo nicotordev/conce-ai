@@ -7,6 +7,7 @@ import prisma from "@/lib/prisma/index.prisma";
 import { Message, MessageSender, Model } from "@prisma/client";
 import { Session } from "next-auth";
 import { v4 } from "uuid";
+import { extractValidJSON } from "./json.utils";
 
 async function getGoogleGenerativeAIModels(): Promise<Model[]> {
   const currentModels = await prisma.model.findMany();
@@ -147,10 +148,21 @@ async function getBasicAiConversationResponse(
   return responseText;
 }
 
+async function getAppSuggestionsForBar() {
+  const prompt = aiConstants.promptsConstants.suggestions;
+  const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
+    model: aiConstants.DEFAULT_AI,
+  });
 
+  const result = await aiModel.generateContent(prompt);
+  const responseText = result.response.text();
+
+  return extractValidJSON(responseText);
+}
 
 export {
   getGoogleGenerativeAIModels,
   generateConversationTitle,
   getBasicAiConversationResponse,
+  getAppSuggestionsForBar
 };
