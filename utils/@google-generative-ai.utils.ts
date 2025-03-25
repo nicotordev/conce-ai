@@ -155,58 +155,62 @@ async function getBasicAiConversationResponse(
 }
 
 async function getAppSuggestionsForBar() {
-  const appSuggestions = await prisma.appSuggestion.findMany({});
+  try {
+    const appSuggestions = await prisma.appSuggestion.findMany({});
 
-  const lastUpdatedDate =
-    appSuggestions.length > 0
-      ? appSuggestions.sort(
-          (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
-        )[0].updatedAt
-      : new Date(0);
+    const lastUpdatedDate =
+      appSuggestions.length > 0
+        ? appSuggestions.sort(
+            (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+          )[0].updatedAt
+        : new Date(0);
 
-  /**
-   *  Watch if the last updated date is older than 1 hour
-   */
+    /**
+     *  Watch if the last updated date is older than 1 hour
+     */
 
-  if (
-    appSuggestions.length > 0 ||
-    lastUpdatedDate.getTime() > new Date().getTime() - 3600000
-  ) {
-    const prompt = aiConstants.promptsConstants.suggestions;
-    const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
-      model: aiConstants.DEFAULT_AI,
-    });
+    if (
+      appSuggestions.length > 0 ||
+      lastUpdatedDate.getTime() > new Date().getTime() - 3600000
+    ) {
+      const prompt = aiConstants.promptsConstants.suggestions;
+      const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
+        model: aiConstants.DEFAULT_AI,
+      });
 
-    const result = await aiModel.generateContent(prompt);
-    const responseText = result.response.text();
-    const responseObject =
-      extractValidJSON<AppSuggestionAiItem[]>(responseText);
+      const result = await aiModel.generateContent(prompt);
+      const responseText = result.response.text();
+      const responseObject =
+        extractValidJSON<AppSuggestionAiItem[]>(responseText);
 
-    if (responseObject && Array.isArray(responseObject)) {
-      await prisma.appSuggestion.deleteMany();
-      const createdSuggestions = await prisma.appSuggestion.createManyAndReturn(
-        {
-          data: responseObject.map((suggestion) => ({
-            label: suggestion.label,
-            icon:
-              suggestion.icon.toLowerCase() === "pensando"
-                ? AppSuggestionIcon.PENSANDO
-                : suggestion.icon.toLowerCase() === "alegre"
-                ? AppSuggestionIcon.ALEGRE
-                : suggestion.icon.toLowerCase() === "misterioso"
-                ? AppSuggestionIcon.MISTERIOSO
-                : suggestion.icon.toLowerCase() === "tecnologico"
-                ? AppSuggestionIcon.TECNOLOGICO
-                : AppSuggestionIcon.CREATIVO,
-          })),
-        }
-      );
+      if (responseObject && Array.isArray(responseObject)) {
+        await prisma.appSuggestion.deleteMany();
+        const createdSuggestions =
+          await prisma.appSuggestion.createManyAndReturn({
+            data: responseObject.map((suggestion) => ({
+              label: suggestion.label,
+              icon:
+                suggestion.icon.toLowerCase() === "pensando"
+                  ? AppSuggestionIcon.PENSANDO
+                  : suggestion.icon.toLowerCase() === "alegre"
+                  ? AppSuggestionIcon.ALEGRE
+                  : suggestion.icon.toLowerCase() === "misterioso"
+                  ? AppSuggestionIcon.MISTERIOSO
+                  : suggestion.icon.toLowerCase() === "tecnologico"
+                  ? AppSuggestionIcon.TECNOLOGICO
+                  : AppSuggestionIcon.CREATIVO,
+            })),
+          });
 
-      return createdSuggestions;
+        return createdSuggestions;
+      }
     }
-  }
 
-  return appSuggestions;
+    return appSuggestions;
+  } catch (err) {
+    logger.error(`[ERROR-GET-APP-SUGGESTIONS-FOR-BAR]`, err);
+    return [];
+  }
 }
 
 export {

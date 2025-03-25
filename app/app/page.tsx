@@ -1,17 +1,15 @@
 import { auth } from "@/auth";
 import AppNewConversation from "@/components/App/AppNewConversation";
 import { decryptData } from "@/lib/crypto";
-import prisma from "@/lib/prisma/index.prisma";
 import { AppNewConversationState } from "@/types/app";
 import { PagePropsCommon } from "@/types/pages";
+import { getAppSuggestionsForBar } from "@/utils/@google-generative-ai.utils";
 
 export default async function AppPage({ searchParams }: PagePropsCommon) {
   const [_searchParams, session, suggestions] = await Promise.all([
     searchParams,
     auth(),
-    prisma.appSuggestion.findMany({
-      take: 4,
-    }),
+    getAppSuggestionsForBar(),
   ]);
   const state: AppNewConversationState | null =
     typeof _searchParams.state === "string"
