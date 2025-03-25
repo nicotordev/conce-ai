@@ -32,6 +32,9 @@ declare global {
       BRIGHT_DATA_TOKEN: string;
       CLOUDFARE_AI_WORKER_TOKEN: string;
       ADMIN_EMAIL: string;
+      MAIN_PROMPT: string;
+      VERIFY_TITLE_NAME_PROMPT: string;
+      SUGGESTIONS_PROMPT: string;
     }
   }
 

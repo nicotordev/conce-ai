@@ -147,6 +147,11 @@ async function getBasicAiConversationResponse(
   return responseText;
 }
 
+
+async function getAppSuggestionsForBar(){
+  const prompt = aiConstants.promptsConstants.
+}
+
 export {
   getGoogleGenerativeAIModels,
   generateConversationTitle,

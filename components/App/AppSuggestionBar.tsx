@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const AppSuggestionBar = ({ handleQuery }: AppSuggestionBarProps) => {
   return (
-    <div className="text-center max-w-4xl mx-auto">
+    <div className="text-center max-w-4xl mx-auto mt-24">
       <motion.h2
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
