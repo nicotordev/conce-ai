@@ -7,11 +7,11 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { BsThreeDots, BsBrush, BsTrash, BsShare } from "react-icons/bs";
-import CondorDropdown from "@/components/@Condor-ui/CondorDropdown";
+import ConceDropdown from "@/components/@ConceAI/ConceAIDropdown";
 import { useConversationsMutation } from "@/useQuery/mutations/users.mutations";
-import { useCondorAIModal } from "@/providers/CondorAIModalProvider";
+import { useConceAIModal } from "@/providers/ConceAIModalProvider";
 import toast from "react-hot-toast";
-import CondorInput from "@/components/Common/Forms/CondorInput";
+import ConceAIInput from "@/components/Common/Forms/ConceAIInput";
 import { Transition } from "@headlessui/react";
 
 export default function AppConversationItemNav({
@@ -19,12 +19,12 @@ export default function AppConversationItemNav({
   id,
 }: AppConversationItemNavProps) {
   const [buttonOnHover, setButtonOnHover] = useState(false);
-  const condorAIModal = useCondorAIModal();
+  const conceAIModal = useConceAIModal();
   const router = useRouter();
   const { deleteConversation } = useConversationsMutation();
 
   async function handleDeleteConversation() {
-    condorAIModal.openModal({
+    conceAIModal.openModal({
       title: "Eliminar Conversación",
       description: `¿Estás seguro que deseas eliminar la conversación "${conversation.title}"?`,
       size: "sm",
@@ -33,7 +33,7 @@ export default function AppConversationItemNav({
         <>
           <Button
             onClick={async () => {
-              condorAIModal.closeModal();
+              conceAIModal.closeModal();
 
               const toastId = toast.loading("Eliminando conversación...");
               try {
@@ -51,7 +51,7 @@ export default function AppConversationItemNav({
           >
             Confirmar
           </Button>
-          <Button variant="ghost" onClick={condorAIModal.closeModal}>
+          <Button variant="ghost" onClick={conceAIModal.closeModal}>
             Cancelar
           </Button>
         </>
@@ -60,7 +60,7 @@ export default function AppConversationItemNav({
   }
 
   async function handleEditConversationName() {
-    condorAIModal.openModal({
+    conceAIModal.openModal({
       title: "Editar Nombre de la Conversación",
       description: `Ingresa el nuevo nombre para la conversación "${conversation.title}"`,
       size: "sm",
@@ -75,13 +75,13 @@ export default function AppConversationItemNav({
   }
 
   async function handleShareConversation() {
-    condorAIModal.openModal({
+    conceAIModal.openModal({
       title: "Compartir Conversación",
       description: `Comparte el enlace de la conversación "${conversation.title}"`,
       size: "sm",
       type: "info",
       content: (
-        <CondorInput
+        <ConceAIInput
           label="Enlace de la Conversación"
           value={`${window.location.origin}/app/${conversation.id}`}
           readOnly
@@ -95,12 +95,12 @@ export default function AppConversationItemNav({
                 `${window.location.origin}/app/${conversation.id}`
               );
               toast.success("Enlace copiado al portapapeles");
-              condorAIModal.closeModal();
+              conceAIModal.closeModal();
             }}
           >
             Confirmar
           </Button>
-          <Button onClick={condorAIModal.closeModal}>Cerrar</Button>
+          <Button onClick={conceAIModal.closeModal}>Cerrar</Button>
         </>
       ),
     });
@@ -128,7 +128,7 @@ export default function AppConversationItemNav({
       >
         <span className="font-medium max-w-4/5">{conversation.title}</span>
       </Button>
-      <CondorDropdown
+      <ConceDropdown
         variant="transparent-white"
         button={
           <div>
@@ -177,7 +177,7 @@ function AppConversationItemNavEditConversationName({
   conversationName,
   conversationId,
 }: AppConversationItemNavEditConversationNameProps) {
-  const condorAIModal = useCondorAIModal();
+  const conceAIModal = useConceAIModal();
 
   const { updateConversation } = useConversationsMutation();
 
@@ -186,7 +186,7 @@ function AppConversationItemNavEditConversationName({
   return (
     <>
       <div className="flex items-center justify-between w-full">
-        <CondorInput
+        <ConceAIInput
           label="Nuevo Nombre"
           placeholder="Nuevo Nombre"
           value={name}
@@ -198,7 +198,7 @@ function AppConversationItemNavEditConversationName({
       </div>
       <Button
         onClick={async () => {
-          condorAIModal.closeModal();
+          conceAIModal.closeModal();
           const toastId = toast.loading(
             "Actualizando nombre de la conversación..."
           );
@@ -226,7 +226,7 @@ function AppConversationItemNavEditConversationName({
       >
         Confirmar
       </Button>
-      <Button variant="ghost" onClick={condorAIModal.closeModal}>
+      <Button variant="ghost" onClick={conceAIModal.closeModal}>
         Cancelar
       </Button>
     </>

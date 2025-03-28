@@ -55,7 +55,7 @@ model User {
   Role          Role?          @relation(fields: [roleId], references: [id])
   roleId        String?
   Conversation  Conversation[]
-  Files         CondorAIFile[]
+  Files         ConceAIFile[]
   SearchQuery   SearchQuery[]
 }
 
@@ -116,7 +116,7 @@ model Message {
   updatedAt      DateTime      @updatedAt
 }
 
-model CondorAIFile {
+model ConceAIFile {
   id                   String @id @default(cuid())
   name                 String @unique
   src                  String @unique
@@ -180,13 +180,12 @@ model SearchResult {
 }
 
 model AppSuggestion {
-  id          String   @id @default(cuid())
-  label       String
-  icon        AppSuggestionIcon
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String            @id @default(cuid())
+  label     String
+  icon      AppSuggestionIcon
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 }
-
 
 enum AppSuggestionIcon {
   PENSANDO

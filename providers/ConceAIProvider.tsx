@@ -1,24 +1,24 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { CondorAIContextType, CondorAIProviderProps } from "@/types/providers";
-import { useModelsQuery } from "@/useQuery/queries/condor-ai.queries";
+import { ConceAIContextType, ConceAIProviderProps } from "@/types/providers";
+import { useModelsQuery } from "@/useQuery/queries/conce-ai.queries";
 import { AppNavModel } from "@/types/layout";
 import { getCookie, setCookie } from "cookies-next/client";
 import cookiesConstants from "@/constants/cookies.constants";
 // Crea el contexto
-const CondorAIContext = createContext<CondorAIContextType | null>(null);
+const ConceAIContext = createContext<ConceAIContextType | null>(null);
 
 // Hook personalizado para usar el contexto en los componentes hijos
-export const useCondorAI = () => {
-  const context = useContext(CondorAIContext);
+export const useConceAI = () => {
+  const context = useContext(ConceAIContext);
   if (!context) {
-    throw new Error("useCondorAI debe ser usado dentro de un CondorAIProvider");
+    throw new Error("useConceAI debe ser usado dentro de un ConceAIProvider");
   }
   return context;
 };
 
-export const CondorAIProvider = ({ children }: CondorAIProviderProps) => {
+export const ConceAIProvider = ({ children }: ConceAIProviderProps) => {
   const modelsQuery = useModelsQuery();
   const [selectedModel, setSelectedModel] = useState<AppNavModel | null>(null);
   const [loadingModels, setLoadingModels] = useState(false);
@@ -57,7 +57,7 @@ export const CondorAIProvider = ({ children }: CondorAIProviderProps) => {
   }, [modelsQuery.isLoading]);
 
   return (
-    <CondorAIContext.Provider
+    <ConceAIContext.Provider
       value={{
         models: {
           models: modelsQuery.data || [],
@@ -68,6 +68,6 @@ export const CondorAIProvider = ({ children }: CondorAIProviderProps) => {
       }}
     >
       {children}
-    </CondorAIContext.Provider>
+    </ConceAIContext.Provider>
   );
 };

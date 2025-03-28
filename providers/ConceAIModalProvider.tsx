@@ -116,7 +116,7 @@ const TypeIcon = ({ type }: { type: ModalType }) => {
 };
 
 // Modal Provider Component
-export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
+export const ConceAIModalProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -185,11 +185,11 @@ export const CondorAIModalProvider: React.FC<{ children: ReactNode }> = ({
 };
 
 // Hook for using the modal
-export const useCondorAIModal = () => {
+export const useConceAIModal = () => {
   const context = useContext(ModalContext);
   if (context === undefined) {
     throw new Error(
-      "useCondorAIModal must be used within a CondorAIModalProvider"
+      "useConceAIModal must be used within a ConceAIModalProvider"
     );
   }
   return context;

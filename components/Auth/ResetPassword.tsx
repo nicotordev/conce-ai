@@ -2,7 +2,7 @@
 import { ResetPasswordProps } from "@/types/auth";
 import { ResetPasswordStep } from "@/types/auth.enum";
 import { Transition } from "@headlessui/react";
-import CondorInput from "../Common/Forms/CondorInput";
+import ConceAIInput from "../Common/Forms/ConceAIInput";
 import { BsEnvelope, BsSafe } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
@@ -13,7 +13,7 @@ import {
   doSendResetPasswordEmail,
   doSteppedRedirection,
 } from "@/app/actions/auth.actions";
-import CondorPasswordInput from "../Common/Forms/CondorPasswordInput";
+import ConceAIPasswordInput from "../Common/Forms/ConceAIPasswordInput";
 import toast from "react-hot-toast";
 import AuthTokenExpired from "./AuthTokenExpired";
 import Link from "next/link";
@@ -117,7 +117,7 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
       >
         <form className="relative mt-4" onSubmit={handleSendResetPasswordEmail}>
           <AuthError error={state.error} />
-          <CondorInput
+          <ConceAIInput
             name="email"
             id="email"
             placeholder="Dirección de correo electrónico"
@@ -218,7 +218,7 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
         >
           <AuthError error={state.error} />
 
-          <CondorInput
+          <ConceAIInput
             name="token"
             id="token"
             placeholder="Código de Restablecimiento"
@@ -230,7 +230,7 @@ export default function ResetPassword({ state }: ResetPasswordProps) {
             disabled={doingRedirection || loadingResetPassword}
           />
 
-          <CondorPasswordInput
+          <ConceAIPasswordInput
             name="password"
             id="password"
             placeholder="Contraseña"

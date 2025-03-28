@@ -33,8 +33,8 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "Condor AI",
-  description: "Condor AI",
+  title: "Conce.ia",
+  description: "Conce.ia",
 };
 
 export default function RootLayout({

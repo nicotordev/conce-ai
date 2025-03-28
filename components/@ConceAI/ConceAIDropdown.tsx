@@ -5,13 +5,13 @@ import {
   DropdownMenuItem,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
-import { CondorDropdownProps } from "@/types/@condor-ui";
+import { ConceAIDropdownProps } from "@/types/@conce-ai";
 
-export default function CondorDropdown({
+export default function ConceAIDropdown({
   variant,
   items,
   button,
-}: CondorDropdownProps) {
+}: ConceAIDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{button}</DropdownMenuTrigger>
@@ -24,12 +24,22 @@ export default function CondorDropdown({
         <DropdownMenuGroup>
           {items.map((item, index) =>
             item.type === "danger" ? (
-              <DropdownMenuItem variant="white" key={index} onClick={item.action} className="cursor-pointer">
+              <DropdownMenuItem
+                variant="white"
+                key={index}
+                onClick={item.action}
+                className="cursor-pointer"
+              >
                 <item.icon className="mr-2 h-4 w-4 text-red-500 fill-red-500" />
                 <span className="text-red-500">{item.text}</span>
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem key={index} variant={variant} onClick={item.action} className="cursor-pointer">
+              <DropdownMenuItem
+                key={index}
+                variant={variant}
+                onClick={item.action}
+                className="cursor-pointer"
+              >
                 <item.icon className="mr-2 h-4 w-4" />
                 <span>{item.text}</span>
               </DropdownMenuItem>

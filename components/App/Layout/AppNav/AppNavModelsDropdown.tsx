@@ -10,11 +10,11 @@ import { Button } from "@/components/ui/button";
 import { BsChevronDown, BsFillInfoCircleFill } from "react-icons/bs";
 import Link from "next/link";
 import { FaCheckCircle } from "react-icons/fa";
-import { useCondorAI } from "@/providers/CondorAIProvider";
+import { useConceAI } from "@/providers/ConceAIProvider";
 import AppNavModelsDropdownSkeleton from "@/components/Common/Skeletons/AppNavModelsDropdownSkeleton";
 
 export default function AppNavModelsDropdown() {
-  const { models: modelsContext } = useCondorAI();
+  const { models: modelsContext } = useConceAI();
   const { models, setSelectedModel, selectedModel, isLoading } = modelsContext;
 
   if (isLoading) {

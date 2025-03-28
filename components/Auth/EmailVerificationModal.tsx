@@ -11,7 +11,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "../ui/button";
 import { BsMailbox } from "react-icons/bs";
-import CondorInput from "../Common/Forms/CondorInput";
+import ConceAIInput from "../Common/Forms/ConceAIInput";
 import AuthLoading from "./AuthLoading";
 
 export function EmailVerificationModal({
@@ -93,7 +93,7 @@ export function EmailVerificationModal({
 
               <div className="mt-6">
                 <div className="rounded-md border border-[--color-silver-200] focus-within:ring-2 focus-within:ring-[--color-primary-500] focus-within:border-transparent">
-                  <CondorInput
+                  <ConceAIInput
                     type="email"
                     required
                     value={email}

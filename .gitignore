@@ -42,6 +42,6 @@ next-env.d.ts
 
 .vscode
 
-public/condor-ai
+public/conce-ai
 # Sentry Config File
 .env.sentry-build-plugin

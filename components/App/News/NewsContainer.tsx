@@ -1,7 +1,7 @@
 "use client";
 
 import { NewsContainerProps } from "@/types/news";
-import { useNewsQuery } from "@/useQuery/queries/condor-ai.queries";
+import { useNewsQuery } from "@/useQuery/queries/conce-ai.queries";
 import Image from "next/image";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -16,7 +16,7 @@ export default function NewsContainer({ ssrNews }: NewsContainerProps) {
     return (
       <section className="max-w-5xl mx-auto px-4 py-10 space-y-6">
         <h2 className="text-3xl font-bold text-primary mb-6 border-b border-muted pb-2">
-          Últimas noticias de CondorAI
+          Últimas noticias de ConceAI
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -46,7 +46,7 @@ export default function NewsContainer({ ssrNews }: NewsContainerProps) {
   return (
     <section className="max-w-5xl mx-auto px-4 py-10 space-y-6">
       <h2 className="text-3xl font-bold text-primary mb-6 border-b border-muted pb-2">
-        Últimas noticias de CondorAI
+        Últimas noticias de ConceAI
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

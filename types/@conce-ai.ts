@@ -1,6 +1,6 @@
 import { IconType } from "react-icons/lib";
 
-type CondorDropdownProps = {
+type ConceAIDropdownProps = {
   button: React.ReactNode;
   items: {
     icon: IconType;
@@ -11,4 +11,4 @@ type CondorDropdownProps = {
   variant: "default" | "destructive" | "secondary" | "white" | "transparent-white" | undefined;
 };
 
-export type { CondorDropdownProps };
+export type { ConceAIDropdownProps };

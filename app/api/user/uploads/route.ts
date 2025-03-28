@@ -30,9 +30,9 @@ const userUploadHandler = async (req: AuthenticatedNextRequest) => {
     );
 
     await Promise.allSettled([
-      prisma.condorAIFile.createMany({
+      prisma.conceAIFile.createMany({
         data: filesUploaded.map((file) => {
-          const data: Prisma.CondorAIFileCreateManyInput = {
+          const data: Prisma.ConceAIFileCreateManyInput = {
             name: file.name,
             src: file.src,
             previewSrc: file.preview,
@@ -45,7 +45,7 @@ const userUploadHandler = async (req: AuthenticatedNextRequest) => {
           return data;
         }),
       }),
-      prisma.condorAIFile.deleteMany({
+      prisma.conceAIFile.deleteMany({
         where: {
           createdAt: {
             lt: thirtyMinutesAgoDate,
@@ -79,12 +79,12 @@ const userUploadDeleteHandler = async (req: AuthenticatedNextRequest) => {
 
     await Promise.allSettled([
       nicodropzone.deleteFile(src, preview),
-      prisma.condorAIFile.deleteMany({
+      prisma.conceAIFile.deleteMany({
         where: {
           src,
         },
       }),
-      prisma.condorAIFile.deleteMany({
+      prisma.conceAIFile.deleteMany({
         where: {
           createdAt: {
             lt: thirtyMinutesAgoDate,

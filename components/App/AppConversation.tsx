@@ -4,7 +4,7 @@ import { useStreamConversation } from "@/useQuery/mutations/users.mutations";
 import { useConversationQuery } from "@/useQuery/queries/users.queries";
 import { MessageSender } from "@prisma/client";
 import { useEffect, useRef, useState } from "react";
-import { useCondorAI } from "@/providers/CondorAIProvider";
+import { useConceAI } from "@/providers/ConceAIProvider";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { v4 } from "uuid";
 import AppMessage from "./AppMessage";
@@ -19,7 +19,7 @@ export default function AppConversation({
   const pathname = usePathname();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
-  const { models } = useCondorAI();
+  const { models } = useConceAI();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<AppConversationMessageType[]>([]);
   const currentQueryExecuted = useRef(false);

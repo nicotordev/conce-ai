@@ -1,8 +1,8 @@
-class CondorAIError extends Error {
+class ConceAIError extends Error {
   constructor(message: string) {
     super();
     this.message = message;
   }
 }
 
-export { CondorAIError };
+export { ConceAIError };

@@ -1,7 +1,7 @@
 import { NicoDropzoneFile } from "@nicotordev/nicodropzone/dist/types";
 import { IconType } from "react-icons/lib";
 
-type CondorAIFile = NicoDropzoneFile & {
+type ConceAIFile = NicoDropzoneFile & {
   name: string;
   src: string;
   type: string;
@@ -12,4 +12,4 @@ type CondorAIFile = NicoDropzoneFile & {
   status: "uploading" | "uploaded" | "error";
 };
 
-export type { CondorAIFile };
+export type { ConceAIFile };

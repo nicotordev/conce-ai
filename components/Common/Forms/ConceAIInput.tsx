@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { twMerge } from "tailwind-merge";
 import { Label } from "@/components/ui/label";
 
-export default function CondorInput({
+export default function ConceAIInput({
   rightIcon,
   leftIcon,
   label,

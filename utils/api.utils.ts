@@ -194,17 +194,17 @@ const withApikeyAuthRequired = (handler: CustomApiKeyHandler) => {
     req: NextRequest,
     params: { params: Promise<{ id: string }> }
   ) => {
-    const apiKey = req.headers.get("x-condor-ai-key");
+    const apiKey = req.headers.get("x-conce-ai-key");
 
     if (!apiKey) {
       return ApiResponse.unauthorized();
     }
 
-    if (!process.env.CONDOR_AI_API_KEY) {
+    if (!process.env.CONCE_AI_API_KEY) {
       return ApiResponse.internalServerError("API Key not found");
     }
 
-    if (apiKey !== process.env.CONDOR_AI_API_KEY) {
+    if (apiKey !== process.env.CONCE_AI_API_KEY) {
       return ApiResponse.unauthorized();
     }
 

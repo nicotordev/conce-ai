@@ -13,8 +13,8 @@ const allRoutes = {
     index: "/admin",
   },
   api: {
-    condorAi: {
-      userModels: "/api/condor-ai/models",
+    conceAI: {
+      userModels: "/api/conce-ai/models",
     },
     crypto: {
       decrypt: "/api/crypto/decrypt",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useCondorAI } from "@/providers/CondorAIProvider";
+import { useConceAI } from "@/providers/ConceAIProvider";
 import { AppNewConversationProps } from "@/types/app";
 import toast from "react-hot-toast";
 import AppConversation from "./AppConversation";
@@ -19,7 +19,7 @@ export default function AppNewConversation({
 }: AppNewConversationProps) {
   const router = useRouter();
   const [message, setMessage] = useState("");
-  const { models } = useCondorAI();
+  const { models } = useConceAI();
   const [showConversation, setShowConversation] = useState(false);
   const toastMessageFired = useRef(false);
   const [loading, setLoading] = useState(false);

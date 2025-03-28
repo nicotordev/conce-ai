@@ -3,13 +3,10 @@ import { AppAsistantMessageProps } from "@/types/app";
 import MarkdownRenderer from "../Common/MarkdownRenderer";
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import Image from "next/image";
-import { condorPng } from "@/assets";
 import { useEffect, useRef } from "react";
 
 export default function AppAsistantMessage({
   isLastIndex,
-  isPending,
   content,
 }: AppAsistantMessageProps) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -34,15 +31,6 @@ export default function AppAsistantMessage({
     "bg-white dark:bg-shark-800 rounded-lg shadow-sm border border-gray-200 dark:border-shark-700"
   );
 
-  const iconClasses = clsx(
-    "object-contain object-center",
-    isPending ? "animate-spin" : ""
-  );
-
-  const condorBubbleClasses = clsx(
-    "absolute -bottom-10 left-6 z-50 p-1 rounded-full shadow-sm aspect-square flex items-center justify-center",
-    "bg-white border border-silver-300 dark:bg-shark-700 dark:border-shark-600"
-  );
 
   return (
     <div className="relative my-4" ref={contentRef}>
@@ -52,9 +40,6 @@ export default function AppAsistantMessage({
             <div className={contentClasses}>
               <MarkdownRenderer content={content} />
             </div>
-          </div>
-          <div className={condorBubbleClasses}>
-            <Image src={condorPng} alt="Condor" width={35} height={35} className={iconClasses} />
           </div>
         </>
       ) : (
@@ -69,11 +54,6 @@ export default function AppAsistantMessage({
               <MarkdownRenderer content={content} />
             </div>
           </motion.div>
-          {isLastIndex && (
-            <div className={condorBubbleClasses}>
-              <Image src={condorPng} alt="Condor" width={35} height={35} className={iconClasses} />
-            </div>
-          )}
         </>
       )}
     </div>

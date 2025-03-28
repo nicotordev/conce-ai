@@ -11,14 +11,14 @@ import React, {
   useState,
 } from "react";
 import {
-  CondorAIProviderProps,
+  ConceAIProviderProps,
   UploadFilesContextType,
 } from "@/types/providers";
-import condorAi from "@/lib/condor-ai";
+import conceAi from "@/lib/conce-ai";
 import { Transition } from "@headlessui/react";
 import Image from "next/image";
 import { uploadFileSvg } from "@/assets";
-import { CondorAIFile } from "@/types/files";
+import { ConceAIFile } from "@/types/files";
 import { getFileIcon } from "@/constants/files.constants";
 // Crea el contexto
 const UploadFilesContext = createContext<UploadFilesContextType | null>(null);
@@ -34,8 +34,8 @@ export const useUploadFiles = () => {
   return context;
 };
 
-export const UploadFilesProvider = ({ children }: CondorAIProviderProps) => {
-  const [files, setFiles] = useState<CondorAIFile[]>([]);
+export const UploadFilesProvider = ({ children }: ConceAIProviderProps) => {
+  const [files, setFiles] = useState<ConceAIFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
   const dragCounter = useRef(0);
@@ -98,7 +98,7 @@ export const UploadFilesProvider = ({ children }: CondorAIProviderProps) => {
       });
       return prevFilesCopy;
     });
-    const newFile = await condorAi.user.uploadFile(file);
+    const newFile = await conceAi.user.uploadFile(file);
     if (newFile) {
       setFiles((prevFiles) => {
         const prevFilesCopy = [...prevFiles];
@@ -129,12 +129,12 @@ export const UploadFilesProvider = ({ children }: CondorAIProviderProps) => {
     }
   };
 
-  const handleFileDeletion = async (file: CondorAIFile) => {
+  const handleFileDeletion = async (file: ConceAIFile) => {
     setFiles((prevFiles) => {
       const prevFilesCopy = prevFiles.filter((prevFile) => prevFile !== file);
       return prevFilesCopy;
     });
-    await condorAi.user.deleteFile(file);
+    await conceAi.user.deleteFile(file);
   };
 
   useEffect(() => {

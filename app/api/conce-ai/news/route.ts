@@ -8,7 +8,7 @@ import { Prisma } from "@prisma/client";
 import { isValid } from "date-fns";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getCondorAInewsHandler: CustomApiHandler = async (req, res) => {
+const getConceAInewsHandler: CustomApiHandler = async (req, res) => {
   try {
     const news = await prisma.news.findMany({
       orderBy: { createdAt: "desc" },
@@ -116,11 +116,11 @@ const getCondorAInewsHandler: CustomApiHandler = async (req, res) => {
     return ApiResponse.internalServerError(
       undefined,
       err,
-      "[CONDOR-AI-NEWS-HANDLER]"
+      "[CONCE-AI-NEWS-HANDLER]"
     );
   }
 };
 
-const GET = withApiAuthRequired(getCondorAInewsHandler);
+const GET = withApiAuthRequired(getConceAInewsHandler);
 
 export { GET };

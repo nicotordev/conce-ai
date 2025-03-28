@@ -10,7 +10,7 @@ export default function AuthLayout({
       <header className="w-full">
         <div className="p-4">
           <h1 className="!font-bold !font-lato text-[--color-dark-text-accent] dark:text-white text-xl">
-            CondorAI
+            Conce.ai
           </h1>
         </div>
       </header>

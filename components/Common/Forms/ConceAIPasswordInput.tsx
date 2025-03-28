@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import CondorInput from "./CondorInput";
+import ConceAIInput from "./ConceAIInput";
 import { BsEye, BsEyeSlash, BsLock } from "react-icons/bs";
 import clsx from "clsx";
 import { PasswordInputProps } from "@/types/common";
 
-export default function CondorPasswordInput({
+export default function ConceAIPasswordInput({
   password,
   setPassword,
   ...rest
@@ -41,7 +41,7 @@ export default function CondorPasswordInput({
   }, [password]);
 
   return (
-    <CondorInput
+    <ConceAIInput
       {...rest}
       type={showPassword ? "text" : "password"}
       leftIcon={<BsLock />}

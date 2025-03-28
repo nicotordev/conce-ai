@@ -3,7 +3,7 @@ import { EmailVerificationProps } from "@/types/auth";
 import { EmailVerificationStep } from "@/types/auth.enum";
 import { Transition } from "@headlessui/react";
 import { useEffect, useState } from "react";
-import CondorInput from "../Common/Forms/CondorInput";
+import ConceAIInput from "../Common/Forms/ConceAIInput";
 import { BsLock } from "react-icons/bs";
 import {
   doEmailVerification,
@@ -61,7 +61,7 @@ export default function EmailVerification({
         <div>
           <form onSubmit={handleNextStep} className="relative mt-4">
             <div>
-              <CondorInput
+              <ConceAIInput
                 name="code"
                 id="code"
                 placeholder="Código de verificación"

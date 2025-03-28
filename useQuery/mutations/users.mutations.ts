@@ -1,5 +1,5 @@
 import { decryptDataAction } from "@/app/actions/crypto.actions";
-import condorAi from "@/lib/condor-ai";
+import conceAi from "@/lib/conce-ai";
 import { formatMarkdown } from "@/utils/markdown.utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { marked } from "marked";
@@ -9,7 +9,7 @@ function useConversationsMutation() {
   const createConversation = useMutation({
     mutationKey: ["user/conversations/create"],
     mutationFn: (data: { message: string; modelId: string }) =>
-      condorAi.user.createConversation(data.message, data.modelId),
+      conceAi.user.createConversation(data.message, data.modelId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["users/get-conversations"],
@@ -19,7 +19,7 @@ function useConversationsMutation() {
 
   const deleteConversation = useMutation({
     mutationKey: ["user/conversations/delete"],
-    mutationFn: (id: string) => condorAi.user.deleteConversation(id),
+    mutationFn: (id: string) => conceAi.user.deleteConversation(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["users/get-conversations"],
@@ -30,7 +30,7 @@ function useConversationsMutation() {
   const updateConversation = useMutation({
     mutationKey: ["user/conversations/update"],
     mutationFn: (data: { id: string; title: string }) =>
-      condorAi.user.updateConversation(data.id, data.title),
+      conceAi.user.updateConversation(data.id, data.title),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["users/get-conversations"],

@@ -1,7 +1,7 @@
 import NewsContainer from "@/components/App/News/NewsContainer";
 import prisma from "@/lib/prisma/index.prisma";
 
-export default async function CondorAINews() {
+export default async function ConceAINews() {
   const news = await prisma.news.findMany({
     orderBy: { createdAt: "desc" },
     take: 10,

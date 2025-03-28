@@ -83,7 +83,7 @@ const AppNavUserDropdown = ({ session }: UserProfileMenuProps) => {
           <DropdownMenuGroup>
             <DropdownMenuItem className="cursor-pointer hover:bg-secondary/20 dark:hover:bg-shark-700">
               <BsPalette className="mr-2 h-4 w-4" />
-              <span>Personalizar Condor-AI</span>
+              <span>Personalizar Conce-AI</span>
             </DropdownMenuItem>
 
             <DropdownMenuItem

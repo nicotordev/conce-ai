@@ -1,5 +1,5 @@
 {
-  "name": "condor-ai",
+  "name": "conce.ia",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -44,6 +44,7 @@
     "next-auth": "^5.0.0-beta.25",
     "node-cache": "^5.1.2",
     "nodemailer": "^6.10.0",
+    "openai": "^4.90.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",

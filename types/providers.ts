@@ -1,6 +1,6 @@
 import React from "react";
 import { AppNavConversation, AppNavModel } from "./layout";
-import { CondorAIFile } from "./files";
+import { ConceAIFile } from "./files";
 
 type GoogleRecaptchaProviderProps = {
   children: React.ReactNode;
@@ -11,11 +11,11 @@ type RecaptchaContextType = {
   error: Error | null;
 };
 
-type CondorAIProviderProps = {
+type ConceAIProviderProps = {
   children: React.ReactNode;
 };
 
-type CondorAIContextType = {
+type ConceAIContextType = {
   models: {
     models: AppNavModel[];
     selectedModel: AppNavModel | null;
@@ -25,8 +25,8 @@ type CondorAIContextType = {
 };
 
 type UploadFilesContextType = {
-  files: CondorAIFile[];
-  handleFileDeletion: (file: CondorAIFile) => Promise<void>;
+  files: ConceAIFile[];
+  handleFileDeletion: (file: ConceAIFile) => Promise<void>;
 };
 
 type UserProviderContextType = {
@@ -51,9 +51,9 @@ type TanstackUseQueryProviderProps = {
 
 export type {
   GoogleRecaptchaProviderProps,
-  CondorAIProviderProps,
+  ConceAIProviderProps,
   RecaptchaContextType,
-  CondorAIContextType,
+  ConceAIContextType,
   TanstackUseQueryProviderProps,
   UserProviderContextType,
   UserProviderProps,

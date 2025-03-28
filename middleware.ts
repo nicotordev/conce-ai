@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import routesConstants from "./constants/routes.constants";
-import condorAi from "./lib/condor-ai";
+import conceAi from "./lib/conce-ai";
 import { setCookie } from "cookies-next/client";
 import { Session } from "next-auth";
 import { EmailVerificationStep } from "./types/auth.enum";
@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
   let session: Session | null = null;
 
   try {
-    session = await condorAi.getSession(request);
+    session = await conceAi.getSession(request);
   } catch (err) {
     const error = err instanceof Error ? err.message : "Unknown error";
     console.error(`Error getting session: ${error}`, err);
@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
       nextUrl.pathname !== routesConstants.allRoutes.auth.authVerifyEmail
     ) {
       nextUrl.pathname = routesConstants.allRoutes.auth.authVerifyEmail;
-      const encryptedData = await condorAi.crypto.encryptData({
+      const encryptedData = await conceAi.crypto.encryptData({
         step: EmailVerificationStep.start,
         userId: session.user.id,
       });
