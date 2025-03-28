@@ -15,7 +15,6 @@ declare global {
       NEXT_PUBLIC_API_URL: string;
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: string;
       RECAPTCHA_SECRET_KEY: string;
-      GOOGLE_GENERATIVE_AI_API_KEY: string;
       GOOGLE_CLIENT_ID: string;
       GOOGLE_CLIENT_SECRET: string;
       ENCRYPTION_KEY: string;
@@ -26,7 +25,6 @@ declare global {
       BREVO_SMTP_LOGIN: string;
       BREVO_SMTP_PASSWORD: string;
       CONCE_AI_API_KEY: string;
-      GOOGLE_GENERATIVE_AI_API_URL: string;
       NICODROPZONE_BASE_URL: string;
       NICODROPZONE_API_KEY: string;
       BRIGHT_DATA_TOKEN: string;
