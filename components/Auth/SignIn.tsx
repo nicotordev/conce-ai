@@ -3,7 +3,7 @@
 import { SignInProps } from "@/types/auth";
 import { SignInPageStep } from "@/types/auth.enum";
 import { Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CondorInput from "../Common/Forms/CondorInput";
 import { BsEnvelope, BsLock } from "react-icons/bs";
 import { doSignIn, doSteppedRedirection } from "@/app/actions/auth.actions";
@@ -49,6 +49,24 @@ export default function SignIn({ state }: SignInProps) {
         SignInPageStep.password
       );
     }
+  }
+
+  async function handlePreviousStep() {
+    setDoingRedirection(true);
+    const redirectionData = await doSteppedRedirection({
+      email,
+      password,
+      step: SignInPageStep.email,
+    });
+
+    setDoingRedirection(false);
+
+    if (!redirectionData.success) {
+      toast.error("Ha ocurrido un error al intentar crear la cuenta");
+      return;
+    }
+
+    window.location.href = `/auth/sign-in?state=${redirectionData.data}`;
   }
 
   useEffect(() => {
@@ -104,16 +122,25 @@ export default function SignIn({ state }: SignInProps) {
           unmount
         >
           <div className="space-y-5 pt-6">
-            <CondorInput
-              name="email"
-              id="email"
-              placeholder="Dirección de correo electrónico"
-              type="email"
-              required
-              leftIcon={<BsEnvelope />}
-              defaultValue={email}
-              readOnly
-            />
+            <div className="relative">
+              <CondorInput
+                name="email"
+                id="email"
+                placeholder="Dirección de correo electrónico"
+                type="email"
+                required
+                leftIcon={<BsEnvelope />}
+                defaultValue={email}
+                readOnly
+              />
+              <button
+                type="button"
+                onClick={handlePreviousStep}
+                className="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 z-50 text-xs text-gray-500 hover:text-gray-700 transition-colors duration-300 dark:text-gray-400"
+              >
+                Editar
+              </button>
+            </div>
             <div className="flex flex-col-reverse">
               <div className="flex items-center justify-start">
                 <Link
