@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma/index.prisma";
 import {
   generateConversationTitle,
   getBasicAiConversationResponse,
-} from "./@google-generative-ai.utils";
+} from "./openai.utils";
 import conversationsConstants from "@/constants/conversations.constants";
 import { auth } from "@/auth";
 

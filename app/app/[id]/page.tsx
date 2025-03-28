@@ -3,7 +3,7 @@ import AppConversation from "@/components/App/AppConversation";
 import prisma from "@/lib/prisma/index.prisma";
 import { AppConversationType } from "@/types/app";
 import { PagePropsCommon } from "@/types/pages";
-import { getAppSuggestionsForBar } from "@/utils/@google-generative-ai.utils";
+import { getAppSuggestionsForBar } from "@/utils/openai.utils";
 import transformObjectForSerialization from "@/utils/serialization.utils";
 import { notFound } from "next/navigation";
 

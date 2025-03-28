@@ -1,15 +1,18 @@
 import { auth } from "@/auth";
 import aiConstants from "@/constants/ai.constants";
-import googleGenerativeAI from "@/lib/@google-generative-ai";
+import openAIClient from "@/lib/open-ai"; // ✅ Usa OpenAI
 import { fetchGoogleViaBrightDataWithQueryEvaluation } from "@/lib/brightDataClient";
 import logger from "@/lib/consola/logger";
 import { encryptData } from "@/lib/crypto";
 import prisma from "@/lib/prisma/index.prisma";
 import { AuthenticatedNextRequest, CustomApiHandler } from "@/types/api";
-import { generateConversationTitle } from "@/utils/@google-generative-ai.utils";
 import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
 import { MessageSender } from "@prisma/client";
 import { NextRequest } from "next/server";
+import {
+  ChatCompletionCreateParams,
+  ChatCompletionMessageParam,
+} from "openai/resources/chat/completions.mjs";
 
 const getUserConversationHandler = async (
   req: AuthenticatedNextRequest,
@@ -83,10 +86,9 @@ const POST = async (
             },
           }
         : {};
-      const title = await generateConversationTitle(message);
       conversation = await prisma.conversation.create({
         data: {
-          title: title,
+          title: `New Conversation`,
           userId: session.user.id,
           ...messageQuery,
         },
@@ -120,17 +122,6 @@ const POST = async (
       return ApiResponse.badRequest("Invalid model id");
     }
 
-    const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
-      model: model.name,
-    });
-
-    const chat = aiModel.startChat({
-      history: conversation.messages.map((msg) => ({
-        role: msg.sender === MessageSender.USER ? "user" : "model",
-        parts: [{ text: msg.content }],
-      })),
-    });
-
     const searchResults = await fetchGoogleViaBrightDataWithQueryEvaluation(
       message.replace(/"/g, "'").replace(/\n/g, " "),
       model.name,
@@ -144,12 +135,12 @@ const POST = async (
         try {
           const escapedMessage = message.replace(/"/g, "'").replace(/\n/g, " ");
           const userName = session.user.name || "Usuario Anónimo";
-          const userEmail = session.user.email;
+          const userEmail = session.user.email || "";
           const convTitle = conversation.title || "Sin título";
 
           const prompt = aiConstants.promptsConstants.mainPrompt
             .replaceAll("{{userName}}", userName)
-            .replaceAll("{{userEmail}}", userEmail || "")
+            .replaceAll("{{userEmail}}", userEmail)
             .replaceAll("{{conversation.id}}", conversation.id)
             .replaceAll("{{convTitle}}", convTitle)
             .replaceAll("{{escapedMessage}}", escapedMessage)
@@ -158,15 +149,40 @@ const POST = async (
               JSON.stringify(searchResults, null, 2) || ""
             );
 
-          // 🔥 Obtenemos todo el mensaje de la IA de una sola vez
-          const aiMessage = await chat.sendMessage(prompt);
-          const fullText = aiMessage.response.text();
+          const baseMessages: ChatCompletionMessageParam[] =
+            conversation.messages.map((conversation) => ({
+              role:
+                conversation.sender === MessageSender.USER
+                  ? "user"
+                  : "assistant",
+              content: conversation.content,
+              name: userName,
+            }));
 
-          // ✂️ Simulamos un stream por partes (puede ser letra a letra, palabra por palabra, etc.)
-          const chunks = fullText.split(/(?<=[.?!])\s+/); // divide en oraciones
-          
+          const completitionsBody: ChatCompletionCreateParams = {
+            model: model.name,
+            messages: [
+              ...baseMessages,
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
+            stream: false,
+          };
+
+          // 🔥 Generamos la respuesta usando OpenAI
+          const aiResponse = await openAIClient.chat.completions.create(
+            completitionsBody
+          );
+
+          const fullText = aiResponse.choices[0].message?.content || "";
+
+          // ✂️ Simulamos un stream por partes
+          const chunks = fullText.split(/(?<=[.?!])\s+/);
+
           for (let i = 0; i < chunks.length; i++) {
-            const chunk = encryptData(chunks[i])
+            const chunk = encryptData(chunks[i]);
             console.log("enviando chunk:", chunk);
             controller.enqueue(encodeSSE(chunk));
             await new Promise((res) => setTimeout(res, 150));
@@ -214,6 +230,7 @@ function encodeSSE(data: string): Uint8Array {
   return new TextEncoder().encode(`data: ${data}\n\n`);
 }
 
+// ✅ Resto de los handlers se mantienen igual
 const deleteUserConversationHandler: CustomApiHandler = async (
   req,
   { params }: { params: Promise<{ id: string }> }
@@ -257,20 +274,26 @@ const updateUserConversationHandler: CustomApiHandler = async (
     const { id } = await params;
     const { title } = await req.json();
 
-    const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
+    // Generación de título usando OpenAI
+    const aiResponse = await openAIClient.chat.completions.create({
       model: aiConstants.DEFAULT_AI,
+      messages: [
+        {
+          role: "system",
+          content:
+            aiConstants.promptsConstants.verifyTitleNamePrompt.replaceAll(
+              "{{escapedMessage}}",
+              title
+            ),
+        },
+      ],
     });
 
-    const chat = aiModel.startChat({});
-
-    const response = await chat.sendMessage(
-      aiConstants.promptsConstants.verifyTitleNamePrompt.replaceAll(
-        "{{escapedMessage}}",
-        title
-      )
+    const isValidTitle = ["si", "sí", "yes"].includes(
+      aiResponse.choices[0].message?.content?.toLowerCase() || ""
     );
 
-    if (["si", "sí", "yes"].includes(response.response.text().toLowerCase())) {
+    if (isValidTitle) {
       await prisma.conversation.update({
         where: {
           id,

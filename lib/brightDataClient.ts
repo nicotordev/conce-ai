@@ -6,7 +6,7 @@ import {
   BrightDataScrapedPage,
   BrightDataSearchResult,
 } from "@/types/brightDataClient";
-import googleGenerativeAI from "./@google-generative-ai";
+import openAIClient from "@/lib/open-ai"; // ✅ Usamos OpenAI
 import { MessageSender } from "@prisma/client";
 import { AINews } from "@/types/news";
 import { extractValidJSON } from "@/utils/json.utils";
@@ -92,6 +92,30 @@ async function scrapePage(url: string): Promise<BrightDataScrapedPage | null> {
   }
 }
 
+// Búsqueda en Google con proxy de Bright Data
+async function fetchGoogleViaBrightData(query: string) {
+  try {
+    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(
+      query + " site:cl"
+    )}`;
+    logger.info(`[FETCH-GOOGLE] ${searchUrl}`);
+
+    const { data } = await axios.get(searchUrl, {
+      httpsAgent: agent,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+      },
+      timeout: 15000,
+    });
+
+    return await parseGoogleResults(data);
+  } catch (error: unknown) {
+    logger.error(`[FETCH-GOOGLE-VIA-BRIGHT-DATA-ERROR]`, error);
+    return null;
+  }
+}
+
 // Extrae resultados de una búsqueda de Google
 async function parseGoogleResults(
   html: string
@@ -139,54 +163,17 @@ async function parseGoogleResults(
   }[];
 }
 
-// Búsqueda en Google con proxy de Bright Data
-async function fetchGoogleViaBrightData(query: string) {
-  try {
-    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(
-      query + " site:cl"
-    )}`;
-    logger.info(`[FETCH-GOOGLE] ${searchUrl}`);
-
-    const { data } = await axios.get(searchUrl, {
-      httpsAgent: agent,
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-      },
-      timeout: 15000,
-    });
-
-    return await parseGoogleResults(data);
-  } catch (error: unknown) {
-    logger.error(`[FETCH-GOOGLE-VIA-BRIGHT-DATA-ERROR]`, error);
-    return null;
-  }
-}
-
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
-
-/**
- * Busca en Google, verifica la caché de Prisma y guarda los resultados
- */
+// Busca en Google, verifica la caché de Prisma y evalúa si es necesario hacer búsqueda
 async function fetchGoogleViaBrightDataWithQueryEvaluation(
   query: string,
   modelName: string,
   messages: {
     sender: MessageSender;
     content: string;
-  }[],
-  userId?: string,
-  conversationId?: string
+  }[]
 ) {
   try {
-    // 1. Evaluar si realmente necesitamos hacer una búsqueda
-    const aiModel = googleGenerativeAI.genAI.getGenerativeModel({
-      model: modelName,
-    });
-    const chat = aiModel.startChat({});
-
-    // Prompt mejorado para evaluar necesidad de búsqueda
+    // 1. Evaluar si realmente necesitamos hacer una búsqueda con OpenAI
     const checkSearchPrompt = `
       Basado en el siguiente historial de conversación y la consulta actual, 
       determina si REALMENTE es necesario hacer una búsqueda en Internet.
@@ -196,21 +183,17 @@ async function fetchGoogleViaBrightDataWithQueryEvaluation(
       
       Consulta actual: "${query}"
       
-      IMPORTANTE: Responde ÚNICAMENTE "sí" si:
-      - Se pregunta por información factual específica (datos, fechas, eventos)
-      - Se solicitan noticias o información actualizada
-      - Se solicita información sobre entidades, productos o personas específicas
-      
-      Responde ÚNICAMENTE "no" si:
-      - La consulta puede responderse con conocimiento general
-      - Es una pregunta hipotética o de opinión
-      - Es una solicitud de código o explicación conceptual
-      - Es una continuación de conversación que no requiere datos externos nuevos
-      
-      Responde SOLO con "sí" o "no", sin explicaciones adicionales.`;
+      IMPORTANTE: Responde ÚNICAMENTE "sí" o "no".`;
 
-    const checkSearch = await chat.sendMessage(checkSearchPrompt);
-    const shouldSearch = checkSearch.response.text().trim().toLowerCase();
+    const checkSearchResponse = await openAIClient.chat.completions.create({
+      model: modelName,
+      messages: [{ role: "system", content: checkSearchPrompt }],
+      temperature: 0,
+    });
+
+    const shouldSearch =
+      checkSearchResponse.choices[0]?.message?.content?.trim()?.toLowerCase() ??
+      "";
 
     if (!["si", "sí", "yes"].includes(shouldSearch)) {
       logger.info(
@@ -221,63 +204,23 @@ async function fetchGoogleViaBrightDataWithQueryEvaluation(
 
     // 2. Reformular la consulta para búsqueda más efectiva
     const reformulatePrompt = `
-      Reformula la siguiente consulta en una búsqueda efectiva para Google.
-      - Extrae SOLO las palabras clave esenciales
-      - Elimina información contextual innecesaria
-      - Mantén el idioma original de la consulta
-      - NO agregues términos adicionales que no estén en la consulta original
+      Reformula la siguiente consulta para Google.
       
       Consulta original: "${query}"
       
-      Devuelve SOLO la consulta reformulada, sin explicaciones ni comillas.`;
+      Devuelve SOLO la consulta reformulada.`;
 
-    const reformulated = await chat.sendMessage(reformulatePrompt);
-    const searchQuery = reformulated.response.text().trim();
-
-    logger.info(`[SEARCH-REFORMULATED] "${query}" → "${searchQuery}"`);
-
-    // 3. Verificar si ya tenemos esta búsqueda en la base de datos
-    const cachedSearch = await prisma.searchQuery.findFirst({
-      where: {
-        searchQuery: {
-          equals: searchQuery,
-          mode: "insensitive",
-        },
-        // Solo considerar resultados recientes (últimas 24 horas)
-        createdAt: {
-          gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        },
-      },
-      include: {
-        results: {
-          orderBy: {
-            position: "asc",
-          },
-        },
-      },
+    const reformulateResponse = await openAIClient.chat.completions.create({
+      model: modelName,
+      messages: [{ role: "system", content: reformulatePrompt }],
+      temperature: 0.5,
     });
 
-    // Si encontramos resultados en caché, los devolvemos
-    if (cachedSearch && cachedSearch.results.length > 0) {
-      logger.info(
-        `[SEARCH-CACHE-HIT] Found cached results for "${searchQuery}"`
-      );
+    const searchQuery =
+      reformulateResponse.choices[0]?.message?.content?.trim() ?? "";
+    logger.info(`[SEARCH-REFORMULATED] "${query}" → "${searchQuery}"`);
 
-      return {
-        originalQuery: query,
-        searchQuery: searchQuery,
-        results: cachedSearch.results.map((r) => ({
-          position: r.position,
-          title: r.title,
-          url: r.url,
-          snippet: r.snippet,
-          source: r.source,
-        })),
-        fromCache: true,
-      };
-    }
-
-    // 4. Si no hay caché, realizar la búsqueda
+    // 3. Realizar la búsqueda en Google si es necesario
     const searchResults = (await fetchGoogleViaBrightData(searchQuery)) ?? [];
 
     if (!searchResults.length) {
@@ -285,8 +228,7 @@ async function fetchGoogleViaBrightDataWithQueryEvaluation(
       return null;
     }
 
-    // 5. Estructurar los resultados
-    const formattedResults = {
+    return {
       originalQuery: query,
       searchQuery: searchQuery,
       results: searchResults.map((r, i) => ({
@@ -298,57 +240,16 @@ async function fetchGoogleViaBrightDataWithQueryEvaluation(
         image: r.imageUrl,
         publishedAt: r.publishedAt,
       })),
-      fromCache: false,
     };
-
-    // 6. Guardar los resultados en la base de datos
-    try {
-      await prisma.searchQuery.create({
-        data: {
-          originalQuery: query,
-          searchQuery: searchQuery,
-          userId: userId,
-          conversationId: conversationId,
-          results: {
-            create: formattedResults.results.map((r) => ({
-              position: r.position,
-              title: r.title,
-              url: r.url,
-              snippet: r.snippet,
-              source: r.source,
-            })),
-          },
-        },
-      });
-      logger.info(
-        `[SEARCH-SAVED] Results saved to database for "${searchQuery}"`
-      );
-    } catch (dbError) {
-      logger.error(
-        `[SEARCH-DB-ERROR] Failed to save search results: ${dbError}`
-      );
-      // Continuamos incluso si el guardado falla
-    }
-
-    logger.info(
-      `[SEARCH-SUCCESS] Found ${formattedResults.results.length} results for "${searchQuery}"`
-    );
-    return formattedResults;
   } catch (err) {
     logger.error(`[FETCH-GOOGLE-VIA-BRIGHT-DATA-QUERY-EVALUATION-ERROR]`, err);
     return null;
   }
 }
 
-// Obtener noticias de Google News
+// Obtener noticias de Google News utilizando OpenAI
 async function fetchGoogleNewsViaBrightData(): Promise<AINews[] | null> {
   try {
-    const model = googleGenerativeAI.genAI.getGenerativeModel({
-      model: "models/gemini-2.0-flash-001",
-    });
-
-    const chatSession = model.startChat({});
-
     const fechaActual = new Intl.DateTimeFormat("es-CL", {
       day: "2-digit",
       month: "long",
@@ -373,12 +274,11 @@ async function fetchGoogleNewsViaBrightData(): Promise<AINews[] | null> {
       .join("\n");
 
     const promptEstructura = `
-Devuelve únicamente un objeto JSON con el resumen de noticias encontradas en el siguiente HTML extraído de Google News:
+Devuelve un objeto JSON con el resumen de noticias en el siguiente HTML:
 
 ${resumenHTML}
 
 El formato debe ser:
-
 {
   "noticias": [
     {
@@ -389,16 +289,16 @@ El formato debe ser:
       "publishedAt": "2022-01-01T12:00:00.000Z"
     }
   ]
-}
+}`;
 
-No agregues texto adicional ni explicaciones.`;
+    const estructuraResponse = await openAIClient.chat.completions.create({
+      model: "gpt-4",
+      messages: [{ role: "system", content: promptEstructura }],
+    });
 
-    const estructuraResponse = await chatSession.sendMessage(promptEstructura);
-    const respuestaJson = estructuraResponse.response.text().trim();
-
-    const validJson = extractValidJSON<{
-      noticias: AINews[];
-    }>(respuestaJson);
+    const respuestaJson =
+      estructuraResponse.choices[0]?.message?.content?.trim() ?? "";
+    const validJson = extractValidJSON<{ noticias: AINews[] }>(respuestaJson);
 
     if (!validJson || !validJson.noticias) {
       throw new Error("No se recibió un JSON válido.");

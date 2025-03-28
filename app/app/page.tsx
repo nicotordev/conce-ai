@@ -3,7 +3,7 @@ import AppNewConversation from "@/components/App/AppNewConversation";
 import { decryptData } from "@/lib/crypto";
 import { AppNewConversationState } from "@/types/app";
 import { PagePropsCommon } from "@/types/pages";
-import { getAppSuggestionsForBar } from "@/utils/@google-generative-ai.utils";
+import { getAppSuggestionsForBar } from "@/utils/openai.utils";
 
 export default async function AppPage({ searchParams }: PagePropsCommon) {
   const [_searchParams, session, suggestions] = await Promise.all([
