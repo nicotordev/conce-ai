@@ -3,6 +3,7 @@ import AppConversation from "@/components/App/AppConversation";
 import prisma from "@/lib/prisma/index.prisma";
 import { AppConversationType } from "@/types/app";
 import { PagePropsCommon } from "@/types/pages";
+import { getAppSuggestionsForBar } from "@/utils/@google-generative-ai.utils";
 import transformObjectForSerialization from "@/utils/serialization.utils";
 import { notFound } from "next/navigation";
 
@@ -17,30 +18,33 @@ export default async function Conversation(props: PagePropsCommon) {
     notFound();
   }
 
-  const conversation = await prisma.conversation.findUnique({
-    where: {
-      id,
-      userId: session.user.id,
-    },
-    select: {
-      id: true,
-      title: true,
-      createdAt: true,
-      updatedAt: true,
-      messages: {
-        select: {
-          id: true,
-          content: true,
-          sender: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-        orderBy: {
-          createdAt: "asc",
+  const [conversation, suggestions] = await Promise.all([
+    prisma.conversation.findUnique({
+      where: {
+        id,
+        userId: session.user.id,
+      },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+        updatedAt: true,
+        messages: {
+          select: {
+            id: true,
+            content: true,
+            sender: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
         },
       },
-    },
-  });
+    }),
+    getAppSuggestionsForBar(),
+  ]);
 
   if (!conversation) {
     notFound();
@@ -51,9 +55,19 @@ export default async function Conversation(props: PagePropsCommon) {
     AppConversationType
   >(conversation);
 
+  const mappedSuggestions = suggestions.map((suggestion) => ({
+    label: suggestion.label,
+    icon: suggestion.icon,
+  }));
+
   return (
     <div className="w-full h-full">
-      <AppConversation conversation={conversationDTO} session={session} currentQuery={null} />
+      <AppConversation
+        conversation={conversationDTO}
+        session={session}
+        currentQuery={null}
+        suggestions={mappedSuggestions}
+      />
     </div>
   );
 }

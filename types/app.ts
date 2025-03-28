@@ -37,6 +37,10 @@ type AppConversationProps = {
   conversation: AppConversationType;
   session: Session | null;
   currentQuery: string | null;
+  suggestions: {
+    label: string;
+    icon: AppSuggestionIcon;
+  }[]
 };
 
 type AppMessageProps = {

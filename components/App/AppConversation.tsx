@@ -15,6 +15,7 @@ export default function AppConversation({
   conversation,
   session,
   currentQuery,
+  suggestions
 }: AppConversationProps) {
   const pathname = usePathname();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -235,6 +236,7 @@ export default function AppConversation({
         message={message}
         setMessage={setMessage}
         isPending={isPending}
+        suggestions={suggestions}
       />
     </div>
   );
