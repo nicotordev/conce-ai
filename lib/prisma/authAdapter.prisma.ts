@@ -4,12 +4,25 @@ import { stripUndefined } from "@/utils/objects.utilts";
 import {
   AdapterSession,
   AdapterUser,
+  AdapterAccount,
   VerificationToken,
 } from "next-auth/adapters";
 import { Prisma } from "@prisma/client";
 
 const authAdapterPrisma = {
   ...PrismaAdapter(prisma),
+  linkAccount: (data: AdapterAccount) => {
+    const account = prisma.account.create({
+      data,
+    }) as unknown as AdapterAccount;
+    prisma.user.update({
+      where: { id: data.userId },
+      data: {
+        emailVerified: new Date(),
+      },
+    });
+    return account;
+  },
   getUserByEmail: async (email: string): Promise<AdapterUser | null> => {
     return prisma.user.findUnique({
       where: { email },
@@ -83,7 +96,7 @@ const authAdapterPrisma = {
         identifier_token: {
           identifier: params.identifier,
           token: params.token,
-        }
+        },
       },
     });
   },

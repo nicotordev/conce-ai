@@ -5,7 +5,7 @@ import credentialsAuthConfig from "./credentials.auth";
 import authConstants from "@/constants/auth.constants";
 import { v4 } from "uuid";
 import prisma from "@/lib/prisma/index.prisma";
-import { Adapter } from "next-auth/adapters";
+import { Adapter, AdapterUser } from "next-auth/adapters";
 
 export const nextAuthConfig: NextAuthConfig = {
   adapter: authAdapterPrisma as Adapter,
@@ -16,6 +16,21 @@ export const nextAuthConfig: NextAuthConfig = {
     error: "/auth/error",
     verifyRequest: "/auth/verify-request",
     signOut: "/auth/sign-out",
+  },
+  events: {
+    linkAccount: async ({ user, profile }) => {
+      const adapterProfile = profile as AdapterUser;
+      const partialUser: Partial<AdapterUser> & Pick<AdapterUser, "id"> = {
+        id: user.id as string,
+        emailVerified: adapterProfile.emailVerified ? new Date() : null,
+      };
+      if (authAdapterPrisma && authAdapterPrisma.updateUser) {
+        await authAdapterPrisma.updateUser(partialUser);
+      } else {
+        console.error("Adapter or updateUser function is undefined");
+      }
+      return;
+    },
   },
   callbacks: {
     async jwt(params) {
