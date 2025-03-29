@@ -117,10 +117,7 @@ function getModelTokenLimit(modelId: string): {
 } {
   const modelIdLower = modelId.toLowerCase();
 
-  if (
-    modelIdLower.includes("gpt-4-turbo") ||
-    modelIdLower.includes("gpt-4-1106")
-  ) {
+  if (modelIdLower.includes("gpt-4o") || modelIdLower.includes("gpt-4-1106")) {
     return { input: 128000, output: 4096 };
   } else if (modelIdLower.includes("gpt-4-32k")) {
     return { input: 32768, output: 4096 };
@@ -144,7 +141,7 @@ function getModelTokenLimit(modelId: string): {
 function getModelDescription(modelId: string): string {
   const modelIdLower = modelId.toLowerCase();
 
-  if (modelIdLower.includes("gpt-4-turbo")) {
+  if (modelIdLower.includes("gpt-4o")) {
     return "Most capable GPT-4 model optimized for speed. Improved ability for task completion, JSON mode, etc.";
   } else if (modelIdLower.includes("gpt-4-32k")) {
     return "GPT-4 model with extended context window of 32k tokens.";
@@ -187,7 +184,7 @@ async function generateConversationTitle(message: string): Promise<string> {
   `;
 
     const completion = await openAIClient.chat.completions.create({
-      model: "gpt-4-turbo", // Or your preferred model
+      model: "gpt-4o", // Or your preferred model
       messages: [
         {
           role: "system",
@@ -210,7 +207,10 @@ async function generateConversationTitle(message: string): Promise<string> {
       .replace(/^["']|["']$/g, "")
       .replace(/\.$/, "");
 
-    return cleanTitle ?? `Tu conversación del ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`
+    return (
+      cleanTitle ??
+      `Tu conversación del ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`
+    );
   } catch (error) {
     logger.error(`[ERROR-GENERATE-CONVERSATION-TITLE]`, error);
     // En caso de error, devolver un título genérico o lanzar el error, según tu preferencia
@@ -306,11 +306,11 @@ async function getAppSuggestionsForBar() {
 
       // Get the default model
       const defaultModel = await prisma.model.findFirst({
-        where: { name: aiConstants.DEFAULT_AI || "gpt-4-turbo" },
+        where: { name: aiConstants.DEFAULT_AI || "gpt-4o" },
       });
 
       const completion = await openAIClient.chat.completions.create({
-        model: defaultModel?.name || "gpt-4-turbo",
+        model: defaultModel?.name || "gpt-4o",
         messages: [
           {
             role: "system",
