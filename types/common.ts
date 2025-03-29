@@ -51,6 +51,10 @@ type SpinnerProps = {
   spinnerProps?: React.SVGProps<SVGSVGElement>;
 };
 
+type LogoTextProps = {
+  className?: string;
+};
+
 export type {
   InputProps,
   PasswordInputProps,
@@ -58,4 +62,5 @@ export type {
   AppNavUserDropdownProps,
   EditableDivProps,
   SpinnerProps,
+  LogoTextProps,
 };
