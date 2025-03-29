@@ -4,6 +4,7 @@ const promptsConstants = {
   mainPrompt: decodeBase64(process.env.MAIN_PROMPT),
   verifyTitleNamePrompt: decodeBase64(process.env.VERIFY_TITLE_NAME_PROMPT),
   suggestions: decodeBase64(process.env.SUGGESTIONS_PROMPT),
+  appIdeas: decodeBase64(process.env.APP_IDEAS_PROMPT),
 };
 
 const aiConstants = {
