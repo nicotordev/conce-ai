@@ -36,11 +36,14 @@ type AppConversationType = {
 type AppConversationProps = {
   conversation: AppConversationType;
   session: Session | null;
-  currentQuery: string | null;
   suggestions: {
     label: string;
     icon: AppSuggestionIcon;
   }[];
+  createMessage: {
+    modelId: string;
+    message: string;
+  } | null;
 };
 
 type AppMessageProps = {
@@ -123,7 +126,7 @@ type AppNavUserConfigurationModalProps = {
 type AppConversationState = {
   conversationId: string;
   message: string;
-  create: boolean;
+  modelId: string;
 };
 
 export type {

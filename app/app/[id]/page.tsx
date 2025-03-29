@@ -8,11 +8,14 @@ import { getAppSuggestionsForBar } from "@/utils/openai.utils";
 import transformObjectForSerialization from "@/utils/serialization.utils";
 import { notFound } from "next/navigation";
 
-export default async function Conversation(props: PagePropsCommon) {
+export default async function Conversation({
+  params,
+  searchParams,
+}: PagePropsCommon) {
   const [{ id }, session, _searchParams] = await Promise.all([
-    props.params,
+    params,
     auth(),
-    props.params,
+    searchParams,
   ]);
 
   const state: AppConversationState | null =
@@ -75,7 +78,14 @@ export default async function Conversation(props: PagePropsCommon) {
       <AppConversation
         conversation={conversationDTO}
         session={session}
-        currentQuery={state?.message || null}
+        createMessage={
+          state?.modelId && state?.message
+            ? {
+                modelId: state?.modelId || "",
+                message: state?.message || "",
+              }
+            : null
+        }
         suggestions={mappedSuggestions}
       />
     </div>

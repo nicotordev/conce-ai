@@ -8,15 +8,16 @@ import { useConceAI } from "@/providers/ConceAIProvider";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { v4 } from "uuid";
 import AppMessage from "./AppMessage";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import AppChatForm from "./AppChatForm";
 
 export default function AppConversation({
   conversation,
   session,
-  currentQuery,
-  suggestions
+  createMessage,
+  suggestions,
 }: AppConversationProps) {
+  const router = useRouter();
   const pathname = usePathname();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -174,18 +175,19 @@ export default function AppConversation({
   }, [pathname]);
 
   useEffect(() => {
-    if (currentQuery && !currentQueryExecuted.current) {
+    if (createMessage?.message && !currentQueryExecuted.current) {
+      router.replace(`/app/${conversation.id}`);
       currentQueryExecuted.current = true;
       sendMessage({
         id: conversation.id,
-        message: currentQuery,
-        modelId: models.selectedModel?.id || "",
+        message: createMessage.message,
+        modelId: createMessage.modelId,
         createMessage: false,
       });
 
       const newUserMessage: AppConversationMessageType = {
         id: v4(),
-        content: currentQuery,
+        content: createMessage.message,
         sender: MessageSender.USER,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -199,7 +201,7 @@ export default function AppConversation({
       setMessage("");
     }
   }, [
-    currentQuery,
+    createMessage,
     conversation.id,
     messages.length,
     message,

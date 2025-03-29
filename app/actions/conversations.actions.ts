@@ -137,7 +137,7 @@ async function createEmptyConversationAction(formData: FormData) {
       state: encryptData({
         conversationId: newConversation.id,
         message: message,
-        create: true,
+        modelId: modelId,
       }),
     };
   } catch (err) {
