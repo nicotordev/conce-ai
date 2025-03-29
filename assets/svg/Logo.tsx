@@ -5,8 +5,6 @@ export default function Logo(props: SVGProps<SVGSVGElement>) {
     <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
-      width="400"
-      height="400"
       fillRule="evenodd"
     >
       <path
