@@ -68,6 +68,15 @@ type AuthTokenExpiredProps = {
   show: boolean;
   children?: React.ReactNode;
 };
+
+type AuthAppIdeasProps = {
+  ideas: string[];
+};
+
+type IdeaMarkdownRendererProps = {
+  content: string;
+};
+
 export type {
   SignUpState,
   SignUpProps,
@@ -81,4 +90,6 @@ export type {
   AuthErrorProps,
   AuthLoadingProps,
   AuthTokenExpiredProps,
+  AuthAppIdeasProps,
+  IdeaMarkdownRendererProps,
 };
