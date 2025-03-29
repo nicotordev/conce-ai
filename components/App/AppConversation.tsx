@@ -14,7 +14,6 @@ import AppChatForm from "./AppChatForm";
 export default function AppConversation({
   conversation,
   session,
-  createMessage,
   suggestions,
 }: AppConversationProps) {
   const pathname = usePathname();
@@ -23,14 +22,13 @@ export default function AppConversation({
   const { models } = useConceAI();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<AppConversationMessageType[]>([]);
-  const currentQueryExecuted = useRef(false);
 
   const currentConversationQuery = useConversationQuery(
     conversation.id,
     conversation
   );
 
-  const { mutate: sendMessage, isPending } = useStreamConversation({
+  const { updateConversationStream } = useStreamConversation({
     onMessage: (chunk) => {
       setMessages((prevMessages) => {
         const prevMessagesCopy = [...prevMessages];
@@ -98,6 +96,8 @@ export default function AppConversation({
     },
   });
 
+  const { mutate: sendMessage, isPending } = updateConversationStream;
+
   const handleSubmitNewMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -106,7 +106,6 @@ export default function AppConversation({
       id: conversation.id,
       message,
       modelId: models.selectedModel?.id || "",
-      createMessage: true,
     });
 
     const newUserMessage: AppConversationMessageType = {
@@ -184,33 +183,6 @@ export default function AppConversation({
 
     return () => clearTimeout(timeout);
   }, [pathname]);
-
-  useEffect(() => {
-    if (createMessage?.message && !currentQueryExecuted.current) {
-      currentQueryExecuted.current = true;
-      sendMessage({
-        id: conversation.id,
-        message: createMessage.message,
-        modelId: createMessage.modelId,
-        createMessage: true,
-      });
-
-      const newUserMessage: AppConversationMessageType = {
-        id: v4(),
-        content: createMessage.message,
-        sender: MessageSender.USER,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      setMessages((prevMessages) => [...prevMessages, newUserMessage]);
-      virtuosoRef.current?.scrollToIndex({
-        index: messages.length,
-        behavior: "smooth",
-      });
-      setMessage("");
-    }
-  }, [createMessage, conversation.id, messages.length, message, sendMessage]);
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col h-[90vh]">

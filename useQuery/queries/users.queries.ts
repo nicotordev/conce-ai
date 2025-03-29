@@ -22,4 +22,13 @@ function useConversationQuery(id: string, conversation?: AppConversationType) {
   return conversationQuery;
 }
 
-export { useConversationsQuery, useConversationQuery };
+function useSessionQuery() {
+  const sessionQuery = useQuery({
+    queryKey: ["users/get-session"],
+    queryFn: () => conceAi.user.getSession(),
+  });
+
+  return sessionQuery;
+}
+
+export { useConversationsQuery, useConversationQuery, useSessionQuery };

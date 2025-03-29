@@ -8,7 +8,6 @@ import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
 import { MessageSender } from "@prisma/client";
 import { NextRequest } from "next/server";
 import {
-  ChatCompletionChunk,
   ChatCompletionCreateParams,
   ChatCompletionMessageParam,
 } from "openai/resources/chat/completions.mjs";
@@ -150,7 +149,8 @@ const POST = async (
           content: prompt,
         },
       ],
-      stream: true, // ⚡️ Streaming activado
+      stream: true,
+      response_format: { type: "text" },
     };
 
     // 🚀 Iniciamos el stream desde OpenAI
@@ -166,7 +166,7 @@ const POST = async (
           let fullText = "";
 
           // ✅ Utilizamos `for await...of` para procesar el stream correctamente
-          for await (const chunk of aiStream as AsyncIterable<ChatCompletionChunk>) {
+          for await (const chunk of aiStream) {
             const delta = chunk.choices[0]?.delta?.content || "";
             if (delta) {
               controller.enqueue(encodeSSE(delta));

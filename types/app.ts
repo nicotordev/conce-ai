@@ -40,10 +40,6 @@ type AppConversationProps = {
     label: string;
     icon: AppSuggestionIcon;
   }[];
-  createMessage: {
-    modelId: string;
-    message: string;
-  } | null;
 };
 
 type AppMessageProps = {

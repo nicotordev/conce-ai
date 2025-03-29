@@ -67,9 +67,9 @@ class ConceAI {
   public conceAi = {
     getModels: async (): Promise<AppNavModel[]> => {
       try {
-        const { data: models } = await this.get<
-          BaseApiResponse<AppNavModel[]>
-        >("/conce-ai/models");
+        const { data: models } = await this.get<BaseApiResponse<AppNavModel[]>>(
+          "/conce-ai/models"
+        );
         return models;
       } catch (err) {
         throw new ConceAIError((err as FetchClientError).message);
@@ -177,6 +177,16 @@ class ConceAI {
         searchParams.append("preview", file.preview);
         const finalURL = `/user/uploads?${searchParams.toString()}`;
         await this.delete<BaseApiResponse<null>>(finalURL);
+      } catch (err) {
+        throw new ConceAIError((err as FetchClientError).message);
+      }
+    },
+    getSession: async (): Promise<Session> => {
+      try {
+        const { data: session } = await this.get<BaseApiResponse<Session>>(
+          "/auth/session"
+        );
+        return session;
       } catch (err) {
         throw new ConceAIError((err as FetchClientError).message);
       }

@@ -1,4 +1,3 @@
-import { decryptDataAction } from "@/app/actions/crypto.actions";
 import conceAi from "@/lib/conce-ai";
 import { formatMarkdown } from "@/utils/markdown.utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -48,87 +47,94 @@ const useStreamConversation = ({
   onDone: (message: string) => void;
   currentMessage?: string;
 }) => {
-  return useMutation({
-    mutationFn: async ({
-      id,
-      message,
-      modelId,
-      createMessage,
-    }: {
-      id: string;
-      message: string;
-      modelId: string;
-      createMessage: boolean;
-    }) => {
-      const response = await fetch(`/api/user/conversations/${id}`, {
-        method: "POST",
-        body: JSON.stringify({ message, modelId, createMessage }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  const doConversationStream = async (
+    message: string,
+    modelId: string,
+    id?: string
+  ) => {
+    const apiURL = id
+      ? `/api/user/conversations/${id}`
+      : "/api/user/conversations";
 
-      if (!response.body) {
-        throw new Error("No stream received");
-      }
+    const response = await fetch(apiURL, {
+      method: "POST",
+      body: JSON.stringify({ message, modelId }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let fullMessage = "";
+    if (!response.body) {
+      throw new Error("No stream received");
+    }
 
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let fullMessage = "";
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n\n");
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
 
-        // mantener última línea incompleta para la próxima vuelta
-        buffer = lines.pop() || "";
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n\n");
 
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
+      // mantener última línea incompleta para la próxima vuelta
+      buffer = lines.pop() || "";
 
-          const data = line.replace("data: ", "");
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
 
-          if (data === "start") continue;
-          if (data === "done") {
-            onDone?.(fullMessage);
-            return;
-          }
-          if (data === "error") {
-            throw new Error("Error del servidor");
-          }
+        const data = line.replace("data: ", "");
 
-          const dataDecrypted = await decryptDataAction<string>(data);
-
-          fullMessage += dataDecrypted;
-          const formattedMessage = await formatMarkdown(fullMessage);
-
-          const html = await marked(formattedMessage);
-
-          // ✅ Enviamos el texto acumulado completo
-          onMessage(html);
+        if (data === "start") continue;
+        if (data === "done") {
+          onDone?.(fullMessage);
+          return;
         }
-      }
-
-      // manejar el buffer si queda algo pendiente
-      if (buffer.startsWith("data:")) {
-        const data = buffer.replace("data:", "");
-        if (data !== "done" && data !== "error") {
-          const dataDecrypted = await decryptDataAction<string>(data);
-          fullMessage += dataDecrypted;
-
-          const formattedMessage = await formatMarkdown(fullMessage);
-
-          const html = await marked(formattedMessage);
-
-          onMessage(html);
+        if (data === "error") {
+          throw new Error("Error del servidor");
         }
+
+        fullMessage += data;
+        const formattedMessage = await formatMarkdown(fullMessage);
+
+        const html = await marked(formattedMessage);
+
+        // ✅ Enviamos el texto acumulado completo
+        onMessage(html);
       }
-    },
+    }
+
+    // manejar el buffer si queda algo pendiente
+    if (buffer.startsWith("data:")) {
+      const data = buffer.replace("data:", "");
+      if (data !== "done" && data !== "error") {
+        fullMessage += data;
+
+        const formattedMessage = await formatMarkdown(fullMessage);
+
+        const html = await marked(formattedMessage);
+
+        onMessage(html);
+      }
+    }
+  };
+
+  const updateConversationStream = useMutation({
+    mutationKey: ["user/conversations/update"],
+    mutationFn: (data: { id: string; message: string; modelId: string }) =>
+      doConversationStream(data.message, data.modelId, data.id),
   });
+
+  const createConversationStream = useMutation({
+    mutationKey: ["user/conversations/create"],
+    mutationFn: (data: { message: string; modelId: string }) =>
+      doConversationStream(data.message, data.modelId),
+  });
+
+  return { createConversationStream, updateConversationStream };
 };
 
 export { useConversationsMutation, useStreamConversation };
