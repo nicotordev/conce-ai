@@ -6,12 +6,10 @@
 
 /* Definir las fuentes usando Tailwind */
 @theme {
-  --font-title: var(--font-space-grotesk), sans-serif;
+  --font-title: var(--font-clash-grotesk), sans-serif;
   --font-paragraph: var(--font-inter), sans-serif;
   --font-button: var(--font-poppins), sans-serif;
   --font-special: var(--font-lora), serif;
-  --font-lato: var(--font-lato), sans-serif;
-  --font-inter: var(--font-inter), sans-serif;
 
   --color-dark-text-primary: #d1d5db;
   --color-dark-text-secondary: #9ca3af;
@@ -102,7 +100,7 @@ button {
 }
 
 .lato-text {
-  font-family: var(--font-lato);
+  font-family: var(--font-paragraph);
   color: var(--color-dark-text-muted);
 }
 
