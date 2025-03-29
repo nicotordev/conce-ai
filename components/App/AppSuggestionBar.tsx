@@ -1,5 +1,8 @@
 import { AppSuggestionBarProps } from "@/types/app";
+import { AppSuggestionIcon } from "@prisma/client";
 import { motion } from "framer-motion";
+import {  FaRegFile, FaRegGrinStars, FaRegQuestionCircle, FaRegSmileBeam } from "react-icons/fa";
+import { FaRegLightbulb } from "react-icons/fa";
 
 const AppSuggestionBar = ({
   handleQuery,
@@ -32,7 +35,18 @@ const AppSuggestionBar = ({
             `}
             onClick={() => handleQuery?.(s.label)}
           >
-            {s.icon}
+             {s.icon === AppSuggestionIcon.ALEGRE ? (
+              <FaRegSmileBeam className="text-gray-800 dark:text-white" />
+            ) : s.icon === AppSuggestionIcon.PENSANDO ? (
+              <FaRegQuestionCircle className="text-gray-800 dark:text-white" />
+            ) : s.icon === AppSuggestionIcon.MISTERIOSO ? (
+              <FaRegGrinStars className="text-gray-800 dark:text-white" />
+            ) : s.icon === AppSuggestionIcon.CREATIVO ? (
+              <FaRegLightbulb className="text-gray-800 dark:text-white" />
+            ) : s.icon === AppSuggestionIcon.TECNOLOGICO ? (
+              <FaRegFile className="text-gray-800 dark:text-white" />
+            ) : null}
+
             <span className="text-gray-800 dark:text-white">{s.label}</span>
           </motion.button>
         ))}
