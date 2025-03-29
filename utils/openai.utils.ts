@@ -12,7 +12,6 @@ import {
 import { Session } from "next-auth";
 import { v4 } from "uuid";
 import { extractValidJSON } from "./json.utils";
-import { AppSuggestionAiItem } from "@/types/openai";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 
 async function getOpenAIModels(): Promise<Model[]> {
@@ -281,45 +280,42 @@ async function getBasicAiConversationResponse(
     return "Lo siento, hubo un error al procesar tu mensaje. Por favor, inténtalo de nuevo más tarde.";
   }
 }
-
 async function getAppSuggestionsForBar() {
   try {
     const appSuggestions = await prisma.appSuggestion.findMany({});
-
     const lastUpdatedDate =
       appSuggestions.length > 0
         ? appSuggestions.sort(
             (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
           )[0].updatedAt
-        : new Date(0);
+        : null;
 
     /**
-     *  Watch if the last updated date is older than 1 hour
+     * Watch if the last updated date is older than 1 hour
      */
-
     const shouldUpdate =
       appSuggestions.length === 0 ||
-      lastUpdatedDate.getTime() < new Date().getTime() - 3600000;
+      lastUpdatedDate === null ||
+      (lastUpdatedDate &&
+        lastUpdatedDate.getTime() < new Date().getTime() - 3600000);
 
     if (shouldUpdate) {
-      const prompt = aiConstants.promptsConstants.suggestions;
-
       // Get the default model
       const defaultModel = await prisma.model.findFirst({
-        where: { name: aiConstants.DEFAULT_AI || "gpt-4o" },
+        where: { name: aiConstants.DEFAULT_AI },
       });
 
       const completion = await openAIClient.chat.completions.create({
-        model: defaultModel?.name || "gpt-4o",
+        model: aiConstants.DEFAULT_AI,
         messages: [
           {
             role: "system",
             content:
-              "You are a helpful assistant that generates app suggestions in JSON format.",
+              "Eres un asistente que genera arrays JSON válidos. Responde ÚNICAMENTE con el objeto JSON solicitado, sin texto adicional.",
           },
           {
             role: "user",
-            content: prompt,
+            content: aiConstants.promptsConstants.suggestions,
           },
         ],
         response_format: { type: "json_object" },
@@ -327,17 +323,25 @@ async function getAppSuggestionsForBar() {
         top_p: defaultModel?.topP || 0.95,
       });
 
-      const responseText = completion.choices[0].message.content || "[]";
+      const responseText = completion.choices[0].message.content || "{}";
+      console.log("API Response:", responseText);
+
+
       const responseObject = extractValidJSON<{
-        suggestions: AppSuggestionAiItem[];
+        suggestions: {
+          label: string;
+          icon: string;
+        }[];
       }>(responseText);
 
       if (
         responseObject &&
         responseObject.suggestions &&
-        Array.isArray(responseObject.suggestions)
+        Array.isArray(responseObject.suggestions) &&
+        responseObject.suggestions.length > 0
       ) {
         await prisma.appSuggestion.deleteMany();
+
         const createdSuggestions =
           await prisma.appSuggestion.createManyAndReturn({
             data: responseObject.suggestions.map((suggestion) => ({
@@ -355,17 +359,19 @@ async function getAppSuggestionsForBar() {
             })),
           });
 
-        return createdSuggestions;
+        return createdSuggestions.slice(0, 4)
+      } else {
+        console.error("Invalid or empty suggestions received:", responseObject);
+        return appSuggestions.slice(0, 4) // Return existing suggestions if update failed
       }
     }
 
-    return appSuggestions;
+    return appSuggestions.slice(0, 4)
   } catch (err) {
     logger.error(`[ERROR-GET-APP-SUGGESTIONS-FOR-BAR]`, err);
     return [];
   }
 }
-
 export {
   getOpenAIModels,
   generateConversationTitle,

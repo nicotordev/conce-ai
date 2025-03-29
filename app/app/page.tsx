@@ -11,6 +11,9 @@ export default async function AppPage({ searchParams }: PagePropsCommon) {
     auth(),
     getAppSuggestionsForBar(),
   ]);
+
+  console.log(suggestions, "suggestions");
+
   const state: AppNewConversationState | null =
     typeof _searchParams.state === "string"
       ? decryptData<AppNewConversationState>(_searchParams.state)
