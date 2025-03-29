@@ -17,6 +17,8 @@ import AppConversationItemNav from "./AppConversationItemNav";
 import { Virtuoso } from "react-virtuoso";
 
 export default function AppConversationsNav() {
+  const { conversations } = useUser();
+
   const pathname = usePathname();
   const router = useRouter();
   const { id } = useParams();
@@ -70,7 +72,10 @@ export default function AppConversationsNav() {
               className={`border-none shadow-none bg-transparent ${
                 pathname === "/app" ? "bg-accent text-accent-foreground" : ""
               }`}
-              onClick={() => router.push("/app")}
+              onClick={() => {
+                conversations.setConversationsOpen(false);
+                router.push("/app");
+              }}
             >
               <TbMessageCircle className="!w-6 !h-6" />
             </Button>
@@ -83,7 +88,10 @@ export default function AppConversationsNav() {
                   ? "bg-accent text-accent-foreground"
                   : ""
               }`}
-              onClick={() => router.push("/app/news")}
+              onClick={() => {
+                conversations.setConversationsOpen(false);
+                router.push("/app/news");
+              }}
             >
               <IoNewspaperOutline className="!w-6 !h-6" />
             </Button>
@@ -100,7 +108,10 @@ export default function AppConversationsNav() {
             variant="ghost"
             size="sm"
             className="flex items-center justify-start text-xs py-1 h-auto basis-[calc(50%-1rem)]"
-            onClick={() => router.push("/app/templates")}
+            onClick={() => {
+              conversations.setConversationsOpen(false);
+              router.push("/app/templates");
+            }}
           >
             <HiOutlineLightBulb className="mr-1 text-amber-500" />
             <span>Plantillas</span>
@@ -109,7 +120,10 @@ export default function AppConversationsNav() {
             variant="ghost"
             size="sm"
             className="flex items-center justify-start text-xs py-1 h-auto basis-[calc(50%-1rem)]"
-            onClick={() => router.push("/app/documents")}
+            onClick={() => {
+              conversations.setConversationsOpen(false);
+              router.push("/app/documents");
+            }}
           >
             <FaRegFileAlt className="mr-1 text-blue-500" />
             <span>Documentos</span>
@@ -118,7 +132,10 @@ export default function AppConversationsNav() {
             variant="ghost"
             size="sm"
             className="flex items-center justify-start text-xs py-1 h-auto basis-[calc(50%-1rem)]"
-            onClick={() => router.push("/app/saved")}
+            onClick={() => {
+              conversations.setConversationsOpen(false);
+              router.push("/app/saved");
+            }}
           >
             <MdBookmarkBorder className="mr-1 text-purple-500" />
             <span>Guardados</span>
@@ -127,7 +144,10 @@ export default function AppConversationsNav() {
             variant="ghost"
             size="sm"
             className="flex items-center justify-start text-xs py-1 h-auto basis-[calc(50%-1rem)]"
-            onClick={() => router.push("/app/settings")}
+            onClick={() => {
+              conversations.setConversationsOpen(false);
+              router.push("/app/settings");
+            }}
           >
             <MdOutlineSettings className="mr-1 text-gray-500" />
             <span>Ajustes</span>

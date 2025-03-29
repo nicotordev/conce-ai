@@ -53,6 +53,8 @@ export default function AppNav({ session, children }: AppNavProps) {
                         variant={"outline"}
                         className="border-none shadow-none"
                         onClick={() => {
+                          conversations.setConversationsOpen((prev) => !prev);
+
                           router.push("/app");
                         }}
                       >
