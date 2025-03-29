@@ -12,13 +12,11 @@ import { useConversationsMutation } from "@/useQuery/mutations/users.mutations";
 import { useConceAIModal } from "@/providers/ConceAIModalProvider";
 import toast from "react-hot-toast";
 import ConceAIInput from "@/components/Common/Forms/ConceAIInput";
-import { Transition } from "@headlessui/react";
 
 export default function AppConversationItemNav({
   conversation,
   id,
 }: AppConversationItemNavProps) {
-  const [buttonOnHover, setButtonOnHover] = useState(false);
   const conceAIModal = useConceAIModal();
   const router = useRouter();
   const { deleteConversation } = useConversationsMutation();
@@ -123,32 +121,18 @@ export default function AppConversationItemNav({
         onClick={() => {
           router.push(`/app/${conversation.id}`);
         }}
-        onMouseEnter={() => setButtonOnHover(true)}
-        onMouseLeave={() => setButtonOnHover(false)}
       >
         <span className="font-medium max-w-4/5">{conversation.title}</span>
       </Button>
       <ConceDropdown
-        variant="transparent-white"
+        variant="white"
         button={
-          <div>
-            <Transition
-              show={buttonOnHover}
-              enter="transition-opacity duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="transition-opacity duration-300"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Button
-                variant="ghost"
-                className="border-none hover:!bg-transparent hover:text-black group-hover:text-white active:text-black rounded-full transition-colors absolute right-5 top-1/2 -translate-y-2/4 z-50 opacity-50 hover:opacity-100 bg-transparent"
-              >
-                <BsThreeDots className="!w-4 !h-4" />
-              </Button>
-            </Transition>
-          </div>
+          <Button
+            variant="ghost"
+            className="z-50 absolute right-2 top-1/2 -translate-y-1/2 !bg-transparent hover:!bg-transparent"
+          >
+            <BsThreeDots className="!w-4 !h-4" />
+          </Button>
         }
         items={[
           {
