@@ -1,35 +1,28 @@
 import type { Metadata } from "next";
-import { Inter, Lato, Lora, Poppins, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import Providers from "./providers";
+import localFont from "next/font/local";
+import { Inter, Lora, Poppins } from "next/font/google";
+const clashGrotesk = localFont({
+  src: "../fonts/ClashGrotesk-Variable.ttf",
+  variable: "--font-clash-grotesk",
+});
 
 const inter = Inter({
-  variable: "--font-inter",
   subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 const lora = Lora({
-  variable: "--font-lora",
   subsets: ["latin"],
+  variable: "--font-lora",
 });
 
 const poppins = Poppins({
+  subsets: ["latin"],
   variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "600"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
-
-const lato = Lato({
-  variable: "--font-open-sans",
-  subsets: ["latin"],
-  weight: ["400", "700", "900"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -45,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${lora.variable} ${poppins.variable} ${spaceGrotesk.variable} ${lato.variable} antialiased`}
+      className={`${clashGrotesk.variable} ${inter.variable} ${lora.variable} ${poppins.variable} antialiased`}
     >
       <body>
         <Providers>{children}</Providers>{" "}
