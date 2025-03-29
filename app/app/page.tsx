@@ -12,7 +12,6 @@ export default async function AppPage({ searchParams }: PagePropsCommon) {
     getAppSuggestionsForBar(),
   ]);
 
-  console.log(suggestions, "suggestions");
 
   const state: AppNewConversationState | null =
     typeof _searchParams.state === "string"

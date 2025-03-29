@@ -177,7 +177,6 @@ const POST = async (
 
           for (let i = 0; i < chunks.length; i++) {
             const chunk = encryptData(chunks[i]);
-            console.log("enviando chunk:", chunk);
             controller.enqueue(encodeSSE(chunk));
             await new Promise((res) => setTimeout(res, 150));
           }

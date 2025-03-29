@@ -324,7 +324,6 @@ async function getAppSuggestionsForBar() {
       });
 
       const responseText = completion.choices[0].message.content || "{}";
-      console.log("API Response:", responseText);
 
 
       const responseObject = extractValidJSON<{

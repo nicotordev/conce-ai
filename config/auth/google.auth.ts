@@ -23,8 +23,6 @@ const googleAuthConfig = GoogleProvider({
       Role: null,
     }
 
-    console.log(googleProfile, "Google profile");
-
 
     return googleProfile;
   },
