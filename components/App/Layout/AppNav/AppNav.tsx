@@ -32,7 +32,7 @@ export default function AppNav({ session, children }: AppNavProps) {
                 </li>
               ) : (
                 <>
-                  <ul className="flex items-center text-2xl text-[--color-dark-text-accent] dark:text-white">
+                  <ul className="flex items-center text-2xl text-[--color-dark-text-accent] dark:text-white gap-4">
                     <li className="flex items-center justify-center">
                       <Button
                         variant={"outline"}

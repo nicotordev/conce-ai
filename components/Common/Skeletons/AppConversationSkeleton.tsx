@@ -15,35 +15,44 @@ const AppConversationSkeleton = ({
       }));
 
   return (
-    <div className="flex flex-col gap-4 px-2 py-4">
+    <div className="tw-flex tw-flex-col tw-gap-4 tw-px-2 tw-py-4">
       {bubbles.map((bubble, index) => {
         const isUser = bubble.sender === "user";
 
         return (
           <div
             key={index}
-            className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+            className={`tw-flex ${
+              isUser ? "tw-justify-end" : "tw-justify-start"
+            }`}
           >
             <div
-              className={`${
+              className={clsx(
+                "tw-w-fit tw-max-w-[75%] tw-animate-pulse",
                 isUser
-                  ? "bg-white border border-gray-200 shadow-sm rounded-xl px-5 py-2.5"
-                  : "prose px-2 py-1"
-              } w-fit max-w-[75%] animate-pulse`}
+                  ? "tw-bg-white tw-dark:bg-shark-700 tw-border tw-border-gray-200 tw-dark:border-shark-600 tw-shadow-sm tw-rounded-xl tw-px-5 tw-py-2.5"
+                  : "tw-prose tw-px-2 tw-py-1 tw-bg-gray-100 tw-dark:bg-shark-800 tw-rounded-md"
+              )}
             >
               <div
-                className={clsx("flex flex-col gap-2 text-gray-500", {
-                  ["blur-xs"]: Boolean(bubble.message) === false,
-                })}
+                className={clsx(
+                  "tw-flex tw-flex-col tw-gap-2 tw-text-gray-500 tw-dark:text-shark-200",
+                  {
+                    ["tw-blur-xs"]: Boolean(bubble.message) === false,
+                  }
+                )}
               >
                 {bubble.message ? (
                   bubble.message
                 ) : (
                   <>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Aperiam omnis neque consequatur ipsum quibusdam corporis
-                    architecto sapiente dolores vel optio distinctio, reiciendis
-                    et exercitationem in porro dolorum veniam tenetur maxime?
+                    {/* Texto de relleno para Skeleton */}
+                    {Array.from({ length: bubble.lines }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="tw-h-4 tw-bg-gray-200 tw-rounded-md dark:tw-bg-shark-700"
+                      />
+                    ))}
                   </>
                 )}
               </div>
