@@ -325,7 +325,6 @@ async function getAppSuggestionsForBar() {
 
       const responseText = completion.choices[0].message.content || "{}";
 
-
       const responseObject = extractValidJSON<{
         suggestions: {
           label: string;
@@ -358,22 +357,82 @@ async function getAppSuggestionsForBar() {
             })),
           });
 
-        return createdSuggestions.slice(0, 4)
+        return createdSuggestions.slice(0, 4);
       } else {
         console.error("Invalid or empty suggestions received:", responseObject);
-        return appSuggestions.slice(0, 4) // Return existing suggestions if update failed
+        return appSuggestions.slice(0, 4); // Return existing suggestions if update failed
       }
     }
 
-    return appSuggestions.slice(0, 4)
+    return appSuggestions.slice(0, 4);
   } catch (err) {
     logger.error(`[ERROR-GET-APP-SUGGESTIONS-FOR-BAR]`, err);
     return [];
   }
 }
+
+async function getAppIdeas() {
+  try {
+    const appIdeas = await prisma.appIdea.findMany({});
+
+    const lastUpdatedDate =
+      appIdeas.length > 0
+        ? appIdeas.sort(
+            (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+          )[0].updatedAt
+        : null;
+
+    const shouldUpdate =
+      appIdeas.length === 0 ||
+      lastUpdatedDate === null ||
+      (lastUpdatedDate &&
+        lastUpdatedDate.getTime() < new Date().getTime() - 3600000);
+
+    if (shouldUpdate) {
+      const completion = await openAIClient.chat.completions.create({
+        model: aiConstants.DEFAULT_AI,
+        messages: [
+          {
+            role: "system",
+            content: aiConstants.promptsConstants.appIdeas,
+          },
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const responseText = completion.choices[0].message.content || "{}";
+
+      const responseObject = extractValidJSON<{
+        suggestions: {
+          content: string;
+        }[];
+      }>(responseText);
+
+      if (responseObject && responseObject.suggestions) {
+        await prisma.appIdea.deleteMany();
+        const createdIdeas = await prisma.appIdea.createManyAndReturn({
+          data: responseObject.suggestions.map((suggestion) => ({
+            content: suggestion.content,
+          })),
+        });
+
+        return createdIdeas;
+      }
+
+      return appIdeas;
+    }
+
+    return appIdeas;
+  } catch (error) {
+    logger.error(`[ERROR-GET-APP-IDEAS]`, error);
+    return [];
+  }
+}
+
 export {
   getOpenAIModels,
   generateConversationTitle,
   getBasicAiConversationResponse,
   getAppSuggestionsForBar,
+  getAppIdeas,
 };
