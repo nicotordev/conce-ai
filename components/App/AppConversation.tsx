@@ -8,7 +8,7 @@ import { useConceAI } from "@/providers/ConceAIProvider";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { v4 } from "uuid";
 import AppMessage from "./AppMessage";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import AppChatForm from "./AppChatForm";
 
 export default function AppConversation({
@@ -17,7 +17,6 @@ export default function AppConversation({
   createMessage,
   suggestions,
 }: AppConversationProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -36,6 +35,18 @@ export default function AppConversation({
       setMessages((prevMessages) => {
         const prevMessagesCopy = [...prevMessages];
         const lastMessage = prevMessagesCopy[prevMessagesCopy.length - 1];
+
+        if (!lastMessage) {
+          return [
+            {
+              id: v4(),
+              content: chunk,
+              sender: MessageSender.ASSISTANT,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+          ];
+        }
 
         if (lastMessage.sender === MessageSender.ASSISTANT) {
           const updatedLastMessage = {
@@ -176,13 +187,12 @@ export default function AppConversation({
 
   useEffect(() => {
     if (createMessage?.message && !currentQueryExecuted.current) {
-      router.replace(`/app/${conversation.id}`);
       currentQueryExecuted.current = true;
       sendMessage({
         id: conversation.id,
         message: createMessage.message,
         modelId: createMessage.modelId,
-        createMessage: false,
+        createMessage: true,
       });
 
       const newUserMessage: AppConversationMessageType = {
@@ -200,15 +210,7 @@ export default function AppConversation({
       });
       setMessage("");
     }
-  }, [
-    createMessage,
-    conversation.id,
-    messages.length,
-    message,
-    models.selectedModel?.id,
-    sendMessage,
-    router,
-  ]);
+  }, [createMessage, conversation.id, messages.length, message, sendMessage]);
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col h-[90vh]">

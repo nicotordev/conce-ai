@@ -2,13 +2,13 @@ import { auth } from "@/auth";
 import aiConstants from "@/constants/ai.constants";
 import openAIClient from "@/lib/open-ai"; // ✅ Usa OpenAI
 import logger from "@/lib/consola/logger";
-import { encryptData } from "@/lib/crypto";
 import prisma from "@/lib/prisma/index.prisma";
 import { AuthenticatedNextRequest, CustomApiHandler } from "@/types/api";
 import { ApiResponse, withApiAuthRequired } from "@/utils/api.utils";
 import { MessageSender } from "@prisma/client";
 import { NextRequest } from "next/server";
 import {
+  ChatCompletionChunk,
   ChatCompletionCreateParams,
   ChatCompletionMessageParam,
 } from "openai/resources/chat/completions.mjs";
@@ -51,7 +51,6 @@ const getUserConversationHandler = async (
     return ApiResponse.internalServerError();
   }
 };
-
 const POST = async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -121,78 +120,76 @@ const POST = async (
       return ApiResponse.badRequest("Invalid model id");
     }
 
+    const escapedMessage = message.replace(/"/g, "'").replace(/\n/g, " ");
+    const userName = session.user.name || "Usuario Anónimo";
+    const userEmail = session.user.email || "";
+    const convTitle = conversation.title || "Sin título";
+
+    const prompt = aiConstants.promptsConstants.mainPrompt
+      .replaceAll("{{userName}}", userName)
+      .replaceAll("{{userEmail}}", userEmail)
+      .replaceAll("{{conversation.id}}", conversation.id)
+      .replaceAll("{{convTitle}}", convTitle)
+      .replaceAll("{{escapedMessage}}", escapedMessage);
+
+    const openAiUsername = userName.replace(/[^a-zA-Z0-9_-]/g, "");
+
+    const baseMessages: ChatCompletionMessageParam[] =
+      conversation.messages.map((conversation) => ({
+        role: conversation.sender === MessageSender.USER ? "user" : "assistant",
+        content: conversation.content,
+        name: openAiUsername,
+      }));
+
+    const completitionsBody: ChatCompletionCreateParams = {
+      model: model.name,
+      messages: [
+        ...baseMessages,
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      stream: true, // ⚡️ Streaming activado
+    };
+
+    // 🚀 Iniciamos el stream desde OpenAI
+    const aiStream = await openAIClient.chat.completions.create(
+      completitionsBody
+    );
+
     const stream = new ReadableStream({
       async start(controller) {
         controller.enqueue(encodeSSE("start"));
 
         try {
-          const escapedMessage = message.replace(/"/g, "'").replace(/\n/g, " ");
-          const userName = session.user.name || "Usuario Anónimo";
-          const userEmail = session.user.email || "";
-          const convTitle = conversation.title || "Sin título";
+          let fullText = "";
 
-          const prompt = aiConstants.promptsConstants.mainPrompt
-            .replaceAll("{{userName}}", userName)
-            .replaceAll("{{userEmail}}", userEmail)
-            .replaceAll("{{conversation.id}}", conversation.id)
-            .replaceAll("{{convTitle}}", convTitle)
-            .replaceAll("{{escapedMessage}}", escapedMessage)
-      
-          /**
-           * Username must match '^[a-zA-Z0-9_-]+$'
-           */
-          const openAiUsername = userName.replace(/[^a-zA-Z0-9_-]/g, "");
-
-          const baseMessages: ChatCompletionMessageParam[] =
-            conversation.messages.map((conversation) => ({
-              role:
-                conversation.sender === MessageSender.USER
-                  ? "user"
-                  : "assistant",
-              content: conversation.content,
-              name: openAiUsername,
-            }));
-
-          const completitionsBody: ChatCompletionCreateParams = {
-            model: model.name,
-            messages: [
-              ...baseMessages,
-              {
-                role: "user",
-                content: prompt,
-              },
-            ],
-            stream: false,
-          };
-
-          // 🔥 Generamos la respuesta usando OpenAI
-          const aiResponse = await openAIClient.chat.completions.create(
-            completitionsBody
-          );
-
-          const fullText = aiResponse.choices[0].message?.content || "";
-
-          // ✂️ Simulamos un stream por partes
-          const chunks = fullText.split(/(?<=[.?!])\s+/);
-
-          for (let i = 0; i < chunks.length; i++) {
-            const chunk = encryptData(chunks[i]);
-            controller.enqueue(encodeSSE(chunk));
-            await new Promise((res) => setTimeout(res, 150));
+          // ✅ Utilizamos `for await...of` para procesar el stream correctamente
+          for await (const chunk of aiStream as AsyncIterable<ChatCompletionChunk>) {
+            const delta = chunk.choices[0]?.delta?.content || "";
+            if (delta) {
+              controller.enqueue(encodeSSE(delta));
+              fullText += delta;
+            }
           }
 
+          // ✅ Cuando el stream finaliza
           controller.enqueue(encodeSSE("done"));
           controller.close();
 
-          await prisma.message.create({
-            data: {
-              content: fullText,
-              sender: MessageSender.ASSISTANT,
-              conversationId: id,
-            },
-          });
-        } catch (streamErr) {
-          console.error("[STREAM-ERROR]", streamErr);
+          // 📝 Guardamos el mensaje completo al final
+          if (fullText) {
+            await prisma.message.create({
+              data: {
+                content: fullText,
+                sender: MessageSender.ASSISTANT,
+                conversationId: id,
+              },
+            });
+          }
+        } catch (err) {
+          console.error("[ERROR-STREAM]", err);
           controller.enqueue(encodeSSE("error"));
           controller.close();
         }
@@ -207,7 +204,7 @@ const POST = async (
       },
     });
   } catch (err) {
-    logger.error("[ERROR-UPDATE-CONVERSATION]", err);
+    console.error("[ERROR-UPDATE-CONVERSATION]", err);
     return new Response("data: error\n\n", {
       headers: {
         "Content-Type": "text/event-stream",
