@@ -1,7 +1,6 @@
 import conceAi from "@/lib/conce-ai";
-import { formatMarkdown } from "@/utils/markdown.utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { marked } from "marked";
+import MarkdownRenderer from "@/components/Common/MarkdownRenderer";
 
 function useConversationsMutation() {
   const queryClient = useQueryClient();
@@ -39,12 +38,13 @@ function useConversationsMutation() {
 
   return { createConversation, deleteConversation, updateConversation };
 }
+
 const useStreamConversation = ({
   onMessage,
   onDone,
 }: {
-  onMessage: (fullText: string) => void;
-  onDone: (message: string) => void;
+  onMessage: (markdown: React.ReactNode, message: string) => void;
+  onDone: (markdown: React.ReactNode, message: string) => void;
   currentMessage?: string;
 }) => {
   const doConversationStream = async (
@@ -80,7 +80,7 @@ const useStreamConversation = ({
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split("\n\n");
 
-      // mantener última línea incompleta para la próxima vuelta
+      // Mantener última línea incompleta para la próxima vuelta
       buffer = lines.pop() || "";
 
       for (const line of lines) {
@@ -89,45 +89,40 @@ const useStreamConversation = ({
         const data = line.replace("data: ", "");
 
         if (data === "start") continue;
+
         if (data === "done") {
-          onDone?.(fullMessage);
+          onDone?.(<MarkdownRenderer content={fullMessage} />, fullMessage);
           return;
         }
+
         if (data === "error") {
           throw new Error("Error del servidor");
         }
 
+        // ✅ Actualizar mensaje completo en tiempo real
         fullMessage += data;
-        const formattedMessage = await formatMarkdown(fullMessage);
-
-        const html = await marked(formattedMessage);
-
-        // ✅ Enviamos el texto acumulado completo
-        onMessage(html);
+        onMessage(<MarkdownRenderer content={fullMessage} />, fullMessage);
       }
     }
 
-    // manejar el buffer si queda algo pendiente
+    // Manejar el buffer si queda algo pendiente
     if (buffer.startsWith("data:")) {
-      const data = buffer.replace("data:", "");
+      const data = buffer.replace("data: ", "");
       if (data !== "done" && data !== "error") {
         fullMessage += data;
-
-        const formattedMessage = await formatMarkdown(fullMessage);
-
-        const html = await marked(formattedMessage);
-
-        onMessage(html);
+        onMessage(<MarkdownRenderer content={fullMessage} />, fullMessage);
       }
     }
   };
 
+  // Actualizar conversación
   const updateConversationStream = useMutation({
     mutationKey: ["user/conversations/update"],
     mutationFn: (data: { id: string; message: string; modelId: string }) =>
       doConversationStream(data.message, data.modelId, data.id),
   });
 
+  // Crear nueva conversación
   const createConversationStream = useMutation({
     mutationKey: ["user/conversations/create"],
     mutationFn: (data: { message: string; modelId: string }) =>

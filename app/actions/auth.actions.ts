@@ -579,8 +579,11 @@ async function SignInGoogleAction(){
   return await signIn('google');
 }
 
-async function SignOutAction(){
-  return await signOut();
+async function SignOutAction() {
+  return await signOut({
+    redirect: false,
+    redirectTo: "/",
+  });
 }
 
 export {

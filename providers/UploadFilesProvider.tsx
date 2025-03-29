@@ -17,7 +17,7 @@ import {
 import conceAi from "@/lib/conce-ai";
 import { Transition } from "@headlessui/react";
 import Image from "next/image";
-import { uploadFileSvg } from "@/assets";
+import { uploadFileSvg } from "@/assets/assets";
 import { ConceAIFile } from "@/types/files";
 import { getFileIcon } from "@/constants/files.constants";
 // Crea el contexto

@@ -1,6 +1,6 @@
 "use client";
 import { SignInGoogleAction } from "@/app/actions/auth.actions";
-import { googleLogo } from "@/assets";
+import { googleLogo } from "@/assets/assets";
 import Image from "next/image";
 
 export default function AuthGoogleSignIn() {

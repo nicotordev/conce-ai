@@ -6,6 +6,7 @@ export default function SignOut() {
   useEffect(() => {
     async function signOutUser() {
       await SignOutAction();
+      window.location.href = "/";
     }
     signOutUser();
   }, []);

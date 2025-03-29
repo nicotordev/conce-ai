@@ -29,7 +29,7 @@ export default function AppNewConversation({
   const [messageSubmitted, setMessageSubmitted] = useState<boolean>(false);
 
   const { createConversationStream } = useStreamConversation({
-    onMessage: (chunk) => {
+    onMessage: (markdown, message) => {
       setMessages((prevMessages) => {
         const prevMessagesCopy = [...prevMessages];
         const lastMessage = prevMessagesCopy[prevMessagesCopy.length - 1];
@@ -38,10 +38,11 @@ export default function AppNewConversation({
           return [
             {
               id: v4(),
-              content: chunk,
+              content: message,
               sender: MessageSender.ASSISTANT,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
+              markdown: markdown,
             },
           ];
         }
@@ -49,9 +50,10 @@ export default function AppNewConversation({
         if (lastMessage.sender === MessageSender.ASSISTANT) {
           const updatedLastMessage = {
             ...lastMessage,
-            content: chunk,
+            content: message,
             isTyping: true,
             isLoading: false,
+            markdown: markdown,
           };
           return [
             ...prevMessagesCopy.slice(0, prevMessagesCopy.length - 1),
@@ -63,17 +65,18 @@ export default function AppNewConversation({
           ...prevMessagesCopy,
           {
             id: v4(),
-            content: chunk,
+            content: message,
             sender: MessageSender.ASSISTANT,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             isTyping: true,
             isLoading: false,
+            markdown: markdown,
           },
         ];
       });
     },
-    onDone: (message) => {
+    onDone: (markdown, message) => {
       setMessages((prevMessages) => {
         const lastMessage = prevMessages[prevMessages.length - 1];
         if (lastMessage.sender === MessageSender.ASSISTANT) {
@@ -82,6 +85,7 @@ export default function AppNewConversation({
             isTyping: false,
             isLoading: false,
             content: message,
+            markdown: markdown,
           };
           return [
             ...prevMessages.slice(0, prevMessages.length - 1),

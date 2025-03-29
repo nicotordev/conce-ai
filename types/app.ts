@@ -23,6 +23,7 @@ type AppConversationMessageType = {
   updatedAt: string;
   isTyping?: boolean;
   isLoading?: boolean;
+  markdown?: React.ReactNode;
 };
 
 type AppConversationType = {
@@ -71,6 +72,7 @@ type AppAsistantMessageProps = {
   isLastIndex: boolean;
   isPending: boolean;
   content: string;
+  markdown?: React.ReactNode;
 };
 
 type AppUserMessageProps = {

@@ -19,6 +19,7 @@ const AppMessage = memo(
         isLastIndex={isLastIndex}
         isPending={isPending}
         content={message.content}
+        markdown={message.markdown}
       />
     );
   }

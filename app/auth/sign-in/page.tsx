@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { microsoftLogo } from "@/assets";
+import { microsoftLogo } from "@/assets/assets";
 import Image from "next/image";
 import SignIn from "@/components/Auth/SignIn";
 import { PagePropsCommon } from "@/types/pages";
