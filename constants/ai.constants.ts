@@ -7,7 +7,7 @@ const promptsConstants = {
 };
 
 const aiConstants = {
-  DEFAULT_AI: "models/gemini-2.0-flash-001",
+  DEFAULT_AI: "gpt-4o",
   promptsConstants,
 };
 

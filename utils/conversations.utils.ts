@@ -46,10 +46,9 @@ const createConversation = async (
     title
   );
 
-
   const newConversation = await prisma.conversation.create({
     data: {
-      title,
+      title: title,
       userId: userId,
       messages: {
         create: [

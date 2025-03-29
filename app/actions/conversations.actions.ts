@@ -107,6 +107,7 @@ async function createEmptyConversationAction(formData: FormData) {
   try {
     const newConversation = await prisma.conversation.create({
       data: {
+        title: "New Conversation",
         user: {
           connect: {
             id: session.user.id,

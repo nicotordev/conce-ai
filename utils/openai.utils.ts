@@ -1,7 +1,6 @@
 "use server";
 import aiConstants from "@/constants/ai.constants";
 import openAIClient from "@/lib/open-ai";
-import { fetchGoogleViaBrightDataWithQueryEvaluation } from "@/lib/brightDataClient";
 import logger from "@/lib/consola/logger";
 import prisma from "@/lib/prisma/index.prisma";
 import {
@@ -211,7 +210,7 @@ async function generateConversationTitle(message: string): Promise<string> {
       .replace(/^["']|["']$/g, "")
       .replace(/\.$/, "");
 
-    return cleanTitle;
+    return cleanTitle ?? `Tu conversación del ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`
   } catch (error) {
     logger.error(`[ERROR-GENERATE-CONVERSATION-TITLE]`, error);
     // En caso de error, devolver un título genérico o lanzar el error, según tu preferencia
@@ -227,12 +226,6 @@ async function getBasicAiConversationResponse(
   title: string
 ) {
   try {
-    const searchResults = await fetchGoogleViaBrightDataWithQueryEvaluation(
-      newMessage.replace(/"/g, "'").replace(/\n/g, " "),
-      modelName,
-      messages
-    );
-
     const escapedMessage = newMessage.replace(/"/g, "'").replace(/\n/g, " ");
     const userName = session.user.name || "Usuario Anónimo";
     const userEmail = session.user.email;
@@ -243,11 +236,7 @@ async function getBasicAiConversationResponse(
       .replaceAll("{{userEmail}}", userEmail || "")
       .replaceAll("{{conversation.id}}", v4())
       .replaceAll("{{convTitle}}", convTitle)
-      .replaceAll("{{escapedMessage}}", escapedMessage)
-      .replaceAll(
-        "{{searchResults}}",
-        JSON.stringify(searchResults, null, 2) || ""
-      );
+      .replaceAll("{{escapedMessage}}", escapedMessage);
 
     // Map message history to OpenAI format
     const messageHistory: ChatCompletionMessageParam[] = messages.map(

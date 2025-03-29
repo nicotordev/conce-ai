@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import aiConstants from "@/constants/ai.constants";
 import openAIClient from "@/lib/open-ai"; // ✅ Usa OpenAI
-import { fetchGoogleViaBrightDataWithQueryEvaluation } from "@/lib/brightDataClient";
 import logger from "@/lib/consola/logger";
 import { encryptData } from "@/lib/crypto";
 import prisma from "@/lib/prisma/index.prisma";
@@ -122,12 +121,6 @@ const POST = async (
       return ApiResponse.badRequest("Invalid model id");
     }
 
-    const searchResults = await fetchGoogleViaBrightDataWithQueryEvaluation(
-      message.replace(/"/g, "'").replace(/\n/g, " "),
-      model.name,
-      conversation.messages
-    );
-
     const stream = new ReadableStream({
       async start(controller) {
         controller.enqueue(encodeSSE("start"));
@@ -144,10 +137,11 @@ const POST = async (
             .replaceAll("{{conversation.id}}", conversation.id)
             .replaceAll("{{convTitle}}", convTitle)
             .replaceAll("{{escapedMessage}}", escapedMessage)
-            .replaceAll(
-              "{{searchResults}}",
-              JSON.stringify(searchResults, null, 2) || ""
-            );
+      
+          /**
+           * Username must match '^[a-zA-Z0-9_-]+$'
+           */
+          const openAiUsername = userName.replace(/[^a-zA-Z0-9_-]/g, "");
 
           const baseMessages: ChatCompletionMessageParam[] =
             conversation.messages.map((conversation) => ({
@@ -156,7 +150,7 @@ const POST = async (
                   ? "user"
                   : "assistant",
               content: conversation.content,
-              name: userName,
+              name: openAiUsername,
             }));
 
           const completitionsBody: ChatCompletionCreateParams = {
