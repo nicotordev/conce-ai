@@ -3,65 +3,65 @@ import {
   AppConversationSkeletonProps,
 } from "@/types/app";
 import clsx from "clsx";
+import { motion } from "framer-motion";
 
 const AppConversationSkeleton = ({
   bubblesParam,
 }: AppConversationSkeletonProps) => {
   const bubbles: AppConversationSkeletonBubble[] = bubblesParam
     ? bubblesParam
-    : Array.from({ length: 5 }, (_, index) => ({
+    : (Array.from({ length: 5 }, (_, index) => ({
         sender: index % 2 === 0 ? "user" : "ia",
         lines: Math.floor(Math.random() * 3) + 1,
-      }));
+        message: index === 4 && index % 2 !== 0 ? "" : "Texto de prueba",
+      })) as AppConversationSkeletonBubble[]);
 
-  return (
-    <div className="flex flex-col gap-4 px-2 py-4">
-      {bubbles.map((bubble, index) => {
-        const isUser = bubble.sender === "user";
+  return bubbles.map((bubble, index) => {
+    const isUser = bubble.sender === "user";
 
-        return (
-          <div
-            key={index}
-            className={`flex ${
-              isUser ? "justify-end" : "justify-start"
-            }`}
-          >
+    return (
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: index * 0.1 }}
+        className={clsx("flex", {
+          "justify-end": isUser,
+          "justify-start": !isUser,
+        })}
+      >
+        {isUser ? (
+          <div className="flex justify-end px-2">
             <div
               className={clsx(
-                "w-fit max-w-[75%] animate-pulse",
-                isUser
-                  ? "bg-white dark:bg-shark-700 border border-gray-200 dark:border-shark-600 shadow-sm rounded-xl px-5 py-2.5"
-                  : "prose px-2 py-1 bg-gray-100 dark:bg-shark-800 rounded-md"
+                "bg-white dark:bg-shark-700 text-black dark:text-white px-5 py-2.5 rounded-xl border border-gray-200 dark:border-shark-600 shadow-sm max-w-[75%] break-words whitespace-pre-wrap mt-4"
               )}
             >
-              <div
-                className={clsx(
-                  "flex flex-col gap-2 text-gray-500 dark:text-shark-200",
-                  {
-                    ["blur-xs"]: Boolean(bubble.message) === false,
-                  }
-                )}
-              >
-                {bubble.message ? (
-                  bubble.message
-                ) : (
-                  <>
-                    {/* Texto de relleno para Skeleton */}
-                    {Array.from({ length: bubble.lines }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-4 bg-gray-200 rounded-md dark:bg-shark-700"
-                      />
-                    ))}
-                  </>
-                )}
-              </div>
+              {bubble.message}
             </div>
           </div>
-        );
-      })}
-    </div>
-  );
+        ) : (
+          <div className="flex items-center gap-1 px-5 py-2.5 rounded-xl bg-gray-100 dark:bg-shark-800 border border-gray-200 dark:border-shark-600 shadow-sm max-w-[75%] mt-4">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                className="w-2 h-2 rounded-full bg-gray-400"
+                animate={{
+                  opacity: [0.3, 1, 0.3],
+                  y: [0, -4, 0],
+                }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  delay: i * 0.2,
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </motion.div>
+    );
+  });
 };
 
 export default AppConversationSkeleton;

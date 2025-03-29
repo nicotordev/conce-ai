@@ -17,10 +17,10 @@ export default function AppNavModelsDropdownSkeleton() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="border-none group shadow-none">
           <Skeleton width={80} height={20} />
-          <BsChevronDown className="text-dark-text-accent group-hover:text-white ml-2" />
+          <BsChevronDown className="text-dark-text-accent group-hover:text-white ml-2 dark:text-white dark:group-hover:text-dark-text-accent" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-white">
+      <DropdownMenuContent className="w-56 bg-white dark:bg-shark-800 border border-gray-200 dark:border-shark-700">
         <DropdownMenuLabel className="flex items-center justify-between">
           Models
           <Skeleton circle width={16} height={16} />

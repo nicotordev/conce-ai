@@ -2,7 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useConceAI } from "@/providers/ConceAIProvider";
-import { AppNewConversationProps } from "@/types/app";
+import {
+  AppConversationSkeletonBubble,
+  AppNewConversationProps,
+} from "@/types/app";
 import toast from "react-hot-toast";
 import AppConversationSkeleton from "../Common/Skeletons/AppConversationSkeleton";
 import { createEmptyConversationAction } from "@/app/actions/conversations.actions";
@@ -19,6 +22,7 @@ export default function AppNewConversation({
   const { models } = useConceAI();
   const toastMessageFired = useRef(false);
   const [loading, setLoading] = useState(false);
+  const [bubbles, setBubbles] = useState<AppConversationSkeletonBubble[]>([]);
 
   useEffect(() => {
     if (state.error.length > 0 && !toastMessageFired.current) {
@@ -29,6 +33,13 @@ export default function AppNewConversation({
 
   async function handleNewMessage(message: string) {
     setLoading(true);
+    setBubbles([
+      {
+        sender: "user",
+        lines: 1,
+        message: message,
+      },
+    ]);
     const formData = new FormData();
     formData.append("modelId", models.selectedModel?.id || "");
     formData.append("message", message);
@@ -38,6 +49,18 @@ export default function AppNewConversation({
     if (success === false) {
       router.replace(redirectTo);
       setLoading(false);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setBubbles([
+        {
+          sender: "user",
+          lines: 1,
+          message: message,
+        },
+        {
+          sender: "ia",
+          lines: 3,
+        },
+      ]);
       return;
     }
 
@@ -60,20 +83,8 @@ export default function AppNewConversation({
         <div className="w-full h-full flex items-center justify-center">
           <div className="max-w-4xl mx-auto flex flex-col h-[90vh]">
             {/* Mensajes */}
-            <div className="flex-1">
-              <AppConversationSkeleton
-                bubblesParam={[
-                  {
-                    sender: "user",
-                    lines: 1,
-                    message: message,
-                  },
-                  {
-                    sender: "ia",
-                    lines: 2,
-                  },
-                ]}
-              />
+            <div className="flex-1 relative pb-24 flex-grow w-full">
+              <AppConversationSkeleton bubblesParam={bubbles} />
             </div>
             <AppChatFormSkeleton isInitialChat={false} />
           </div>
