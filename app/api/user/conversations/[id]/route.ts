@@ -100,15 +100,13 @@ const POST = async (
         },
       });
     } else {
-      if (createMessage) {
-        await prisma.message.create({
-          data: {
-            content: message,
-            sender: MessageSender.USER,
-            conversationId: id,
-          },
-        });
-      }
+      await prisma.message.create({
+        data: {
+          content: message,
+          sender: MessageSender.USER,
+          conversationId: id,
+        },
+      });
     }
 
     const model = await prisma.model.findUnique({
