@@ -207,6 +207,7 @@ export default function AppConversation({
     message,
     models.selectedModel?.id,
     sendMessage,
+    router,
   ]);
 
   return (
