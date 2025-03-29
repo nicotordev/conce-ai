@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { fetchGoogleNewsViaBrightData } from "@/lib/brightDataClient";
 import { generateNewsImage } from "@/lib/cloudfare";
 import prisma from "@/lib/prisma/index.prisma";
