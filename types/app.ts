@@ -12,7 +12,7 @@ type AppNewConversationProps = {
   suggestions: {
     label: string;
     icon: AppSuggestionIcon;
-  }[]
+  }[];
 };
 
 type AppConversationMessageType = {
@@ -40,7 +40,7 @@ type AppConversationProps = {
   suggestions: {
     label: string;
     icon: AppSuggestionIcon;
-  }[]
+  }[];
 };
 
 type AppMessageProps = {
@@ -85,7 +85,7 @@ type AppChatFormProps = {
   suggestions: {
     label: string;
     icon: AppSuggestionIcon;
-  }[]
+  }[];
   setMessage: (message: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   handleQuery?: (message: string) => void;
@@ -96,7 +96,7 @@ type AppSuggestionBarProps = {
   suggestions: {
     label: string;
     icon: AppSuggestionIcon;
-  }[]
+  }[];
 };
 
 type AppConversationItemNavEditConversationNameProps = {
@@ -120,6 +120,12 @@ type AppNavUserConfigurationModalProps = {
   setIsOpen: (isOpen: boolean) => void;
 };
 
+type AppConversationState = {
+  conversationId: string;
+  message: string;
+  create: boolean;
+};
+
 export type {
   AppConversationType,
   AppNewConversationProps,
@@ -137,4 +143,5 @@ export type {
   AppConversationItemNavEditConversationNameProps,
   AppNavUserConfigurationModalProps,
   AppNavUserConfigurationModalPropsTab,
+  AppConversationState,
 };

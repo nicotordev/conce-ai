@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useConceAI } from "@/providers/ConceAIProvider";
 import { AppNewConversationProps } from "@/types/app";
 import toast from "react-hot-toast";
-import AppConversation from "./AppConversation";
-import { v4 } from "uuid";
 import AppConversationSkeleton from "../Common/Skeletons/AppConversationSkeleton";
 import { createEmptyConversationAction } from "@/app/actions/conversations.actions";
 import { useRouter } from "next/navigation";
@@ -14,16 +12,13 @@ import AppChatFormSkeleton from "../Common/Skeletons/AppChatFormSkeleton";
 
 export default function AppNewConversation({
   state,
-  session,
   suggestions,
 }: AppNewConversationProps) {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const { models } = useConceAI();
-  const [showConversation, setShowConversation] = useState(false);
   const toastMessageFired = useRef(false);
   const [loading, setLoading] = useState(false);
-  const [conversationId, setConversationId] = useState("");
 
   useEffect(() => {
     if (state.error.length > 0 && !toastMessageFired.current) {
@@ -37,7 +32,7 @@ export default function AppNewConversation({
     const formData = new FormData();
     formData.append("modelId", models.selectedModel?.id || "");
     formData.append("message", message);
-    const { conversationId, success, redirectTo } =
+    const { conversationId, success, redirectTo, state } =
       await createEmptyConversationAction(formData);
 
     if (success === false) {
@@ -47,11 +42,7 @@ export default function AppNewConversation({
     }
 
     if (conversationId) {
-      router.replace(`/app/${conversationId}`);
-      setConversationId(conversationId);
-      setShowConversation(true);
-      setLoading(false);
-      return;
+      return router.push(`/app/${conversationId}?state=${state}`);
     }
 
     setLoading(false);
@@ -87,33 +78,6 @@ export default function AppNewConversation({
             <AppChatFormSkeleton isInitialChat={false} />
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (showConversation) {
-    return (
-      <div className="w-full h-full">
-        <AppConversation
-          conversation={{
-            id: conversationId,
-            title: message,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            messages: [
-              {
-                id: v4(),
-                content: message,
-                sender: "USER",
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              },
-            ],
-          }}
-          session={session}
-          currentQuery={message}
-          suggestions={suggestions}
-        />
       </div>
     );
   }

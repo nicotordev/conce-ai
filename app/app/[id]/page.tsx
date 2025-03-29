@@ -1,14 +1,24 @@
 import { auth } from "@/auth";
 import AppConversation from "@/components/App/AppConversation";
+import { decryptData } from "@/lib/crypto";
 import prisma from "@/lib/prisma/index.prisma";
-import { AppConversationType } from "@/types/app";
+import { AppConversationState, AppConversationType } from "@/types/app";
 import { PagePropsCommon } from "@/types/pages";
 import { getAppSuggestionsForBar } from "@/utils/openai.utils";
 import transformObjectForSerialization from "@/utils/serialization.utils";
 import { notFound } from "next/navigation";
 
 export default async function Conversation(props: PagePropsCommon) {
-  const [{ id }, session] = await Promise.all([props.params, auth()]);
+  const [{ id }, session, _searchParams] = await Promise.all([
+    props.params,
+    auth(),
+    props.params,
+  ]);
+
+  const state: AppConversationState | null =
+    typeof _searchParams.state === "string"
+      ? decryptData<AppConversationState>(_searchParams.state)
+      : null;
 
   if (!session || !session.user.id) {
     notFound();
@@ -65,7 +75,7 @@ export default async function Conversation(props: PagePropsCommon) {
       <AppConversation
         conversation={conversationDTO}
         session={session}
-        currentQuery={null}
+        currentQuery={state?.message || null}
         suggestions={mappedSuggestions}
       />
     </div>

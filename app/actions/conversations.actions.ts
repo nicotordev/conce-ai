@@ -6,6 +6,7 @@ import logger from "@/lib/consola/logger";
 import { encryptData } from "@/lib/crypto";
 import prisma from "@/lib/prisma/index.prisma";
 import { createConversation } from "@/utils/conversations.utils";
+import { generateConversationTitle } from "@/utils/openai.utils";
 
 async function createConversationAction(formData: FormData) {
   const session = await auth();
@@ -104,19 +105,15 @@ async function createEmptyConversationAction(formData: FormData) {
     };
   }
 
+  const title = await generateConversationTitle(message);
+
   try {
     const newConversation = await prisma.conversation.create({
       data: {
-        title: "New Conversation",
+        title: title,
         user: {
           connect: {
             id: session.user.id,
-          },
-        },
-        messages: {
-          create: {
-            content: message,
-            sender: "USER",
           },
         },
       },
@@ -137,6 +134,11 @@ async function createEmptyConversationAction(formData: FormData) {
       success: true,
       redirectTo: `/app/${newConversation.id}`,
       conversationId: newConversation.id,
+      state: encryptData({
+        conversationId: newConversation.id,
+        message: message,
+        create: true,
+      }),
     };
   } catch (err) {
     logger.error("[ACTIONS-CREATE-CONVERSATION]", err);
