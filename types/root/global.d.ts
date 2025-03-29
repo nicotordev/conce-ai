@@ -33,6 +33,7 @@ declare global {
       MAIN_PROMPT: string;
       VERIFY_TITLE_NAME_PROMPT: string;
       SUGGESTIONS_PROMPT: string;
+      APP_IDEAS_PROMPT: string;
     }
   }
 
